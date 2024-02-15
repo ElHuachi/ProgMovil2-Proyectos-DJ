@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
 
     @Preview(showBackground = true, showSystemUi = true)
     @Composable
-    fun LoginScreen() {
+    fun LoginScreen(){
         val context = LocalContext.current
 
         var user by remember { mutableStateOf("") }
@@ -94,10 +94,9 @@ class MainActivity : ComponentActivity() {
             mutableStateOf(false)
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFb5e48c))
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFb5e48c))
         ) {
             Column(
                 Modifier
@@ -145,18 +144,16 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun RowImage() {
+    fun RowImage(){
         Row(
             Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            Image(
-                modifier = Modifier.width(100.dp),
+            Image(modifier = Modifier.width(100.dp),
                 painter = painterResource(id = R.drawable.logoitsur_removebg_preview),
-                contentDescription = "Imagen de Login"
-            )
+                contentDescription = "Imagen de Login")
 
         }
     }
@@ -167,9 +164,9 @@ class MainActivity : ComponentActivity() {
         pass: String,
         passChange: (String) -> Unit,
         passVisible: Boolean,
-        passVisibleChange: () -> Unit,
-        isValidPass: Boolean
-    ) {
+        passVisibleChange : () -> Unit,
+        isValidPass : Boolean
+    ){
         Row(
             Modifier
                 .fillMaxWidth()
@@ -189,7 +186,7 @@ class MainActivity : ComponentActivity() {
                     } else {
                         Icons.Filled.Visibility
                     }
-                    IconButton(onClick = { passVisibleChange() }) {
+                    IconButton(onClick = { passVisibleChange() }){
                         Icon(imageVector = image, contentDescription = "Ver contraseña")
                     }
                 },
@@ -211,16 +208,15 @@ class MainActivity : ComponentActivity() {
     fun RowUser(
         user: String,
         userChange: (String) -> Unit,
-        isValidUser: Boolean
-    ) {
+        isValidUser : Boolean
+    ){
         Row(
             Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            OutlinedTextField(
-                value = user, onValueChange = userChange,
+            OutlinedTextField(value = user, onValueChange = userChange,
                 label = { Text("Usuario") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 maxLines = 1,
@@ -247,26 +243,51 @@ class MainActivity : ComponentActivity() {
         isValidPass: Boolean,
         nControl: String,
         password: String
-    ) {
+    ){
         Row(
             Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(
-                modifier = Modifier.fillMaxWidth(),
+            Button(modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     login(context)
                 },
-                enabled = isValidUser && isValidPass
-            ) {
+                enabled = isValidUser && isValidPass) {
                 Text("Iniciar Sesión")
             }
         }
     }
 
-    fun login(context: Context) {
+    fun login(context: Context){
         Toast.makeText(context, "Iniciando sesión", Toast.LENGTH_SHORT).show()
     }
+
+    private fun loginRequestBody(matricula: String, contrasenia: String): RequestBody {
+        return RequestBody.create(
+            "text/xml".toMediaTypeOrNull(), """
+            <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+              <soap:Body>
+                <accesoLogin xmlns="http://tempuri.org/">
+                  <strMatricula>$matricula</strMatricula>
+                  <strContrasenia>$contrasenia</strContrasenia>
+                  <tipoUsuario>ALUMNO</tipoUsuario>
+                </accesoLogin>
+              </soap:Body>
+            </soap:Envelope>
+        """.trimIndent())
+    }
+
+    private fun profileRequestBody(): RequestBody {
+        return RequestBody.create(
+            "text/xml".toMediaTypeOrNull(), """
+            <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+              <soap:Body>
+                <getAlumnoAcademicoWithLineamiento xmlns="http://tempuri.org/" />
+              </soap:Body>
+            </soap:Envelope>
+        """.trimIndent())
+    }
+
 }
