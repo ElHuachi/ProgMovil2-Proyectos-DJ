@@ -54,6 +54,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
 import okhttp3.RequestBody
 import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserFactory
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -253,6 +254,7 @@ class MainActivity : ComponentActivity() {
             Button(modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     login(context)
+                    authenticate(nControl, password)
                 },
                 enabled = isValidUser && isValidPass) {
                 Text("Iniciar Sesión")
@@ -262,6 +264,117 @@ class MainActivity : ComponentActivity() {
 
     fun login(context: Context){
         Toast.makeText(context, "Iniciando sesión", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun authenticate(matricula: String, contrasenia: String) {
+        val bodyLogin = loginRequestBody(matricula, contrasenia)
+        val service = RetrofitClient.service
+        service.login(bodyLogin).enqueue(object : Callback<String> {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    val xmlPullParserFactory = XmlPullParserFactory.newInstance()
+                    val xmlPullParser = xmlPullParserFactory.newPullParser()
+                    xmlPullParser.setInput(StringReader(responseBody))
+                    var eventType = xmlPullParser.eventType
+                    while (eventType != XmlPullParser.END_DOCUMENT) {
+                        if (eventType == XmlPullParser.START_TAG && xmlPullParser.name == "accesoLoginResult") {
+                            val loginResult = xmlPullParser.nextText()
+                            if (loginResult.isEmpty() || loginResult==null) {
+                                showError("Error en la autenticación")
+                                return
+                            }
+                        }
+                        eventType = xmlPullParser.next()
+                    }
+                    val cookieHeader = response.headers()["Set-Cookie"]
+                    if (cookieHeader != null) {
+                        val cookie = cookieHeader.split(";")[0]
+                        getAcademicProfile(cookieHeader)
+                        Log.w("exito","se obtuvo la cookie")
+                        Log.w("cookie",cookieHeader)
+                        Log.w("matricula",matricula)
+                        Log.w("contrasenia",contrasenia)
+                    } else {
+                        showError("Error: No se recibió la cookie de sesión")
+                    }
+                } else {
+                    showError("Error en la autenticación")
+                }
+            }
+
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                t.printStackTrace()
+                showError("Error en la solicitud")
+            }
+        })
+    }
+
+    private fun getAcademicProfile(cookie: String) {
+        val bodyProfile = profileRequestBody()
+
+        val service = RetrofitClient.service
+
+        // Agregar los encabezados a la solicitud
+        val url = "http://sicenet.surguanajuato.tecnm.mx/ws/wsalumnos.asmx"
+        val soapAction = "http://tempuri.org/getAlumnoAcademicoWithLineamiento"
+
+        val request = Request.Builder()
+            .url(url)
+            .post(bodyProfile)
+            .addHeader("Content-Type", "text/xml; charset=utf-8")
+            .addHeader("SOAPAction", soapAction)
+            .addHeader("Set-Cookie", cookie)
+            .build()
+
+        service.getAcademicProfile(request).enqueue(object : Callback<String> {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    val result = parseXmlResponse(responseBody)
+                    println(result)
+                    Log.w("exito", "se obtuvo el perfil")
+                    Log.w("perfil", result ?: "El resultado es nulo o no se pudo obtener")
+                } else {
+                    showError("Error al obtener el perfil académico")
+                }
+            }
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                t.printStackTrace()
+                showError("Error en la solicitud")
+            }
+        })
+    }
+
+
+    fun parseXmlResponse(xmlString: String?): String? {
+        var result: String? = null
+
+        try {
+            val parser: XmlPullParser = Xml.newPullParser()
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+            parser.setInput(StringReader(xmlString))
+
+            var eventType = parser.eventType
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                when (eventType) {
+                    XmlPullParser.START_TAG -> {
+                        val tagName = parser.name
+                        if (tagName == "getAlumnoAcademicoWithLineamientoResult") {
+                            parser.next()
+                            result = parser.text
+                        }
+                    }
+                }
+                eventType = parser.next()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return result
     }
 
     private fun loginRequestBody(matricula: String, contrasenia: String): RequestBody {
@@ -290,4 +403,7 @@ class MainActivity : ComponentActivity() {
         """.trimIndent())
     }
 
+    private fun showError(message: String) {
+        Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+    }
 }
