@@ -45,7 +45,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.login_sicenet.R
 import com.example.login_sicenet.data.RetrofitClient
+import com.example.login_sicenet.model.AccessLoginResponse
 import com.example.login_sicenet.navigation.AppScreens
+import kotlinx.serialization.json.Json
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import retrofit2.Call
@@ -55,9 +57,11 @@ import retrofit2.Response
 import okhttp3.RequestBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
+import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import java.io.StringReader
 
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun LoginScreen(navController: NavController){
     val context = LocalContext.current
@@ -237,6 +241,7 @@ fun RowButtonLogin(
             onClick = {
                     login(context)
                     authenticate(context, nControl, password)
+                //DataScreen(navController = navController)
             },
             enabled = isValidUser && isValidPass) {
             Text("Iniciar Sesión")
@@ -251,32 +256,47 @@ fun login(context: Context){
 private fun authenticate(context: Context, matricula: String, contrasenia: String) {
     val bodyLogin = loginRequestBody(matricula, contrasenia)
     val service = RetrofitClient.service
-    service.login(bodyLogin).enqueue(object : Callback<String> {
-        override fun onResponse(call: Call<String>, response: Response<String>) {
+
+    // Obtener la URL de la solicitud antes de realizarla
+    val request = service.login(bodyLogin).request()
+    val url = request.url.toString()
+
+    Log.w("url",url)
+
+    // Imprimir todos los encabezados de la solicitud
+    val headers = request.headers
+    for (i in 0 until headers.size) {
+        val name = headers.name(i)
+        val value = headers.value(i)
+        Log.d("Solicitud", "Header: $name: $value")
+    }
+
+    service.login(bodyLogin).enqueue(object : Callback<ResponseBody> {
+        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
             if (response.isSuccessful) {
-                val responseBody = response.body()
-                val xmlPullParserFactory = XmlPullParserFactory.newInstance()
-                val xmlPullParser = xmlPullParserFactory.newPullParser()
-                xmlPullParser.setInput(StringReader(responseBody))
-                var eventType = xmlPullParser.eventType
-                while (eventType != XmlPullParser.END_DOCUMENT) {
-                    if (eventType == XmlPullParser.START_TAG && xmlPullParser.name == "accesoLoginResult") {
-                        val loginResult = xmlPullParser.nextText()
-                        if (loginResult.isEmpty() || loginResult==null) {
-                            showError(context, "Error en la autenticación")
-                            return
-                        }
-                    }
-                    eventType = xmlPullParser.next()
+                val responseBodyString = response.body()?.string()
+                Log.w("Respuesta exitosa", responseBodyString ?: "Cuerpo de respuesta vacío")
+
+                // Deserializar la respuesta JSON
+                val json = Json { ignoreUnknownKeys = true } // Configuración opcional según tus necesidades
+
+                try {
+                    val accessLoginResponse = json.decodeFromString<AccessLoginResponse>(responseBodyString ?: "")
+                    // Aquí puedes manejar el objeto deserializado según tus necesidades
+                    Log.w("Objeto deserializado", accessLoginResponse.toString())
+                } catch (e: Exception) {
+                    // Manejar errores de deserialización
+                    e.printStackTrace()
                 }
+
                 val cookieHeader = response.headers()["Set-Cookie"]
                 if (cookieHeader != null) {
                     val cookie = cookieHeader.split(";")[0]
                     getAcademicProfile(context, cookieHeader)
-                    Log.w("exito","se obtuvo la cookie")
-                    Log.w("cookie",cookieHeader)
-                    Log.w("matricula",matricula)
-                    Log.w("contrasenia",contrasenia)
+                    Log.w("éxito", "se obtuvo la cookie")
+                    Log.w("cookie", cookieHeader)
+                    Log.w("matricula", matricula)
+                    Log.w("contrasenia", contrasenia)
                 } else {
                     showError(context, "Error: No se recibió la cookie de sesión")
                 }
@@ -285,13 +305,13 @@ private fun authenticate(context: Context, matricula: String, contrasenia: Strin
             }
         }
 
-
-        override fun onFailure(call: Call<String>, t: Throwable) {
+        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
             t.printStackTrace()
             showError(context, "Error en la solicitud")
         }
     })
 }
+
 
 private fun getAcademicProfile(context: Context,cookie: String) {
     val bodyProfile = profileRequestBody()
@@ -310,20 +330,20 @@ private fun getAcademicProfile(context: Context,cookie: String) {
         .addHeader("Set-Cookie", cookie)
         .build()
 
-    service.getAcademicProfile(request).enqueue(object : Callback<String> {
-        override fun onResponse(call: Call<String>, response: Response<String>) {
+    service.getAcademicProfile(request).enqueue(object : Callback<ResponseBody> {
+        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
             if (response.isSuccessful) {
                 val responseBody = response.body()
-                val result = parseXmlResponse(responseBody)
-                println(result)
+                //val result = parseXmlResponse(responseBody)
+                //println(result)
                 Log.w("exito", "se obtuvo el perfil")
-                Log.w("perfil", result ?: "El resultado es nulo o no se pudo obtener")
+                //Log.w("perfil", result ?: "El resultado es nulo o no se pudo obtener")
             } else {
                 showError(context, "Error al obtener el perfil académico")
             }
         }
 
-        override fun onFailure(call: Call<String>, t: Throwable) {
+        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
             t.printStackTrace()
             showError(context,"Error en la solicitud")
         }
@@ -360,29 +380,27 @@ fun parseXmlResponse(xmlString: String?): String? {
 }
 
 private fun loginRequestBody(matricula: String, contrasenia: String): RequestBody {
-    return RequestBody.create(
-        "text/xml".toMediaTypeOrNull(), """
-            <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-              <soap:Body>
-                <accesoLogin xmlns="http://tempuri.org/">
-                  <strMatricula>$matricula</strMatricula>
-                  <strContrasenia>$contrasenia</strContrasenia>
-                  <tipoUsuario>ALUMNO</tipoUsuario>
-                </accesoLogin>
-              </soap:Body>
-            </soap:Envelope>
-        """.trimIndent())
+    return """
+        <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+          <soap:Body>
+            <accesoLogin xmlns="http://tempuri.org/">
+              <strMatricula>$matricula</strMatricula>
+              <strContrasenia>$contrasenia</strContrasenia>
+              <tipoUsuario>ALUMNO</tipoUsuario>
+            </accesoLogin>
+          </soap:Body>
+        </soap:Envelope>
+    """.trimIndent().toRequestBody("text/xml; charset=utf-8".toMediaTypeOrNull())
 }
 
-private fun profileRequestBody(): RequestBody {
-    return RequestBody.create(
-        "text/xml".toMediaTypeOrNull(), """
-            <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-              <soap:Body>
-                <getAlumnoAcademicoWithLineamiento xmlns="http://tempuri.org/" />
-              </soap:Body>
-            </soap:Envelope>
-        """.trimIndent())
+public fun profileRequestBody(): RequestBody {
+    return """
+        <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+          <soap:Body>
+            <getAlumnoAcademicoWithLineamiento xmlns="http://tempuri.org/" />
+          </soap:Body>
+        </soap:Envelope>
+    """.trimIndent().toRequestBody("text/xml; charset=utf-8".toMediaTypeOrNull())
 }
 
 private fun showError(context: Context, message: String) {
