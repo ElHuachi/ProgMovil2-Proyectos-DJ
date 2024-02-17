@@ -1,5 +1,7 @@
 package com.example.login_sicenet.network
 
+import com.example.login_sicenet.model.Envelope
+import com.example.login_sicenet.model.GetAlumnoAcademicoWithLineamientoResponse
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -20,5 +22,5 @@ interface LoginSICEApiService {
         "SOAPAction: http://tempuri.org/getAlumnoAcademicoWithLineamiento"
     )
     @POST("/ws/wsalumnos.asmx")
-    fun getAcademicProfile(@Body body: RequestBody): Call<ResponseBody>
+    fun getAcademicProfile(@Body body: RequestBody): Call<Envelope>
 }

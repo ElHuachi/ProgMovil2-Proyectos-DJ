@@ -5,20 +5,22 @@ import kotlinx.serialization.Serializable
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.Root
 
-@Root(name = "Envelope")
-data class AlumnoAcademicoWithLineamiento(
-    @field:Element(name = "Body")
-    var body: SoapBodyAlumno? = null
+@Root(name = "Envelope", strict = false)
+data class Envelope @JvmOverloads constructor(
+    @field:Element(name = "Body", required = false)
+    var body: Body = Body()
 )
 
-data class SoapBodyAlumno(
+@Root(name = "Body", strict = false)
+data class Body @JvmOverloads constructor(
     @field:Element(name = "getAlumnoAcademicoWithLineamientoResponse", required = false)
-    var alumnoResponse: getAlumnoAcademicoWithLineamientoResponse
+    var getAlumnoAcademicoWithLineamientoResponse: GetAlumnoAcademicoWithLineamientoResponse = GetAlumnoAcademicoWithLineamientoResponse()
 )
 
-data class getAlumnoAcademicoWithLineamientoResponse(
+@Root(name = "getAlumnoAcademicoWithLineamientoResponse", strict = false)
+data class GetAlumnoAcademicoWithLineamientoResponse @JvmOverloads constructor(
     @field:Element(name = "getAlumnoAcademicoWithLineamientoResult", required = false)
-    var alumnoResult: String? = null
+    var getAlumnoAcademicoWithLineamientoResult: String = ""
 )
 
 @Serializable

@@ -47,7 +47,8 @@ import com.example.login_sicenet.R
 import com.example.login_sicenet.data.RetrofitClient
 import com.example.login_sicenet.model.AccessLoginResponse
 import com.example.login_sicenet.model.AlumnoAcademicoResult
-import com.example.login_sicenet.model.AlumnoAcademicoWithLineamiento
+import com.example.login_sicenet.model.Envelope
+import com.example.login_sicenet.model.GetAlumnoAcademicoWithLineamientoResponse
 import com.example.login_sicenet.model.LoginResult
 import com.example.login_sicenet.navigation.AppScreens
 import com.example.login_sicenet.network.LoginSICEApiService
@@ -245,8 +246,8 @@ fun RowButtonLogin(
         Button(modifier = Modifier.fillMaxWidth(),
             onClick = {
                     login(context)
-                    authenticate(context, nControl, password)
-                //DataScreen(navController = navController)
+                    authenticate(context, nControl, password, navController)
+                    //navController.navigate("data")
             },
             enabled = isValidUser && isValidPass) {
             Text("Iniciar Sesión")
@@ -258,14 +259,14 @@ fun login(context: Context){
     Toast.makeText(context, "Iniciando sesión", Toast.LENGTH_SHORT).show()
 }
 
-private fun authenticate(context: Context, matricula: String, contrasenia: String) {
+private fun authenticate(context: Context, matricula: String, contrasenia: String, navController: NavController) {
     val bodyLogin = loginRequestBody(matricula, contrasenia)
     val service = RetrofitClient(context).retrofitService
     service.login(bodyLogin).enqueue(object : Callback<ResponseBody>{
         override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>){
             if (response.isSuccessful) {
                 Log.w("exito", "se obtuvo el perfil")
-                getAcademicProfile(context)
+                getAcademicProfile(context, navController)
             } else {
                 showError(context, "Error en la autenticación. Código de respuesta: ${response.code()}")
             }
@@ -277,23 +278,33 @@ private fun authenticate(context: Context, matricula: String, contrasenia: Strin
     })
 }
 
-private fun getAcademicProfile(context: Context) {
+private fun getAcademicProfile(context: Context, navController: NavController) {
     val service = RetrofitClient(context).retrofitService
     val bodyProfile = profileRequestBody()
-    service.getAcademicProfile(bodyProfile).enqueue(object : Callback<ResponseBody> {
-        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+    service.getAcademicProfile(bodyProfile).enqueue(object : Callback<Envelope> {
+        override fun onResponse(call: Call<Envelope>, response: Response<Envelope>) {
             if (response.isSuccessful) {
-                Log.w("exito", "se obtuvo el perfil 2")
+                val envelope = response.body()
+                val alumnoResultJson: String? = envelope?.body?.getAlumnoAcademicoWithLineamientoResponse?.getAlumnoAcademicoWithLineamientoResult
+
+                // Deserializa la cadena JSON a AlumnoAcademicoResult
+                val json = Json { ignoreUnknownKeys = true }
+                val alumnoAcademicoResult: AlumnoAcademicoResult? = alumnoResultJson?.let { json.decodeFromString(it) }
+                
+                Log.w("exito", "se obtuvo el perfil 2: $alumnoAcademicoResult")
+                navController.navigate("data")
             } else {
                 showError(context, "Error al obtener el perfil académico. Código de respuesta: ${response.code()}")
             }
         }
-        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+        override fun onFailure(call: Call<Envelope>, t: Throwable) {
             t.printStackTrace()
             showError(context, "Error en la solicitud del perfil académico")
         }
     })
 }
+
+
 
 
 private fun loginRequestBody(matricula: String, contrasenia: String): RequestBody {

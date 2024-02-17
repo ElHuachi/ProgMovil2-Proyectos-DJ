@@ -11,8 +11,10 @@ import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
+import org.simpleframework.xml.convert.AnnotationStrategy
+import org.simpleframework.xml.core.Persister
 import retrofit2.Retrofit
-
+import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 
 class RetrofitClient(context: Context) {
 
@@ -35,17 +37,17 @@ class RetrofitClient(context: Context) {
             Log.d("Solicitud", "Método: ${request.method}")
             Log.d("Solicitud", "Cuerpo: ${request.body}")
             val response = chain.proceed(request)
-            val responseBody = response.body?.string() // Almacenamos el cuerpo de la respuesta en una variable
+            val responseBody = response.body?.string()
             Log.d("Respuesta", "Código: ${response.code}")
-            Log.d("Respuesta", "Cuerpo: $responseBody") // Usamos la variable en lugar de llamar a response.body?.string() de nuevo
+            Log.d("Respuesta", "Cuerpo: $responseBody")
             response.newBuilder()
                 .body(responseBody?.toResponseBody(response.body?.contentType()))
                 .build()
         }
     }
-    
+
     private val retrofit: Retrofit = Retrofit.Builder()
-        .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+        .addConverterFactory(SimpleXmlConverterFactory.createNonStrict(Persister(AnnotationStrategy())))
         .client(client)
         .baseUrl(BASE_URL)
         .build()
