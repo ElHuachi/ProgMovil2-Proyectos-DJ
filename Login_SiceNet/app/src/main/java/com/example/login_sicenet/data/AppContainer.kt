@@ -10,6 +10,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Retrofit
 
 
@@ -34,12 +35,15 @@ class RetrofitClient(context: Context) {
             Log.d("Solicitud", "Método: ${request.method}")
             Log.d("Solicitud", "Cuerpo: ${request.body}")
             val response = chain.proceed(request)
+            val responseBody = response.body?.string() // Almacenamos el cuerpo de la respuesta en una variable
             Log.d("Respuesta", "Código: ${response.code}")
-            Log.d("Respuesta", "Cuerpo: ${response.body?.string()}")
-            response
+            Log.d("Respuesta", "Cuerpo: $responseBody") // Usamos la variable en lugar de llamar a response.body?.string() de nuevo
+            response.newBuilder()
+                .body(responseBody?.toResponseBody(response.body?.contentType()))
+                .build()
         }
     }
-
+    
     private val retrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
         .client(client)

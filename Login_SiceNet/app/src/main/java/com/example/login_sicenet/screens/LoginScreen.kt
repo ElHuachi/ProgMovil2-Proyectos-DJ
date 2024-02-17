@@ -46,6 +46,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.login_sicenet.R
 import com.example.login_sicenet.data.RetrofitClient
 import com.example.login_sicenet.model.AccessLoginResponse
+import com.example.login_sicenet.model.AlumnoAcademicoResult
+import com.example.login_sicenet.model.AlumnoAcademicoWithLineamiento
 import com.example.login_sicenet.model.LoginResult
 import com.example.login_sicenet.navigation.AppScreens
 import com.example.login_sicenet.network.LoginSICEApiService
@@ -62,6 +64,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import java.io.IOException
 import java.io.StringReader
 
 @Composable
@@ -258,48 +261,40 @@ fun login(context: Context){
 private fun authenticate(context: Context, matricula: String, contrasenia: String) {
     val bodyLogin = loginRequestBody(matricula, contrasenia)
     val service = RetrofitClient(context).retrofitService
-
     service.login(bodyLogin).enqueue(object : Callback<ResponseBody>{
         override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>){
             if (response.isSuccessful) {
-
-                // Obtener la cadena de respuesta completa
-                val responseBodyString = response.body()?.toString()
-
-                // Imprimir la cadena de respuesta en el log
-                Log.w("Respuesta completa", responseBodyString ?: "Cuerpo de respuesta vacío")
-
-                // Deserializar la respuesta JSON
-                val json = Json { ignoreUnknownKeys = true } // Configuración opcional según tus necesidades
-
-                try {
-                    val accessLoginResponse = json.decodeFromString<AccessLoginResponse>(responseBodyString ?: "")
-                    // Aquí puedes manejar el objeto deserializado según tus necesidades
-                    Log.w("Objeto deserializado", accessLoginResponse.toString())
-
-                    val accessResultJson: String? = accessLoginResponse.body?.accesoLoginResponse?.accesoLoginResult
-                    if (!accessResultJson.isNullOrBlank()) {
-                        val accessResult: LoginResult = json.decodeFromString(accessResultJson)
-
-                    } else {
-                        showError(context, "Error: La cadena JSON de accesoLoginResult está vacía o nula")
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    showError(context, "Error en la deserialización de la respuesta")
-                }
-
+                Log.w("exito", "se obtuvo el perfil")
+                getAcademicProfile(context)
             } else {
                 showError(context, "Error en la autenticación. Código de respuesta: ${response.code()}")
             }
         }
-
         override fun onFailure(call: Call<ResponseBody>, t: Throwable){
             t.printStackTrace()
             showError(context, "Error en la solicitud")
         }
     })
 }
+
+private fun getAcademicProfile(context: Context) {
+    val service = RetrofitClient(context).retrofitService
+    val bodyProfile = profileRequestBody()
+    service.getAcademicProfile(bodyProfile).enqueue(object : Callback<ResponseBody> {
+        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+            if (response.isSuccessful) {
+                Log.w("exito", "se obtuvo el perfil 2")
+            } else {
+                showError(context, "Error al obtener el perfil académico. Código de respuesta: ${response.code()}")
+            }
+        }
+        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+            t.printStackTrace()
+            showError(context, "Error en la solicitud del perfil académico")
+        }
+    })
+}
+
 
 private fun loginRequestBody(matricula: String, contrasenia: String): RequestBody {
     return """
