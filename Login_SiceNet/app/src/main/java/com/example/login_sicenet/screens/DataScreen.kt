@@ -22,42 +22,56 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.login_sicenet.R
+import com.example.login_sicenet.model.AlumnoAcademicoResult
 import com.example.login_sicenet.navigation.AppScreens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun DataScreen(navController: NavController) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "SiceNet Data Screen")
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    Box(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .clickable { /* Agregar lógica si se desea hacer clic en el logo */ }
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.logoitsur_removebg_preview),
-                            contentDescription = "SiceNet Logo",
-                            modifier = Modifier
-                                .size(40.dp)
-                        )
-                    }
-                }
-            )
+fun DataScreen(navController: NavController, viewModel: DataViewModel) {
+//    Scaffold(
+//        topBar = {
+//            TopAppBar(
+//                title = {
+//                    Text(text = "SiceNet Data Screen")
+//                },
+//                navigationIcon = {
+//                    IconButton(onClick = { navController.popBackStack() }) {
+//                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+//                    }
+//                },
+//                actions = {
+//                    Box(
+//                        modifier = Modifier
+//                            .padding(8.dp)
+//                            .clickable { /* Agregar lógica si se desea hacer clic en el logo */ }
+//                    ) {
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.logoitsur_removebg_preview),
+//                            contentDescription = "SiceNet Logo",
+//                            modifier = Modifier
+//                                .size(40.dp)
+//                        )
+//                    }
+//                }
+//            )
+//        }
+//    ) {
+        //BodyContent(navController)
+        val alumnoAcademicoResult = viewModel.alumnoAcademicoResult
+        // Verifica si alumnoAcademicoResult es null
+        if (alumnoAcademicoResult != null) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = "Nombre: ${alumnoAcademicoResult.nombre}")
+                Text(text = "Matrícula: ${alumnoAcademicoResult.matricula}")
+                Text(text = "Carrera: ${alumnoAcademicoResult.carrera}")
+                // Agrega más campos aquí
+            }
+        } else {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = "No se pudo obtener el perfil académico.")
+            }
         }
-    ) {
-        BodyContent(navController)
-    }
 }
 
 

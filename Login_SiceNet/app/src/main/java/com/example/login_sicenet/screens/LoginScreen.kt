@@ -2,7 +2,6 @@ package com.example.login_sicenet.screens
 
 import android.content.Context
 import android.util.Log
-import android.util.Xml
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -52,6 +51,7 @@ import com.example.login_sicenet.model.GetAlumnoAcademicoWithLineamientoResponse
 import com.example.login_sicenet.model.LoginResult
 import com.example.login_sicenet.navigation.AppScreens
 import com.example.login_sicenet.network.LoginSICEApiService
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
@@ -69,7 +69,7 @@ import java.io.IOException
 import java.io.StringReader
 
 @Composable
-fun LoginScreen(navController: NavController){
+fun LoginScreen(navController: NavController, viewModel: DataViewModel){
     val context = LocalContext.current
     var user by remember { mutableStateOf("") }
     var pass by remember {
@@ -127,7 +127,8 @@ fun LoginScreen(navController: NavController){
                         isValidPass = isValidPass,
                         nControl = user,
                         password = pass,
-                        navController = navController
+                        navController = navController,
+                        viewModel = viewModel
                     )
                 }
             }
@@ -235,7 +236,8 @@ fun RowButtonLogin(
     isValidPass: Boolean,
     nControl: String,
     password: String,
-    navController: NavController
+    navController: NavController,
+    viewModel: DataViewModel
 ){
     Row(
         Modifier
@@ -246,7 +248,7 @@ fun RowButtonLogin(
         Button(modifier = Modifier.fillMaxWidth(),
             onClick = {
                     login(context)
-                    authenticate(context, nControl, password, navController)
+                    authenticate(context, nControl, password, navController, viewModel)
                     //navController.navigate("data")
             },
             enabled = isValidUser && isValidPass) {
@@ -259,14 +261,14 @@ fun login(context: Context){
     Toast.makeText(context, "Iniciando sesión", Toast.LENGTH_SHORT).show()
 }
 
-private fun authenticate(context: Context, matricula: String, contrasenia: String, navController: NavController) {
+private fun authenticate(context: Context, matricula: String, contrasenia: String, navController: NavController , viewModel: DataViewModel) {
     val bodyLogin = loginRequestBody(matricula, contrasenia)
     val service = RetrofitClient(context).retrofitService
     service.login(bodyLogin).enqueue(object : Callback<ResponseBody>{
         override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>){
             if (response.isSuccessful) {
                 Log.w("exito", "se obtuvo el perfil")
-                getAcademicProfile(context, navController)
+                getAcademicProfile(context, navController,viewModel)
             } else {
                 showError(context, "Error en la autenticación. Código de respuesta: ${response.code()}")
             }
@@ -278,7 +280,7 @@ private fun authenticate(context: Context, matricula: String, contrasenia: Strin
     })
 }
 
-private fun getAcademicProfile(context: Context, navController: NavController) {
+private fun getAcademicProfile(context: Context, navController: NavController, viewModel: DataViewModel) {
     val service = RetrofitClient(context).retrofitService
     val bodyProfile = profileRequestBody()
     service.getAcademicProfile(bodyProfile).enqueue(object : Callback<Envelope> {
@@ -290,8 +292,10 @@ private fun getAcademicProfile(context: Context, navController: NavController) {
                 // Deserializa la cadena JSON a AlumnoAcademicoResult
                 val json = Json { ignoreUnknownKeys = true }
                 val alumnoAcademicoResult: AlumnoAcademicoResult? = alumnoResultJson?.let { json.decodeFromString(it) }
-                
-                Log.w("exito", "se obtuvo el perfil 2: $alumnoAcademicoResult")
+
+                Log.w("exito", "se obtuvo el perfil 2: ${alumnoAcademicoResult}")
+                val alumnoAcademicoResultJson = Json.encodeToString(alumnoAcademicoResult)
+                viewModel.alumnoAcademicoResult=alumnoAcademicoResult
                 navController.navigate("data")
             } else {
                 showError(context, "Error al obtener el perfil académico. Código de respuesta: ${response.code()}")

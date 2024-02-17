@@ -5,13 +5,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.login_sicenet.screens.DataScreen
+import com.example.login_sicenet.screens.DataViewModel
 import com.example.login_sicenet.screens.LoginScreen
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val viewModel = DataViewModel()
     NavHost(navController, startDestination = "login") {
-        composable("login") { LoginScreen(navController = navController) }
-        composable("data") { DataScreen(navController = navController) }
+        composable("login") { LoginScreen(navController = navController, viewModel= viewModel) }
+        composable("data") { DataScreen(navController = navController, viewModel= viewModel) }
     }
 }
