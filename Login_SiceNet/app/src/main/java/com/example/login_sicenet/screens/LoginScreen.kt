@@ -46,7 +46,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.login_sicenet.R
 import com.example.login_sicenet.data.RetrofitClient
 import com.example.login_sicenet.model.AccessLoginResponse
+import com.example.login_sicenet.model.LoginResult
 import com.example.login_sicenet.navigation.AppScreens
+import com.example.login_sicenet.network.LoginSICEApiService
 import kotlinx.serialization.json.Json
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
@@ -255,27 +257,17 @@ fun login(context: Context){
 
 private fun authenticate(context: Context, matricula: String, contrasenia: String) {
     val bodyLogin = loginRequestBody(matricula, contrasenia)
-    val service = RetrofitClient.service
+    val service = RetrofitClient(context).retrofitService
 
-    // Obtener la URL de la solicitud antes de realizarla
-    val request = service.login(bodyLogin).request()
-    val url = request.url.toString()
-
-    Log.w("url",url)
-
-    // Imprimir todos los encabezados de la solicitud
-    val headers = request.headers
-    for (i in 0 until headers.size) {
-        val name = headers.name(i)
-        val value = headers.value(i)
-        Log.d("Solicitud", "Header: $name: $value")
-    }
-
-    service.login(bodyLogin).enqueue(object : Callback<ResponseBody> {
-        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+    service.login(bodyLogin).enqueue(object : Callback<ResponseBody>{
+        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>){
             if (response.isSuccessful) {
-                val responseBodyString = response.body()?.string()
-                Log.w("Respuesta exitosa", responseBodyString ?: "Cuerpo de respuesta vacío")
+
+                // Obtener la cadena de respuesta completa
+                val responseBodyString = response.body()?.toString()
+
+                // Imprimir la cadena de respuesta en el log
+                Log.w("Respuesta completa", responseBodyString ?: "Cuerpo de respuesta vacío")
 
                 // Deserializar la respuesta JSON
                 val json = Json { ignoreUnknownKeys = true } // Configuración opcional según tus necesidades
@@ -284,99 +276,29 @@ private fun authenticate(context: Context, matricula: String, contrasenia: Strin
                     val accessLoginResponse = json.decodeFromString<AccessLoginResponse>(responseBodyString ?: "")
                     // Aquí puedes manejar el objeto deserializado según tus necesidades
                     Log.w("Objeto deserializado", accessLoginResponse.toString())
+
+                    val accessResultJson: String? = accessLoginResponse.body?.accesoLoginResponse?.accesoLoginResult
+                    if (!accessResultJson.isNullOrBlank()) {
+                        val accessResult: LoginResult = json.decodeFromString(accessResultJson)
+
+                    } else {
+                        showError(context, "Error: La cadena JSON de accesoLoginResult está vacía o nula")
+                    }
                 } catch (e: Exception) {
-                    // Manejar errores de deserialización
                     e.printStackTrace()
+                    showError(context, "Error en la deserialización de la respuesta")
                 }
 
-                val cookieHeader = response.headers()["Set-Cookie"]
-                if (cookieHeader != null) {
-                    val cookie = cookieHeader.split(";")[0]
-                    getAcademicProfile(context, cookieHeader)
-                    Log.w("éxito", "se obtuvo la cookie")
-                    Log.w("cookie", cookieHeader)
-                    Log.w("matricula", matricula)
-                    Log.w("contrasenia", contrasenia)
-                } else {
-                    showError(context, "Error: No se recibió la cookie de sesión")
-                }
             } else {
-                showError(context, "Error en la autenticación")
+                showError(context, "Error en la autenticación. Código de respuesta: ${response.code()}")
             }
         }
 
-        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+        override fun onFailure(call: Call<ResponseBody>, t: Throwable){
             t.printStackTrace()
             showError(context, "Error en la solicitud")
         }
     })
-}
-
-
-private fun getAcademicProfile(context: Context,cookie: String) {
-    val bodyProfile = profileRequestBody()
-
-    val service = RetrofitClient.service
-
-    // Agregar los encabezados a la solicitud
-    val url = "http://sicenet.surguanajuato.tecnm.mx/ws/wsalumnos.asmx"
-    val soapAction = "http://tempuri.org/getAlumnoAcademicoWithLineamiento"
-
-    val request = Request.Builder()
-        .url(url)
-        .post(bodyProfile)
-        .addHeader("Content-Type", "text/xml; charset=utf-8")
-        .addHeader("SOAPAction", soapAction)
-        .addHeader("Set-Cookie", cookie)
-        .build()
-
-    service.getAcademicProfile(request).enqueue(object : Callback<ResponseBody> {
-        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-            if (response.isSuccessful) {
-                val responseBody = response.body()
-                //val result = parseXmlResponse(responseBody)
-                //println(result)
-                Log.w("exito", "se obtuvo el perfil")
-                //Log.w("perfil", result ?: "El resultado es nulo o no se pudo obtener")
-            } else {
-                showError(context, "Error al obtener el perfil académico")
-            }
-        }
-
-        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-            t.printStackTrace()
-            showError(context,"Error en la solicitud")
-        }
-    })
-}
-
-
-fun parseXmlResponse(xmlString: String?): String? {
-    var result: String? = null
-
-    try {
-        val parser: XmlPullParser = Xml.newPullParser()
-        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
-        parser.setInput(StringReader(xmlString))
-
-        var eventType = parser.eventType
-        while (eventType != XmlPullParser.END_DOCUMENT) {
-            when (eventType) {
-                XmlPullParser.START_TAG -> {
-                    val tagName = parser.name
-                    if (tagName == "getAlumnoAcademicoWithLineamientoResult") {
-                        parser.next()
-                        result = parser.text
-                    }
-                }
-            }
-            eventType = parser.next()
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-
-    return result
 }
 
 private fun loginRequestBody(matricula: String, contrasenia: String): RequestBody {

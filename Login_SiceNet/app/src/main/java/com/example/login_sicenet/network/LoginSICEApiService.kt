@@ -1,7 +1,7 @@
 package com.example.login_sicenet.network
 
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.Request
+import com.example.login_sicenet.model.AccessLoginResponse
+import com.example.login_sicenet.model.AlumnoAcademicoResult
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -14,13 +14,13 @@ interface LoginSICEApiService {
         "Content-Type: text/xml; charset=utf-8",
         "SOAPAction: http://tempuri.org/accesoLogin"
     )
-    @POST("ws/wsalumnos.asmx")
+    @POST("/ws/wsalumnos.asmx")
     fun login(@Body body: RequestBody): Call<ResponseBody>
 
     @Headers(
         "Content-Type: text/xml; charset=utf-8",
         "SOAPAction: http://tempuri.org/getAlumnoAcademicoWithLineamiento"
     )
-    @POST("ws/wsalumnos.asmx")
-    fun getAcademicProfile(@Body body: Request): Call<ResponseBody>
+    @POST("/ws/wsalumnos.asmx")
+    fun getAcademicProfile(@Body body: RequestBody): Call<ResponseBody>
 }
