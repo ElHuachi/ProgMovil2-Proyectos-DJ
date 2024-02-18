@@ -8,10 +8,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -47,26 +50,17 @@ import com.example.login_sicenet.data.RetrofitClient
 import com.example.login_sicenet.model.AccessLoginResponse
 import com.example.login_sicenet.model.AlumnoAcademicoResult
 import com.example.login_sicenet.model.Envelope
-import com.example.login_sicenet.model.GetAlumnoAcademicoWithLineamientoResponse
-import com.example.login_sicenet.model.LoginResult
-import com.example.login_sicenet.navigation.AppScreens
-import com.example.login_sicenet.network.LoginSICEApiService
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import retrofit2.Call
-import retrofit2.*
 import retrofit2.Callback
 import retrofit2.Response
 import okhttp3.RequestBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory
-import java.io.IOException
-import java.io.StringReader
+
 
 @Composable
 fun LoginScreen(navController: NavController, viewModel: DataViewModel){
@@ -249,7 +243,6 @@ fun RowButtonLogin(
             onClick = {
                     login(context)
                     authenticate(context, nControl, password, navController, viewModel)
-                    //navController.navigate("data")
             },
             enabled = isValidUser && isValidPass) {
             Text("Iniciar Sesión")
@@ -257,10 +250,7 @@ fun RowButtonLogin(
     }
 }
 
-fun login(context: Context){
-    Toast.makeText(context, "Iniciando sesión", Toast.LENGTH_SHORT).show()
-}
-
+//CREACION DE REQEUSTS AL SERVIDOR
 private fun authenticate(context: Context, matricula: String, contrasenia: String, navController: NavController , viewModel: DataViewModel) {
     val bodyLogin = loginRequestBody(matricula, contrasenia)
     val service = RetrofitClient(context).retrofitService
@@ -308,9 +298,16 @@ private fun getAcademicProfile(context: Context, navController: NavController, v
     })
 }
 
+//MENSAJES FLOTANTES
+fun login(context: Context){
+    Toast.makeText(context, "Iniciando sesión", Toast.LENGTH_SHORT).show()
+}
 
+private fun showError(context: Context, message: String) {
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+}
 
-
+//BODYS DE PETICION
 private fun loginRequestBody(matricula: String, contrasenia: String): RequestBody {
     return """
         <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -325,7 +322,7 @@ private fun loginRequestBody(matricula: String, contrasenia: String): RequestBod
     """.trimIndent().toRequestBody("text/xml; charset=utf-8".toMediaTypeOrNull())
 }
 
-public fun profileRequestBody(): RequestBody {
+private fun profileRequestBody(): RequestBody {
     return """
         <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
           <soap:Body>
@@ -333,8 +330,4 @@ public fun profileRequestBody(): RequestBody {
           </soap:Body>
         </soap:Envelope>
     """.trimIndent().toRequestBody("text/xml; charset=utf-8".toMediaTypeOrNull())
-}
-
-private fun showError(context: Context, message: String) {
-    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }

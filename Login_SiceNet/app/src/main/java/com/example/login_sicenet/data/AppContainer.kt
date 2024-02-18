@@ -16,7 +16,11 @@ import org.simpleframework.xml.core.Persister
 import retrofit2.Retrofit
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 
-class RetrofitClient(context: Context) {
+interface AppContainer {
+    val SicenetRepository: SicenetRepository
+}
+
+class RetrofitClient(context: Context): AppContainer {
 
     private val BASE_URL = "https://sicenet.surguanajuato.tecnm.mx"
 
@@ -54,5 +58,9 @@ class RetrofitClient(context: Context) {
 
     val retrofitService: LoginSICEApiService by lazy {
         retrofit.create(LoginSICEApiService::class.java)
+    }
+
+    override val SicenetRepository: SicenetRepository by lazy {
+        NetworkSicenetRepository(retrofitService)
     }
 }
