@@ -1,9 +1,11 @@
 package com.example.login_sicenet.data
 
 import android.content.Context
+import android.preference.PreferenceManager
 import android.util.Log
 import com.example.login_sicenet.network.ReceivedCookiesInterceptor
 import com.example.login_sicenet.network.AddCookiesInterceptor
+import com.example.login_sicenet.network.DeleteSessionCookies
 import com.example.login_sicenet.network.LoginSICEApiService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -15,9 +17,13 @@ import org.simpleframework.xml.convert.AnnotationStrategy
 import org.simpleframework.xml.core.Persister
 import retrofit2.Retrofit
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import kotlin.coroutines.jvm.internal.*
+
+
 
 interface AppContainer {
     val SicenetRepository: SicenetRepository
+
 }
 
 class RetrofitClient(context: Context): AppContainer {
@@ -28,6 +34,7 @@ class RetrofitClient(context: Context): AppContainer {
         .addInterceptor(AddCookiesInterceptor(context))
         .addInterceptor(ReceivedCookiesInterceptor(context))
         .addInterceptor(createLoggingInterceptor())
+        .addInterceptor(DeleteSessionCookies(context))
         .build()
 
     private fun createLoggingInterceptor(): Interceptor {
@@ -63,4 +70,7 @@ class RetrofitClient(context: Context): AppContainer {
     override val SicenetRepository: SicenetRepository by lazy {
         NetworkSicenetRepository(retrofitService)
     }
+//    public fun clearCookies(){
+//
+//    }
 }

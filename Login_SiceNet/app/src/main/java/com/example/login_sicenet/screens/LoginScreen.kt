@@ -5,11 +5,13 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -35,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -50,6 +53,7 @@ import com.example.login_sicenet.data.RetrofitClient
 import com.example.login_sicenet.model.AccessLoginResponse
 import com.example.login_sicenet.model.AlumnoAcademicoResult
 import com.example.login_sicenet.model.Envelope
+import com.example.login_sicenet.network.AddCookiesInterceptor
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.xmlpull.v1.XmlPullParserFactory
@@ -81,8 +85,14 @@ fun LoginScreen(navController: NavController, viewModel: DataViewModel){
 
     Box(modifier = Modifier
         .fillMaxSize()
-        .background(Color(0xFFb5e48c))
+        .background(Color(0xFFE0E0E0)) // Imagen de fondo
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.backgroundsice),
+            contentDescription = "Imagen de fondo",
+            modifier = Modifier.fillMaxHeight(),
+            contentScale = ContentScale.FillHeight
+        )
         Column(
             Modifier
                 .align(Alignment.Center)
@@ -94,12 +104,12 @@ fun LoginScreen(navController: NavController, viewModel: DataViewModel){
                 shape = RoundedCornerShape(10.dp)
             ) {
                 Column(Modifier.padding(16.dp)) {
-                    RowImage()
+                    RowImage(navController = navController)
                     RowUser(
                         user = user,
                         userChange = {
                             user = it
-                            isValidUser = it.length >= 0 //9
+                            isValidUser = it.length >= 9 //9
                         },
                         isValidUser = isValidUser
                     )
@@ -131,16 +141,26 @@ fun LoginScreen(navController: NavController, viewModel: DataViewModel){
 }
 
 @Composable
-fun RowImage(){
+fun RowImage(navController: NavController){
     Row(
         Modifier
             .fillMaxWidth()
             .padding(10.dp),
         horizontalArrangement = Arrangement.Center
     ) {
-        Image(modifier = Modifier.width(100.dp),
-            painter = painterResource(id = R.drawable.logoitsur_removebg_preview),
-            contentDescription = "Imagen de Login")
+        Box(
+            modifier = Modifier
+                .padding(8.dp)
+                .clickable {
+                    navController.navigate("about_screen")
+                }
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.logoitsur_removebg_preview),
+                contentDescription = "Imagen de Login",
+                modifier = Modifier.size(100.dp)
+            )
+        }
 
     }
 }
@@ -184,7 +204,7 @@ fun RowPass(
             },
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = if (isValidPass) Color.Green else Color.Red,
-                unfocusedIndicatorColor = if (isValidPass) Color.Green else Color.Red
+//                unfocusedIndicatorColor = if (isValidPass) Color.Green else Color.Red
             )
         )
     }
@@ -244,7 +264,7 @@ fun RowButtonLogin(
                     login(context)
                     authenticate(context, nControl, password, navController, viewModel)
             },
-            enabled = isValidUser && isValidPass) {
+            enabled = isValidUser) {
             Text("Iniciar Sesión")
         }
     }
@@ -257,7 +277,7 @@ private fun authenticate(context: Context, matricula: String, contrasenia: Strin
     service.login(bodyLogin).enqueue(object : Callback<ResponseBody>{
         override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>){
             if (response.isSuccessful) {
-                Log.w("exito", "se obtuvo el perfil")
+                Log.w("Exito", "Se obtuvo el perfil")
                 getAcademicProfile(context, navController,viewModel)
             } else {
                 showError(context, "Error en la autenticación. Código de respuesta: ${response.code()}")
@@ -283,8 +303,17 @@ private fun getAcademicProfile(context: Context, navController: NavController, v
                 val json = Json { ignoreUnknownKeys = true }
                 val alumnoAcademicoResult: AlumnoAcademicoResult? = alumnoResultJson?.let { json.decodeFromString(it) }
 
-                Log.w("exito", "se obtuvo el perfil 2: ${alumnoAcademicoResult}")
+                Log.w("Exito", "Se obtuvo el perfil 2: ${alumnoAcademicoResult}")
                 val alumnoAcademicoResultJson = Json.encodeToString(alumnoAcademicoResult)
+                if(alumnoAcademicoResult?.matricula?.length ?: 9 == 9){
+                    viewModel.alumnoAcademicoResult=alumnoAcademicoResult
+                    // Obtén una instancia del interceptor
+                    val addCookiesInterceptor = AddCookiesInterceptor(context)
+
+                    // Llama al método clearCookies para borrar las cookies
+                    addCookiesInterceptor.clearCookies()
+                    navController.navigate("data")
+                    }
                 viewModel.alumnoAcademicoResult=alumnoAcademicoResult
                 navController.navigate("data")
             } else {
