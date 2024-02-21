@@ -50,9 +50,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.login_sicenet.R
 import com.example.login_sicenet.data.RetrofitClient
-import com.example.login_sicenet.model.AccessLoginResponse
+import com.example.login_sicenet.model.AccesoLoginResult
 import com.example.login_sicenet.model.AlumnoAcademicoResult
 import com.example.login_sicenet.model.Envelope
+import com.example.login_sicenet.model.EnvelopeLogin
 import com.example.login_sicenet.network.AddCookiesInterceptor
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -271,19 +272,36 @@ fun RowButtonLogin(
 }
 
 //CREACION DE REQEUSTS AL SERVIDOR
+//CREACION DE REQEUSTS AL SERVIDOR
 private fun authenticate(context: Context, matricula: String, contrasenia: String, navController: NavController , viewModel: DataViewModel) {
     val bodyLogin = loginRequestBody(matricula, contrasenia)
     val service = RetrofitClient(context).retrofitService
-    service.login(bodyLogin).enqueue(object : Callback<ResponseBody>{
-        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>){
+    service.login(bodyLogin).enqueue(object : Callback<EnvelopeLogin>{
+        override fun onResponse(call: Call<EnvelopeLogin>, response: Response<EnvelopeLogin>){
             if (response.isSuccessful) {
-                Log.w("Exito", "Se obtuvo el perfil")
-                getAcademicProfile(context, navController,viewModel)
+                val envelope = response.body()
+                val accesoResultJson: String? = envelope?.bodyLogin?.accesoLoginResponse?.accesoLoginResult
+
+                // Deserializa la cadena JSON a AlumnoAcademicoResult
+                val json = Json { ignoreUnknownKeys = true }
+                val accesoResult: AccesoLoginResult? = accesoResultJson?.let { json.decodeFromString(it) }
+
+                Log.w("Exito", "Se obtuvo el perfil 2: ${accesoResult}")
+                val alumnoAcademicoResultJson = Json.encodeToString(accesoResult)
+
+                //VERIFICAR SI LAS CREDENCIALES INGRESADAS SON CORRECTAS
+                if(accesoResult?.acceso==true){
+                    Log.w("Exito", "Se obtuvo el perfil")
+                    getAcademicProfile(context, navController,viewModel)
+                    navController.navigate("data")
+                }else{
+                    showError(context, "ACCESO DENEGADO")
+                }
             } else {
                 showError(context, "Error en la autenticación. Código de respuesta: ${response.code()}")
             }
         }
-        override fun onFailure(call: Call<ResponseBody>, t: Throwable){
+        override fun onFailure(call: Call<EnvelopeLogin>, t: Throwable){
             t.printStackTrace()
             showError(context, "Error en la solicitud")
         }
@@ -299,21 +317,18 @@ private fun getAcademicProfile(context: Context, navController: NavController, v
                 val envelope = response.body()
                 val alumnoResultJson: String? = envelope?.body?.getAlumnoAcademicoWithLineamientoResponse?.getAlumnoAcademicoWithLineamientoResult
 
-                // Deserializa la cadena JSON a AlumnoAcademicoResult
+                // Deserializa la cadena JSON
                 val json = Json { ignoreUnknownKeys = true }
                 val alumnoAcademicoResult: AlumnoAcademicoResult? = alumnoResultJson?.let { json.decodeFromString(it) }
 
                 Log.w("Exito", "Se obtuvo el perfil 2: ${alumnoAcademicoResult}")
                 val alumnoAcademicoResultJson = Json.encodeToString(alumnoAcademicoResult)
-                if(alumnoAcademicoResult?.matricula?.length ?: 9 == 9){
-                    viewModel.alumnoAcademicoResult=alumnoAcademicoResult
-                    // Obtén una instancia del interceptor
-                    val addCookiesInterceptor = AddCookiesInterceptor(context)
 
-                    // Llama al método clearCookies para borrar las cookies
-                    addCookiesInterceptor.clearCookies()
-                    navController.navigate("data")
-                    }
+                //BORRAR COOKIES DE SESION DESPUES DE UTILIZARLAS
+                val addCookiesInterceptor = AddCookiesInterceptor(context)
+                addCookiesInterceptor.clearCookies()
+
+                //ALMACENAR Y MOSTRAR LA INFORMACION DEL ALUMNO
                 viewModel.alumnoAcademicoResult=alumnoAcademicoResult
                 navController.navigate("data")
             } else {

@@ -1,6 +1,7 @@
 package com.example.login_sicenet.network
 
 import com.example.login_sicenet.model.Envelope
+import com.example.login_sicenet.model.EnvelopeLogin
 import com.example.login_sicenet.model.GetAlumnoAcademicoWithLineamientoResponse
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -15,7 +16,7 @@ interface LoginSICEApiService {
         "SOAPAction: http://tempuri.org/accesoLogin"
     )
     @POST("/ws/wsalumnos.asmx")
-    fun login(@Body body: RequestBody): Call<ResponseBody>
+    fun login(@Body body: RequestBody): Call<EnvelopeLogin>
 
     @Headers(
         "Content-Type: text/xml; charset=utf-8",
