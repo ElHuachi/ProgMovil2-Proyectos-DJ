@@ -14,11 +14,9 @@ class AddCookiesInterceptor(private val context: Context) : Interceptor {
         val builder: Request.Builder = chain.request().newBuilder()
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             .getStringSet(PREF_COOKIES, HashSet()) ?: HashSet()
-
         for (cookie in preferences) {
             builder.addHeader("Cookie", cookie)
         }
-
         return chain.proceed(builder.build())
     }
 
