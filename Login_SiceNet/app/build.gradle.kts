@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
+    id("com.google.devtools.ksp") version "1.8.21-1.0.11"
 }
 
 android {
@@ -79,4 +80,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation ("com.squareup.retrofit2:converter-simplexml:2.9.0")
     implementation ("com.squareup.okhttp3:okhttp:4.9.2")
+
+    //Room
+    implementation("androidx.room:room-common:2.6.0")
+    implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
+    //ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
+    implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
 }

@@ -36,18 +36,13 @@ class DataViewModel(private val SicenetRepository: SicenetRepository) : ViewMode
     var accesoLoginResult: AccesoLoginResult? = null
     var alumnoAcademicoResult: AlumnoAcademicoResult? = null
     var califFinales: List<Calificacion>? = null
-    var calfUnidades: List<CalificacionUnidad>? = null
+    var califUnidades: List<CalificacionUnidad>? = null
     var kardex: Kardex? = null
     var cargaAcademica: List<CargaAcademicaItem>? = null
 
     var nControl: String = ""
     var pass: String = ""
-    private lateinit var myContext: Context
-
-    // Método para asignar el contexto
-    fun setContext(context: Context) {
-        myContext = context
-    }
+    var lineamiento: String = "2"
 
     var siceUiState: SiceUiState by mutableStateOf(SiceUiState.Loading)
         private set
@@ -121,6 +116,78 @@ class DataViewModel(private val SicenetRepository: SicenetRepository) : ViewMode
                     SicenetRepository.getAcademicProfile()
                 }
                 alumnoAcademicoResult=result
+                SiceUiState.Success
+            } catch (e: IOException) {
+                SiceUiState.Error
+            } catch (e: HttpException) {
+                SiceUiState.Error
+            }
+        }
+    }
+
+    fun getCalifFinales(){
+        viewModelScope.launch {
+            siceUiState = SiceUiState.Loading
+            siceUiState = try {
+                val result = withContext(Dispatchers.IO) {
+                    // Esta llamada se realiza en un hilo de fondo (IO thread)
+                    SicenetRepository.getCaliFinales(lineamiento)
+                }
+                califFinales=result
+                SiceUiState.Success
+            } catch (e: IOException) {
+                SiceUiState.Error
+            } catch (e: HttpException) {
+                SiceUiState.Error
+            }
+        }
+    }
+
+    fun getCalifUnidades(){
+        viewModelScope.launch {
+            siceUiState = SiceUiState.Loading
+            siceUiState = try {
+                val result = withContext(Dispatchers.IO) {
+                    // Esta llamada se realiza en un hilo de fondo (IO thread)
+                    SicenetRepository.getCaliUnidades()
+                }
+                califUnidades=result
+                SiceUiState.Success
+            } catch (e: IOException) {
+                SiceUiState.Error
+            } catch (e: HttpException) {
+                SiceUiState.Error
+            }
+        }
+    }
+
+    fun getKardex(){
+        viewModelScope.launch {
+            siceUiState = SiceUiState.Loading
+            siceUiState = try {
+                val result = withContext(Dispatchers.IO) {
+                    // Esta llamada se realiza en un hilo de fondo (IO thread)
+                    SicenetRepository.getKardex(lineamiento)
+                }
+                kardex=result
+                SiceUiState.Success
+            } catch (e: IOException) {
+                SiceUiState.Error
+            } catch (e: HttpException) {
+                SiceUiState.Error
+            }
+        }
+    }
+
+    fun getCargaAcademica(){
+        viewModelScope.launch {
+            siceUiState = SiceUiState.Loading
+            siceUiState = try {
+                val result = withContext(Dispatchers.IO) {
+                    // Esta llamada se realiza en un hilo de fondo (IO thread)
+                    SicenetRepository.getCargaAcademica()
+                }
+                cargaAcademica=result
                 SiceUiState.Success
             } catch (e: IOException) {
                 SiceUiState.Error

@@ -283,6 +283,11 @@ fun RowButtonLogin(
 //                    if(viewModel.siceUiState == Success){
 //                        //viewModel.getAcademicProfile()
                         if(viewModel.accesoLoginResult?.acceso==true) {
+                            viewModel.lineamiento=viewModel.alumnoAcademicoResult?.lineamiento.toString()
+                            viewModel.getCalifFinales()
+                            viewModel.getCalifUnidades()
+                            viewModel.getKardex()
+                            viewModel.getCargaAcademica()
                             navController.navigate("data")
                         }else{
                             showError(context, "ACCESO DENEGADO")
@@ -424,7 +429,7 @@ private fun getCaliUnidadProfile(context: Context, navController: NavController,
                         for (calificacion in calificaciones) {
                             Log.d("Calificaciones", "Grupo: ${calificacion.grupo}, Materia: ${calificacion.materia}, Observaciones: ${calificacion.observaciones}, C1: ${calificacion.c1}, C2: ${calificacion.c2}, C3: ${calificacion.c3}, C4: ${calificacion.c4}, C5: ${calificacion.c5}, C6: ${calificacion.c6}, C7: ${calificacion.c7}, C8: ${calificacion.c8}, C9: ${calificacion.c9}, C10: ${calificacion.c10}, C11: ${calificacion.c11}, C12: ${calificacion.c12}, C13: ${calificacion.c13}, Unidades Activas: ${calificacion.unidadesActivas}")
                         }
-                        viewModel.calfUnidades=calificaciones
+                        viewModel.califUnidades=calificaciones
                         getKardexProfile(context, navController, viewModel, lineamiento)
                         //navController.navigate("data")
                     }
