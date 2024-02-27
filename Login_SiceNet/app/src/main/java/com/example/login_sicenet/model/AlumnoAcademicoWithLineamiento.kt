@@ -25,23 +25,23 @@ data class GetAlumnoAcademicoWithLineamientoResponse @JvmOverloads constructor(
 
 @Serializable
 data class AlumnoAcademicoResult(
-    val fechaReins: String,
+    val fechaReins: String? = null,
     @SerialName("modEducativo")
-    val modEducativo: Int,
-    val adeudo: Boolean,
-    val urlFoto: String,
-    val adeudoDescripcion: String,
-    val inscrito: Boolean,
-    val estatus: String,
+    val modEducativo: Int? = null,
+    val adeudo: Boolean? = null,
+    val urlFoto: String? = null,
+    val adeudoDescripcion: String? = null,
+    val inscrito: Boolean? = null,
+    val estatus: String? = null,
     @SerialName("semActual")
-    val semActual: Int,
+    val semActual: Int? = null,
     @SerialName("cdtosAcumulados")
-    val cdtosAcumulados: Int,
+    val cdtosAcumulados: Int? = null,
     @SerialName("cdtosActuales")
-    val cdtosActuales: Int,
-    val especialidad: String,
-    val carrera: String,
-    val lineamiento: Int,
-    val nombre: String,
-    val matricula: String
+    val cdtosActuales: Int? = null,
+    val especialidad: String? = null,
+    val carrera: String? = null,
+    val lineamiento: Int? = null,
+    val nombre: String? = null,
+    val matricula: String? = null
 )

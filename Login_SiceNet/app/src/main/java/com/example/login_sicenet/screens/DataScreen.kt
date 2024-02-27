@@ -311,13 +311,14 @@ fun BodyContent(navController: NavController, viewModel: DataViewModel) {
             } else {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(text = "No se pudo obtener el perfil académico.")
+                    Text(text = "Revisa tus credenciales de inicio de sesión.")
                 }
             }
             Button(onClick = {
                 // Navegar a la pantalla de login
                 navController.navigateUp()
             }) {
-                Text(text = "Cerrar sesion")
+                Text(text = "Salir")
             }
         }
     }

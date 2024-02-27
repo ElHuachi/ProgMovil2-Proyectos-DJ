@@ -23,7 +23,6 @@ import kotlin.coroutines.jvm.internal.*
 
 interface AppContainer {
     val SicenetRepository: SicenetRepository
-
 }
 
 class RetrofitClient(context: Context): AppContainer {
@@ -70,7 +69,4 @@ class RetrofitClient(context: Context): AppContainer {
     override val SicenetRepository: SicenetRepository by lazy {
         NetworkSicenetRepository(retrofitService)
     }
-//    public fun clearCookies(){
-//
-//    }
 }
