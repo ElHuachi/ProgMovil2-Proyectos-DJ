@@ -1,6 +1,7 @@
 package com.example.login_sicenet.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.media.Image
 import android.webkit.CookieManager
 import androidx.compose.foundation.Image
@@ -23,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -35,6 +37,7 @@ import com.example.login_sicenet.data.AppContainer
 import com.example.login_sicenet.data.RetrofitClient
 import com.example.login_sicenet.model.AlumnoAcademicoResult
 import com.example.login_sicenet.navigation.AppScreens
+import com.example.login_sicenet.network.AddCookiesInterceptor
 import com.example.login_sicenet.ui.theme.Green80
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,6 +76,7 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
 
 @Composable
 fun BodyContent(navController: NavController, viewModel: DataViewModel) {
+    val context = LocalContext.current
     Box (modifier = Modifier
         .fillMaxSize()
         .background(color = Color(0xFFf5f5f5))
@@ -315,7 +319,10 @@ fun BodyContent(navController: NavController, viewModel: DataViewModel) {
                 }
             }
             Button(onClick = {
-                // Navegar a la pantalla de login
+                // Navegar a la pantalla de login y limpiar las cookies de sesion
+                val addCookiesInterceptor = AddCookiesInterceptor(context)
+                addCookiesInterceptor.clearCookies()
+                viewModel.accesoLoginResult?.acceso=false
                 navController.navigateUp()
             }) {
                 Text(text = "Salir")

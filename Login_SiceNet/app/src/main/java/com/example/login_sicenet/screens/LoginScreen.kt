@@ -282,7 +282,11 @@ fun RowButtonLogin(
                     Log.e("ESTATUS",viewModel.siceUiState.toString())
 //                    if(viewModel.siceUiState == Success){
 //                        //viewModel.getAcademicProfile()
-                        navController.navigate("data")
+                        if(viewModel.accesoLoginResult?.acceso==true) {
+                            navController.navigate("data")
+                        }else{
+                            showError(context, "ACCESO DENEGADO")
+                        }
 //                   }
                     //authenticate(context, nControl, password, navController, viewModel)
             },

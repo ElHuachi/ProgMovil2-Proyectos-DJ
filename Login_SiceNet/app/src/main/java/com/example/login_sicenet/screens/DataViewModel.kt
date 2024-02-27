@@ -52,9 +52,10 @@ class DataViewModel(private val SicenetRepository: SicenetRepository) : ViewMode
     var siceUiState: SiceUiState by mutableStateOf(SiceUiState.Loading)
         private set
 
-    init {
-        login()
-    }
+//    init {
+//        login()
+//    }
+
     fun login() {
         viewModelScope.launch {
             siceUiState = SiceUiState.Loading
@@ -63,7 +64,6 @@ class DataViewModel(private val SicenetRepository: SicenetRepository) : ViewMode
                     // Esta llamada se realiza en un hilo de fondo (IO thread)
                     SicenetRepository.login(nControl, pass)
                 }
-
                 accesoLoginResult = result
                 SiceUiState.Success
             } catch (e: IOException) {
