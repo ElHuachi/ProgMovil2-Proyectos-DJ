@@ -24,9 +24,9 @@ interface CalifPorUnidadDAO {
     @Delete
     suspend fun delete(cal: CalificacionUnidadDB)
 
-    @Query("SELECT * from calificacionesUnidad WHERE nControl = :nControl")
-    fun getItem(nControl: String): Flow<CalificacionUnidadDB>
+    @Query("SELECT * from calificacionesUnidad WHERE matricula = :matricula")
+    fun getItem(matricula: String): Flow<CalificacionUnidadDB>
 
-    @Query("SELECT * from calificacionesUnidad ORDER BY nControl ASC")
+    @Query("SELECT * from calificacionesUnidad ORDER BY matricula ASC")
     fun getAllItems(): Flow<List<CalificacionUnidadDB>>
 }

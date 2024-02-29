@@ -23,9 +23,9 @@ interface AccessLoginResponseDAO {
     @Delete
     suspend fun delete(login: AccessLoginResponseDB)
 
-    @Query("SELECT * from login WHERE nControl = :nControl")
-    fun getItem(nControl: String): Flow<AccessLoginResponseDB>
+    @Query("SELECT * from login WHERE matricula = :matricula")
+    fun getItem(matricula: String): Flow<AccessLoginResponseDB>
 
-    @Query("SELECT * from login ORDER BY nControl ASC")
+    @Query("SELECT * from login ORDER BY matricula ASC")
     fun getAllItems(): Flow<List<AccessLoginResponseDB>>
 }

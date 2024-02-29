@@ -24,9 +24,9 @@ interface KardexItemDAO {
     @Delete
     suspend fun delete(item: KardexItemDB)
 
-    @Query("SELECT * from kardex_items WHERE nControl = :nControl")
-    fun getItem(nControl: String): Flow<KardexItemDB>
+    @Query("SELECT * from kardex_items WHERE matricula = :matricula")
+    fun getItem(matricula: String): Flow<KardexItemDB>
 
-    @Query("SELECT * from kardex_items ORDER BY nControl ASC")
+    @Query("SELECT * from kardex_items ORDER BY matricula ASC")
     fun getAllItems(): Flow<List<KardexItemDB>>
 }

@@ -24,9 +24,9 @@ interface AlumnoAcademicoWithLineamientoDAO {
     @Delete
     suspend fun delete(profile: AlumnoAcademicoResultDB)
 
-    @Query("SELECT * from profile WHERE nControl = :nControl")
-    fun getItem(nControl: String): Flow<AlumnoAcademicoResultDB>
+    @Query("SELECT * from profile WHERE matricula = :matricula")
+    fun getItem(matricula: String): Flow<AlumnoAcademicoResultDB>
 
-    @Query("SELECT * from profile ORDER BY nControl ASC")
+    @Query("SELECT * from profile ORDER BY matricula ASC")
     fun getAllItems(): Flow<List<AlumnoAcademicoResultDB>>
 }

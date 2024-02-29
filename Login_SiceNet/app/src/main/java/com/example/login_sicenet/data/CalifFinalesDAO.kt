@@ -24,9 +24,9 @@ interface CalifFinalesDAO {
     @Delete
     suspend fun delete(cal: CalificacionDB)
 
-    @Query("SELECT * from calificacionesFinales WHERE nControl = :nControl")
-    fun getItem(nControl: String): Flow<CalificacionDB>
+    @Query("SELECT * from calificacionesFinales WHERE matricula = :matricula")
+    fun getItem(matricula: String): Flow<CalificacionDB>
 
-    @Query("SELECT * from calificacionesFinales ORDER BY nControl ASC")
+    @Query("SELECT * from calificacionesFinales ORDER BY matricula ASC")
     fun getAllItems(): Flow<List<CalificacionDB>>
 }

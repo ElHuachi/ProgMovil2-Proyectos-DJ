@@ -24,9 +24,9 @@ interface CargaAcademicaDAO {
     @Delete
     suspend fun delete(item: CargaAcademicaItemDB)
 
-    @Query("SELECT * from carga_academica_items WHERE nControl = :nControl")
-    fun getItem(nControl: String): Flow<CargaAcademicaItemDB>
+    @Query("SELECT * from carga_academica_items WHERE matricula = :matricula")
+    fun getItem(matricula: String): Flow<CargaAcademicaItemDB>
 
-    @Query("SELECT * from carga_academica_items ORDER BY nControl ASC")
+    @Query("SELECT * from carga_academica_items ORDER BY matricula ASC")
     fun getAllItems(): Flow<List<CargaAcademicaItemDB>>
 }

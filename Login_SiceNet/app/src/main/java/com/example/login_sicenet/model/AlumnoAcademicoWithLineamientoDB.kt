@@ -14,7 +14,7 @@ import androidx.room.PrimaryKey
         childColumns = ["matricula"],
         onDelete = ForeignKey.CASCADE
     )],
-    indices = [Index(value = ["nControl"], unique = true)]
+    indices = [Index(value = ["matricula"], unique = true)]
 )
 data class AlumnoAcademicoResultDB(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") var id: Int,

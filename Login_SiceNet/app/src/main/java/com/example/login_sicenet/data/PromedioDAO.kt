@@ -24,9 +24,9 @@ interface PromedioDAO {
     @Delete
     suspend fun delete(item: PromedioDB)
 
-    @Query("SELECT * from promedio WHERE nControl = :nControl")
-    fun getItem(nControl: String): Flow<PromedioDB>
+    @Query("SELECT * from promedio WHERE matricula = :matricula")
+    fun getItem(matricula: String): Flow<PromedioDB>
 
-    @Query("SELECT * from promedio ORDER BY nControl ASC")
+    @Query("SELECT * from promedio ORDER BY matricula ASC")
     fun getAllItems(): Flow<List<PromedioDB>>
 }
