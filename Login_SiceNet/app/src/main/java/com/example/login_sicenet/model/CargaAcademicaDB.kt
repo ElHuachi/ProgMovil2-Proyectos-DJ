@@ -9,18 +9,16 @@ import androidx.room.PrimaryKey
     tableName = "carga_academica_items",
     foreignKeys = [ForeignKey(
         entity = AlumnoAcademicoResultDB::class,
-        parentColumns = ["nControl"],
-        childColumns = ["nControl"],
+        parentColumns = ["matricula"],
+        childColumns = ["matricula"],
         onDelete = ForeignKey.CASCADE
     )]
 )
 data class CargaAcademicaItemDB(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "carga_academica_item_id")
-    val cargaAcademicaItemId: Long = 0,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") var id: Int,
 
-    @ColumnInfo(name = "nControl")
-    val nControl: String = "",
+    @ColumnInfo(name = "matricula")
+    var matricula: String? = null,
 
     @ColumnInfo(name = "semipresencial")
     val semipresencial: String?,
@@ -29,10 +27,10 @@ data class CargaAcademicaItemDB(
     val observaciones: String?,
 
     @ColumnInfo(name = "docente")
-    val docente: String,
+    val docente: String?,
 
     @ColumnInfo(name = "clvOficial")
-    val clvOficial: String,
+    val clvOficial: String?,
 
     @ColumnInfo(name = "sabado")
     val sabado: String?,
@@ -53,14 +51,89 @@ data class CargaAcademicaItemDB(
     val lunes: String?,
 
     @ColumnInfo(name = "estadoMateria")
-    val estadoMateria: String,
+    val estadoMateria: String?,
 
     @ColumnInfo(name = "creditosMateria")
-    val creditosMateria: Int,
+    val creditosMateria: Int?,
 
     @ColumnInfo(name = "materia")
-    val materia: String,
+    val materia: String?,
 
     @ColumnInfo(name = "grupo")
-    val grupo: String
+    val grupo: String?,
+
+    @ColumnInfo(name = "fecha")
+    val fecha: String
+)
+
+//CALIF FINALES DB
+data class CargaAcUiState(
+    val cargaAcDetails: CargaAcDetails = CargaAcDetails(),
+    val isEntryValid: Boolean = true
+)
+
+data class CargaAcDetails(
+    val id: Int = 0,
+    val matricula: String? = null,
+    val semipresencial: String? = "",
+    val docente: String? = "",
+    val clvOficial: String? = "",
+    val sabado: String? = "",
+    val viernes: String? = "",
+    val jueves: String? = "",
+    val miercoles: String? = "",
+    val martes: String? = "",
+    val lunes: String? = "",
+    val estadoMateria: String? = "",
+    val creditosMateria: Int? = 0,
+    val observaciones: String?="",
+    val materia: String?="",
+    val grupo: String?="",
+    val fecha: String = "",
+)
+
+
+fun CargaAcDetails.toItem(): CargaAcademicaItemDB = CargaAcademicaItemDB(
+    id = id,
+    matricula = matricula,
+    observaciones = observaciones,
+    semipresencial = semipresencial,
+    grupo = grupo,
+    materia = materia,
+    docente = docente,
+    clvOficial = clvOficial,
+    sabado = sabado,
+    viernes = viernes,
+    jueves = jueves,
+    miercoles = miercoles,
+    martes = martes,
+    lunes = lunes,
+    estadoMateria = estadoMateria,
+    creditosMateria = creditosMateria,
+    fecha=fecha
+)
+
+fun CargaAcademicaItemDB.toItemUiState(isEntryValid: Boolean = false): CargaAcUiState = CargaAcUiState(
+    cargaAcDetails = this.toItemDetails(),
+    isEntryValid = isEntryValid
+)
+
+fun CargaAcademicaItemDB.toItemDetails(): CargaAcDetails = CargaAcDetails(
+    id = id,
+    matricula = matricula,
+    observaciones = observaciones,
+    semipresencial = semipresencial,
+    grupo = grupo,
+    materia = materia,
+    docente = docente,
+    clvOficial = clvOficial,
+    sabado = sabado,
+    viernes = viernes,
+    jueves = jueves,
+    miercoles = miercoles,
+    martes = martes,
+    lunes = lunes,
+    estadoMateria = estadoMateria,
+    creditosMateria = creditosMateria,
+    fecha=fecha
 )

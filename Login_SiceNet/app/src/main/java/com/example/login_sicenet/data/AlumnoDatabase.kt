@@ -21,7 +21,7 @@ import com.example.login_sicenet.model.PromedioDB
         KardexItemDB::class,
         PromedioDB::class,
         CargaAcademicaItemDB::class],
-    version = 1, exportSchema = false)
+    version = 4, exportSchema = false)
 abstract class AlumnoDatabase: RoomDatabase(){
 
     abstract fun accessDao(): AccessLoginResponseDAO

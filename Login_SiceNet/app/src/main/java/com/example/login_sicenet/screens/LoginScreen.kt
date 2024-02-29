@@ -1,8 +1,10 @@
 package com.example.login_sicenet.screens
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -66,6 +68,7 @@ import com.example.login_sicenet.model.EnvelopeLogin
 import com.example.login_sicenet.model.Kardex
 import com.example.login_sicenet.network.AddCookiesInterceptor
 import com.example.login_sicenet.screens.SiceUiState.Success
+import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -80,6 +83,7 @@ import okhttp3.ResponseBody
 import org.simpleframework.xml.core.Persister
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LoginScreen(navController: NavController, viewModel: DataViewModel){
     val context = LocalContext.current
@@ -257,6 +261,7 @@ fun RowUser(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RowButtonLogin(
     context: Context,
@@ -267,6 +272,7 @@ fun RowButtonLogin(
     navController: NavController,
     viewModel: DataViewModel
 ){
+    val coroutineScope = rememberCoroutineScope()
     Row(
         Modifier
             .fillMaxWidth()
@@ -279,7 +285,7 @@ fun RowButtonLogin(
                     viewModel.nControl=nControl
                     viewModel.pass=password
                     viewModel.performLoginAndFetchAcademicProfile()
-                    Log.e("ESTATUS",viewModel.siceUiState.toString())
+                    //Log.e("ESTATUS",viewModel.siceUiState.toString())
 //                    if(viewModel.siceUiState == Success){
 //                        //viewModel.getAcademicProfile()
                         if(viewModel.accesoLoginResult?.acceso==true) {
@@ -288,6 +294,13 @@ fun RowButtonLogin(
                             viewModel.getCalifUnidades()
                             viewModel.getKardex()
                             viewModel.getCargaAcademica()
+                            coroutineScope.launch {
+                                val accesoLoginResult = viewModel.accesoLoginResult
+                                if (accesoLoginResult != null) {
+                                    viewModel.updateUiStateAccess(viewModel.accesoUiState.accesoDetails, accesoLoginResult)
+                                }
+                                viewModel.saveAccessResult()
+                            }
                             navController.navigate("data")
                         }else{
                             showError(context, "ACCESO DENEGADO")
