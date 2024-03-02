@@ -1,7 +1,6 @@
 package com.example.login_sicenet.screens
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.media.Image
 import android.webkit.CookieManager
 import androidx.compose.foundation.Image
@@ -17,14 +16,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DensityMedium
+import androidx.compose.material.icons.filled.House
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -37,20 +41,28 @@ import com.example.login_sicenet.data.AppContainer
 import com.example.login_sicenet.data.RetrofitClient
 import com.example.login_sicenet.model.AlumnoAcademicoResult
 import com.example.login_sicenet.navigation.AppScreens
-import com.example.login_sicenet.network.AddCookiesInterceptor
 import com.example.login_sicenet.ui.theme.Green80
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun DataScreen(navController: NavController, viewModel: DataViewModel) {
+    var expanded by remember { mutableStateOf(false) }
         Scaffold(
             topBar = {
                 TopAppBar(
                     title = {
+                        IconButton(onClick = { navController.navigate("data") }) {
+                            Icon(imageVector = Icons.Filled.House, contentDescription = "Inicio"
+                                )
+
+                        }
                         Text(
                             text = "Perfil Académico",
-                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                            modifier = Modifier
+                                .padding(vertical = 10.dp)
+                                .padding(horizontal = 70.dp)
                         )
                     },
                     actions = {
@@ -58,12 +70,23 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
                             modifier = Modifier
                                 .padding(8.dp)
                         ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.logoitsur_removebg_preview),
-                                contentDescription = "SiceNet Logo",
+                            IconButton(onClick = { expanded = !expanded }) {
+                                Icon(imageVector = Icons.Filled.DensityMedium, contentDescription = "Más Opciones",
                                 modifier = Modifier
-                                    .size(40.dp)
-                            )
+                                    .size(40.dp))
+//                                Icon(
+//                                    painter = painterResource(id = R.drawable.logoitsur_removebg_preview),
+//                                    contentDescription = "SiceNet Logo",
+//                                    modifier = Modifier
+//                                        .size(40.dp)
+//                                )
+                                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                                    DropdownMenuItem(text = { Text(text = "Información del alumno") }, onClick = { navController.navigate("data") })
+                                    DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = { navController.navigate("calpar_screen") })
+                                    DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = { navController.navigate("final_screen") })
+                                    DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = { navController.navigate("horario_screen") })
+                                }
+                            }
                         }
                     }
                 )
@@ -76,7 +99,6 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
 
 @Composable
 fun BodyContent(navController: NavController, viewModel: DataViewModel) {
-    val context = LocalContext.current
     Box (modifier = Modifier
         .fillMaxSize()
         .background(color = Color(0xFFf5f5f5))
@@ -215,27 +237,6 @@ fun BodyContent(navController: NavController, viewModel: DataViewModel) {
                             }
                         }
                     }
-//                Spacer(modifier = Modifier.height(10.dp))
-//                Card(shape = RoundedCornerShape(15.dp), modifier = Modifier.fillMaxWidth(), colors = cardColors) {
-//                    Row(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(16.dp)
-//                            .sizeIn(minHeight = 40.dp)
-//                    ) {
-//                        Column(modifier = Modifier.weight(1f)) {
-//                            Text(text = "Inscrito",
-//                                style = MaterialTheme.typography.titleLarge,
-//                                modifier = Modifier.background(color = Color(0x00000000))
-//                            )
-//                            var texto = ""
-//                            if(alumnoAcademicoResult.inscrito) texto="SI" else texto="NO"
-//                            Text(text = texto,
-//                                style = MaterialTheme.typography.bodyMedium
-//                            )
-//                        }
-//                    }
-//                }
                     Spacer(modifier = Modifier.height(10.dp))
                     Card(
                         shape = RoundedCornerShape(15.dp),
@@ -315,18 +316,15 @@ fun BodyContent(navController: NavController, viewModel: DataViewModel) {
             } else {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(text = "No se pudo obtener el perfil académico.")
-                    Text(text = "Revisa tus credenciales de inicio de sesión.")
                 }
             }
             Button(onClick = {
-                // Navegar a la pantalla de login y limpiar las cookies de sesion
-                val addCookiesInterceptor = AddCookiesInterceptor(context)
-                addCookiesInterceptor.clearCookies()
-                viewModel.accesoLoginResult?.acceso=false
-                navController.navigateUp()
+                // Navegar a la pantalla de login
+                navController.popBackStack(route = "login", inclusive = false)
             }) {
-                Text(text = "Salir")
+                Text(text = "Cerrar sesion")
             }
         }
     }
 }
+
