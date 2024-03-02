@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +42,7 @@ import com.example.login_sicenet.data.AppContainer
 import com.example.login_sicenet.data.RetrofitClient
 import com.example.login_sicenet.model.AlumnoAcademicoResult
 import com.example.login_sicenet.navigation.AppScreens
+import com.example.login_sicenet.network.AddCookiesInterceptor
 import com.example.login_sicenet.ui.theme.Green80
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -92,7 +94,12 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
                 )
             }
         ) {
-            BodyContent(navController, viewModel)
+            if(viewModel.internet==true){
+                BodyContent(navController, viewModel)
+            }else{
+                //PANTALLA LLENADA DESDE LA BASE DE DATOS
+            }
+
         }
 }
 
@@ -103,6 +110,7 @@ fun BodyContent(navController: NavController, viewModel: DataViewModel) {
         .fillMaxSize()
         .background(color = Color(0xFFf5f5f5))
     ) {
+        val context = LocalContext.current
         Image(
             painter = painterResource(id = R.drawable.backgrounddata),
             contentDescription = "Imagen de fondo",
@@ -320,6 +328,9 @@ fun BodyContent(navController: NavController, viewModel: DataViewModel) {
             }
             Button(onClick = {
                 // Navegar a la pantalla de login
+                val addCookiesInterceptor = AddCookiesInterceptor(context)
+                addCookiesInterceptor.clearCookies()
+                viewModel.accesoLoginResult?.acceso=false
                 navController.popBackStack(route = "login", inclusive = false)
             }) {
                 Text(text = "Cerrar sesion")

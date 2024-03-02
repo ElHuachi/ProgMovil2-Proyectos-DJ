@@ -18,6 +18,8 @@ class OfflineAlumnoAcademicoWithLineamientoRepository(private val profileDAO: Al
 
     override suspend fun updateItem(item: AlumnoAcademicoResultDB) = profileDAO.update(item)
 
+    override suspend fun updateItemQuery(matricula: String, fecha: String) = profileDAO.updateQuery(matricula, fecha)
+
     override suspend fun insertItemAndGetId(item: AlumnoAcademicoResultDB): Long {
         return profileDAO.insertAndGetId(item)
     }

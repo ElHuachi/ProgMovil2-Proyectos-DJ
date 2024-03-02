@@ -21,6 +21,9 @@ interface AlumnoAcademicoWithLineamientoDAO {
     @Update
     suspend fun update(profile: AlumnoAcademicoResultDB)
 
+    @Query("UPDATE profile SET fecha=:fecha WHERE matricula = :matricula")
+    suspend fun updateQuery(matricula: String, fecha: String)
+
     @Delete
     suspend fun delete(profile: AlumnoAcademicoResultDB)
 

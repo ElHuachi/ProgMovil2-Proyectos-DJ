@@ -30,5 +30,7 @@ interface AlumnoAcademicoWithLineamientoRepository {
      */
     suspend fun updateItem(item: AlumnoAcademicoResultDB)
 
+    suspend fun updateItemQuery(matricula: String, fecha: String)
+
     suspend fun insertItemAndGetId(item: AlumnoAcademicoResultDB): Long
 }

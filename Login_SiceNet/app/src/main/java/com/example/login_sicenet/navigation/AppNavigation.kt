@@ -1,5 +1,7 @@
 package com.example.login_sicenet.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -14,6 +16,7 @@ import com.example.login_sicenet.screens.DataViewModel
 import com.example.login_sicenet.screens.HorarioScreen
 import com.example.login_sicenet.screens.LoginScreen
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()

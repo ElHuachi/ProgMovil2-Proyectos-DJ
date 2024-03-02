@@ -91,7 +91,7 @@ data class ProfileDetails(
     val lineamiento: Int? = null,
     val nombre: String? = null,
     val matricula: String? = null,
-    val fecha: String? = ""
+    var fecha: String? = ""
 )
 
 

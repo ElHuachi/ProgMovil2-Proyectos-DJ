@@ -15,6 +15,8 @@ class OfflineAccessLoginResponseRepository(private val accessDAO: AccessLoginRes
 
     override suspend fun updateItem(item: AccessLoginResponseDB) = accessDAO.update(item)
 
+    override suspend fun updateItemQuery(matricula: String, fecha: String) = accessDAO.updateQuery(matricula, fecha)
+
     override suspend fun insertItemAndGetId(item: AccessLoginResponseDB): Long {
         return accessDAO.insertAndGetId(item)
     }

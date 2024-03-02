@@ -2,8 +2,12 @@ package com.example.login_sicenet.screens
 
 import android.content.Context
 import android.content.res.Configuration
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,6 +59,7 @@ import com.example.login_sicenet.model.AlumnoAcademicoResult
 import com.example.login_sicenet.model.Envelope
 import com.example.login_sicenet.model.EnvelopeLogin
 import com.example.login_sicenet.network.AddCookiesInterceptor
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import retrofit2.Call
@@ -64,6 +69,7 @@ import okhttp3.RequestBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LoginScreen(navController: NavController, viewModel: DataViewModel){
     val context = LocalContext.current
@@ -263,6 +269,7 @@ fun RowUser(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RowButtonLogin(
     context: Context,
@@ -273,6 +280,7 @@ fun RowButtonLogin(
     navController: NavController,
     viewModel: DataViewModel
 ){
+    val coroutineScope = rememberCoroutineScope()
     Row(
         Modifier
             .fillMaxWidth()
@@ -281,12 +289,88 @@ fun RowButtonLogin(
     ) {
         Button(modifier = Modifier.fillMaxWidth(),
             onClick = {
+                if(checkInternetConnection(context)){
                     login(context)
-                    authenticate(context, nControl, password, navController, viewModel)
+                    viewModel.nControl=nControl
+                    viewModel.pass=password
+                    viewModel.performLoginAndFetchAcademicProfile()
+                    if(viewModel.accesoLoginResult?.acceso==true) {
+                        viewModel.lineamiento=viewModel.alumnoAcademicoResult?.lineamiento.toString()
+
+                        viewModel.getCalifFinales()
+                        viewModel.getCalifUnidades()
+                        viewModel.getKardex()
+                        viewModel.getCargaAcademica()
+                        //INSERTAR REGISTRO
+                        coroutineScope.launch {
+                            var existente: Boolean? = viewModel.getAccesoExistente(nControl)
+                            Log.e("INSERTAR?",existente.toString())
+                            val accesoLoginResult = viewModel.accesoLoginResult
+                            if (accesoLoginResult != null) {
+                                if(existente==false){
+                                    viewModel.updateUiStateAccess(
+                                        viewModel.accesoUiState.accesoDetails,
+                                        accesoLoginResult
+                                    )
+                                    viewModel.saveAccessResult()
+                                    Log.d("INSERTAR","INSERTAR")
+                                    viewModel.alumnoAcademicoResult?.let {
+                                        viewModel.updateUiStatProfile(
+                                            viewModel.profileUiState.profileDetails,
+                                            it
+                                        )
+                                    }
+                                    viewModel.saveProfileResult()
+                                }else{
+                                    viewModel.updateUiStateAccess(
+                                        viewModel.accesoUiState.accesoDetails,
+                                        accesoLoginResult
+                                    )
+                                    viewModel.updateAccessDB()
+                                    Log.d("UPDATE","UPDATE")
+                                    viewModel.alumnoAcademicoResult?.let {
+                                        viewModel.updateUiStatProfile(
+                                            viewModel.profileUiState.profileDetails,
+                                            it
+                                        )
+                                    }
+                                    viewModel.updateProfileDB()
+                                }
+                                viewModel.internet=true
+                                navController.navigate("data")
+                            }
+                        }
+                    }
+                }else{
+                    Log.d("INTERNET","NO HAY INTERNET")
+                    viewModel.internet=false
+                    navController.navigate("data")
+                }
+                    //authenticate(context, nControl, password, navController, viewModel)
             },
             enabled = isValidUser) {
             Text("Iniciar Sesión")
         }
+    }
+}
+
+fun checkInternetConnection(context: Context): Boolean {
+    val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val networkCapabilities = connectivityManager.activeNetwork ?: return false
+        val activeNetwork =
+            connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+
+        return when {
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            else -> false
+        }
+    } else {
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected
     }
 }
 

@@ -29,5 +29,7 @@ interface AccessLoginResponseRepository {
      */
     suspend fun updateItem(item: AccessLoginResponseDB)
 
+    suspend fun updateItemQuery(matricula: String, fecha: String)
+
     suspend fun insertItemAndGetId(item: AccessLoginResponseDB): Long
 }

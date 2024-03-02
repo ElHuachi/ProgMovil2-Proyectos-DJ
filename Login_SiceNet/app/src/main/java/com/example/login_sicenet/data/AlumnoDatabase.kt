@@ -21,7 +21,7 @@ import com.example.login_sicenet.model.PromedioDB
         KardexItemDB::class,
         PromedioDB::class,
         CargaAcademicaItemDB::class],
-    version = 4, exportSchema = false)
+    version = 1, exportSchema = false)
 abstract class AlumnoDatabase: RoomDatabase(){
 
     abstract fun accessDao(): AccessLoginResponseDAO
@@ -38,7 +38,7 @@ abstract class AlumnoDatabase: RoomDatabase(){
 
         fun getDatabase(context: Context): AlumnoDatabase {
             return Instance ?: synchronized(this) {
-                Room.databaseBuilder(context, AlumnoDatabase::class.java, "alumno_database")
+                Room.databaseBuilder(context, AlumnoDatabase::class.java, "alumnos_database")
                     .fallbackToDestructiveMigration()
                     .build()
                     .also { Instance = it }

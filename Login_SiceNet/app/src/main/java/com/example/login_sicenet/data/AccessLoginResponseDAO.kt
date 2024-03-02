@@ -20,6 +20,9 @@ interface AccessLoginResponseDAO {
     @Update
     suspend fun update(login: AccessLoginResponseDB)
 
+    @Query("UPDATE login SET fecha = :fecha WHERE matricula = :matricula")
+    suspend fun updateQuery(matricula: String, fecha: String)
+
     @Delete
     suspend fun delete(login: AccessLoginResponseDB)
 

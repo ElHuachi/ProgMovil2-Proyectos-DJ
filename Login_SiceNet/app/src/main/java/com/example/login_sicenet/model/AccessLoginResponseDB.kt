@@ -41,7 +41,7 @@ data class AccesoDetails(
     val tipo_usuario: Int? = null,
     val contrasenia: String? = null,
     val matricula: String? = null,
-    val fecha: String = ""
+    var fecha: String = ""
 )
 
 fun AccesoDetails.toItem(): AccessLoginResponseDB = AccessLoginResponseDB(
