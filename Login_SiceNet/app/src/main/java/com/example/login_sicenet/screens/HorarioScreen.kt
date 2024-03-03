@@ -166,7 +166,7 @@ fun BodyContentH(navController: NavController, viewModel: DataViewModel, Modifie
                     }
                 }
             }else{
-                Log.d("obteniendo perfil", "obteniendo perfil")
+                Log.d("obteniendo carga", "obteniendo carga")
                 coroutineScope.launch {
                     Log.e("check","check")
                     viewModel.cargaAcDB1=viewModel.getCargaAcademica1(viewModel.nControl)
