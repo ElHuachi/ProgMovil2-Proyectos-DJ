@@ -300,6 +300,7 @@ fun RowButtonLogin(
                         val accesoLoginResult = viewModel.accesoLoginResult
                         //INSERTAR REGISTRO
                         coroutineScope.launch {
+                            //viewModel.deleteAccessDB("S20120178")
                             if (accesoLoginResult != null) {
                                 Log.e("entro","entro")
                                 Log.e("XXXXX","XXXXX")

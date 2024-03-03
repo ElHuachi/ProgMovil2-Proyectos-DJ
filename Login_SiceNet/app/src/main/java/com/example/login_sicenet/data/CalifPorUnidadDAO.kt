@@ -27,6 +27,6 @@ interface CalifPorUnidadDAO {
     @Query("SELECT * from calificacionesUnidad WHERE matricula = :matricula")
     fun getItem(matricula: String): Flow<CalificacionUnidadDB>
 
-    @Query("SELECT * from calificacionesUnidad ORDER BY matricula ASC")
-    fun getAllItems(): Flow<List<CalificacionUnidadDB>>
+    @Query("SELECT * from calificacionesUnidad WHERE matricula = :nControl")
+    fun getAllItems(nControl: String): Flow<List<CalificacionUnidadDB>>
 }

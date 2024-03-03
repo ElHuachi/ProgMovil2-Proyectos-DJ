@@ -31,6 +31,7 @@ import com.example.login_sicenet.model.CalifFinDetails
 import com.example.login_sicenet.model.CalifUnidadDetails
 import com.example.login_sicenet.model.Calificacion
 import com.example.login_sicenet.model.CalificacionUnidad
+import com.example.login_sicenet.model.CalificacionUnidadDB
 import com.example.login_sicenet.model.CargaAcDetails
 import com.example.login_sicenet.model.CargaAcUiState
 import com.example.login_sicenet.model.CargaAcademicaItem
@@ -44,18 +45,24 @@ import com.example.login_sicenet.model.Promedio
 import com.example.login_sicenet.model.PromedioDetails
 import com.example.login_sicenet.model.PromedioUiState
 import com.example.login_sicenet.model.toItem
+import com.example.login_sicenet.model.toItemDetails
 import com.example.login_sicenet.model.toItemUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 sealed interface SiceUiState {
     object Success : SiceUiState
@@ -86,6 +93,8 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     var internet: Boolean = true
 
     var perfilDB: AlumnoAcademicoResultDB? = null
+    var caliUnidadDB: List<CalificacionUnidadDB>? = null
+    var caliUnidadDB1: CalificacionUnidadDB? = null
 
     var siceUiState: SiceUiState by mutableStateOf(SiceUiState.Loading)
         private set
@@ -259,25 +268,6 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
         return deferred.await() != null
     }
 
-    suspend fun getProfileDB(matricula: String): AlumnoAcademicoResultDB? {
-        var profileResponse: ProfileUiState? = null
-
-        // Utiliza viewModelScope.async para obtener un Deferred
-        val deferred = viewModelScope.async {
-            AlumnoAcademicoWithLineamientoRepository.getItemStream(matricula)
-                .filterNotNull()
-                .first()
-                .toItemUiState(true)
-        }
-
-        // Espera hasta que la operación asíncrona se complete
-        profileResponse = deferred.await()
-
-        profileResponse?.profileDetails?.matricula?.let { Log.e("OBTENIENDO REGISTRO", it) }
-        return profileResponse?.profileDetails?.toItem()
-    }
-
-
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun updateAccessDB() {
         var fecha  = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
@@ -331,6 +321,45 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     suspend fun updateProfileDB() {
         var fecha  = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         AlumnoAcademicoWithLineamientoRepository.updateItemQuery(nControl,fecha)
+    }
+
+    suspend fun getProfileDB(matricula: String): AlumnoAcademicoResultDB? {
+        var profileResponse: ProfileUiState? = null
+
+        // Utiliza viewModelScope.async para obtener un Deferred
+        val deferred = viewModelScope.async {
+            AlumnoAcademicoWithLineamientoRepository.getItemStream(matricula)
+                .filterNotNull()
+                .first()
+                .toItemUiState(true)
+        }
+
+        // Espera hasta que la operación asíncrona se complete
+        profileResponse = deferred.await()
+
+        profileResponse?.profileDetails?.matricula?.let { Log.e("OBTENIENDO REGISTRO", it) }
+        return profileResponse?.profileDetails?.toItem()
+    }
+
+    suspend fun getCaliUnidad(matricula: String): List<CalificacionUnidadDB> {
+        // Utiliza viewModelScope.async para obtener un Deferred
+
+        return CaliPorUnidadRepository.getAllItemsStream(matricula)
+            .toList()
+            .flatten()
+    }
+
+    suspend fun getCaliUnidad1(matricula: String): CalificacionUnidadDB {
+        // Utiliza viewModelScope.async para obtener un Deferred
+
+        val deferred = viewModelScope.async {
+            CaliPorUnidadRepository.getItemStream(matricula)
+                .filterNotNull()
+                .first()
+                .toItemUiState(true)
+        }
+
+        return deferred.await().califUnidadDetails.toItem()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -388,17 +417,52 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     //CALI UNIDAD
     var caliUnidadUiState by mutableStateOf(CaliUnidadUiState())
         private set
+
+    suspend fun getCaliUnidadExistente(matricula: String): Boolean? {
+        // Utiliza viewModelScope.async para obtener un Deferred
+        val deferred = viewModelScope.async {
+            CaliPorUnidadRepository.getItemStream(matricula)
+                .firstOrNull()
+                ?.toItemUiState(true)
+        }
+
+        return deferred.await() != null
+    }
+
     private fun validateInputCaliUnidad(uiState: CalifUnidadDetails = caliUnidadUiState.califUnidadDetails): Boolean {
         return with(uiState) {
             fecha.isNotBlank()
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun saveCaliUnidad() {
-        if (validateInputCaliUnidad()) {
-            // Guarda la peticion de acceso y obtén el ID.
-            val califId = CaliPorUnidadRepository.insertItemAndGetId(caliUnidadUiState.califUnidadDetails.toItem())
+        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        for(cali in califUnidades!!){
+            val calif = CalificacionUnidadDB(
+                matricula = nControl,
+                observaciones = cali.observaciones,
+                c13 = cali.c13,
+                c12 = cali.c12,
+                c11 = cali.c11,
+                c10 = cali.c10,
+                c9 = cali.c9,
+                c8 = cali.c8,
+                c7 = cali.c7,
+                c6 = cali.c6,
+                c5 = cali.c5,
+                c4 = cali.c4,
+                c3 = cali.c3,
+                c2 = cali.c2,
+                c1 = cali.c1,
+                unidadesActivas = cali.unidadesActivas,
+                materia = cali.materia,
+                grupo = cali.grupo,
+                fecha= currentDateTime
+            )
+            val califId = CaliPorUnidadRepository.insertItemAndGetId(calif)
         }
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
