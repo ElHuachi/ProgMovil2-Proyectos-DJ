@@ -16,7 +16,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class KardexItemDB(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") var id: Int,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") var id: Int=0,
 
     @ColumnInfo(name = "matricula")
     var matricula: String? = null,
@@ -157,7 +157,7 @@ fun KardexItemDB.toItemDetails(): KardexItemDetails = KardexItemDetails(
     indices = [Index(value = ["matricula"], unique = true)]
 )
 data class PromedioDB(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") var id: Int,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") var id: Int=0,
 
     @ColumnInfo(name = "matricula")
     var matricula: String? = null,

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.exampl.KardexScreen
 import com.example.login_sicenet.data.SicenetRepository
 import com.example.login_sicenet.screens.AboutScreen
 import com.example.login_sicenet.screens.CalFinalScreen
@@ -29,5 +30,7 @@ fun AppNavigation() {
         composable("horario_screen") { HorarioScreen(navController = navController, viewModel = dataViewModel)}
         composable("final_screen") { CalFinalScreen (navController = navController, viewModel = dataViewModel)}
         composable("calpar_screen") { CalParScreen(navController = navController, viewModel = dataViewModel)}
+        composable("kardex_screen") { KardexScreen(navController = navController, viewModel = dataViewModel) }
+
     }
 }

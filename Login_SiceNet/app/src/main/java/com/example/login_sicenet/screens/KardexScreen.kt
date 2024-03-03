@@ -1,7 +1,7 @@
-package com.example.login_sicenet.screens
+package com.exampl
 
+import com.example.login_sicenet.screens.DataViewModel
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -11,7 +11,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -21,12 +20,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DensityMedium
 import androidx.compose.material.icons.filled.House
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,22 +46,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.login_sicenet.R
-import com.example.login_sicenet.model.Calificacion
-import com.example.login_sicenet.model.CalificacionDB
 import com.example.login_sicenet.model.CargaAcademicaItem
 import com.example.login_sicenet.model.CargaAcademicaItemDB
+import com.example.login_sicenet.model.KardexItem
+import com.example.login_sicenet.model.KardexItemDB
+import com.example.login_sicenet.model.Promedio
+import com.example.login_sicenet.model.PromedioDB
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HorarioScreen (navController: NavController, viewModel: DataViewModel){
+fun KardexScreen (navController: NavController, viewModel: DataViewModel){
     var expanded by remember { mutableStateOf(false) }
     Scaffold (
         topBar = {
@@ -72,7 +69,7 @@ fun HorarioScreen (navController: NavController, viewModel: DataViewModel){
                 IconButton(onClick = { navController.navigate("data") }) {
                     Icon(imageVector = Icons.Filled.House, contentDescription = "Inicio")
                 }
-                Text(text = "Carga academica",
+                Text(text = "Kardex",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier
                         .padding(vertical = 10.dp)
@@ -99,28 +96,14 @@ fun HorarioScreen (navController: NavController, viewModel: DataViewModel){
             )
         }
     ) {innerPadding ->
-        BodyContentH(navController, viewModel, Modifier.padding(top = innerPadding.calculateTopPadding()))
+        BodyKardex(viewModel, Modifier.padding(top = innerPadding.calculateTopPadding()))
     }
-}
-
-@Composable
-fun RowScope.TableCell(
-    text: String,
-    weight: Float,
-) {
-    Text(
-        text = text,
-        Modifier
-            .border(1.dp, Color.Black)
-            .weight(weight)
-            .padding(10.dp)
-    )
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun BodyContentH(navController: NavController, viewModel: DataViewModel, Modifier: Modifier){
+fun BodyKardex(viewModel: DataViewModel, Modifier: Modifier){
 
     val coroutineScope = rememberCoroutineScope()
     Box (modifier = Modifier
@@ -140,53 +123,89 @@ fun BodyContentH(navController: NavController, viewModel: DataViewModel, Modifie
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if(viewModel.internet==true){
-                //viewModel.getCalifUnidades()
-                val cargaAc = viewModel.cargaAcademica
-                // Verifica si alumnoAcademicoResult es null
-                if (cargaAc != null) {
-                    LazyColumn {
-                        items(cargaAc.size) { item ->
-                            // Function to display each item
-                            DisplayItemCargaAc(cargaAc[item])
+                DisposableEffect(Unit) {
+                    coroutineScope.launch {
+                        // Coloca aquí el código que deseas ejecutar solo una vez
+
+                        val existente = viewModel.getKardexExistente(viewModel.nControl)
+                        if (existente == true) {
+                            Log.e("ya estan", "ya estan")
+                        } else {
+//                            viewModel.saveKardex()
+                            viewModel.savePromedio()
                         }
                     }
+                    onDispose {
+                        // Coloca aquí el código de limpieza si es necesario
+                    }
+                }
+                //viewModel.getCalifUnidades()
+                val kardex = viewModel.kardex?.lstKardex
+                val promedio = viewModel.kardex?.promedio
+                // Verifica si alumnoAcademicoResult es null
+                if (kardex != null && promedio != null) {
+                    LazyColumn {
+                        items(kardex.size) { item ->
+                            // Function to display each item
+                            DisplayItemKardex(kardex[item], promedio)
+                        }
+                    }
+                    Spacer(modifier = androidx.compose.ui.Modifier.height(8.dp))
+                    Text(text = "PROMEDIO", color = Color.White)
+                    Text(text = "Promedio General: ${promedio.promedioGral}", color = Color.White)
+                    Text(text = "Creditos Acumulados: ${promedio.cdtsAcum}", color = Color.White)
+                    Text(text = "Creditos Totales: ${promedio.cdtsPlan}", color = Color.White)
+                    Text(text = "Avance de Craditos: ${promedio.avanceCdts}%", color = Color.White)
+                    Text(text = "Materias Cursadas: ${promedio.matCursadas}", color = Color.White)
+                    Text(text = "Materias Aprobadas: ${promedio.matAprobadas}", color = Color.White)
                     coroutineScope.launch {
-                        val existente = viewModel.getCaliFinalExistente(viewModel.nControl)
+                        val existente = viewModel.getKardexExistente(viewModel.nControl)
                         if(existente==true){
-
-                            //viewModel.updateCargaAc()
-                            viewModel.saveCargaAc()
-                        }else{
-
+                            //viewModel.updateKardex()
                             Log.e("ya estan", "ya estan")
+                        }else{
+                            viewModel.saveKardex()
+//                            viewModel.savePromedio()
                         }
                     }
                 } else {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "No se pudo obtener la carga académica.")
+                        Text(text = "No se pudo obtener el kardex.")
                     }
                 }
             }else{
                 Log.d("obteniendo carga", "obteniendo carga")
                 coroutineScope.launch {
                     Log.e("check","check")
-                    viewModel.cargaAcDB1=viewModel.getCargaAcademica1(viewModel.nControl)
+                    viewModel.kardexDB1=viewModel.getKardex1(viewModel.nControl)
+                    viewModel.promedioDB1=viewModel.getPromedio1(viewModel.nControl)
 
                     //viewModel.deleteAccessDB("S20120179")
                 }
-                val cargaDB = viewModel.cargaAcDB1
+                val kardexDB = viewModel.kardexDB1
+                val promedioDB = viewModel.promedioDB1
                 //PANTALLA LLENADA DESDE LA BASE DE DATOS
-                if (cargaDB != null) {
+                if (kardexDB != null) {
 
-                    LazyColumn {
-                        items(1) { item ->
-                            // Function to display each item
-                            DisplayItemCargaAcOffline(cargaDB)
-                        }
-                    }
+//                    LazyColumn {
+//                        items(1) { item ->
+//                            // Function to display each item
+//                            if (promedioDB != null) {
+//                                DisplayItemKardexOffline(kardexDB, promedioDB)
+//                            }
+//                        }
+//                    }
+                    Spacer(modifier = androidx.compose.ui.Modifier.height(8.dp))
+                    Text(text = "PROMEDIO", color = Color.White)
+                    Text(text = "Promedio General: ${promedioDB?.promedioGral}", color = Color.White)
+                    Text(text = "Creditos Acumulados: ${promedioDB?.cdtsAcum}", color = Color.White)
+                    Text(text = "Creditos Totales: ${promedioDB?.cdtsPlan}", color = Color.White)
+                    Text(text = "Avance de Craditos: ${promedioDB?.avanceCdts}%", color = Color.White)
+                    Text(text = "Materias Cursadas: ${promedioDB?.matCursadas}", color = Color.White)
+                    Text(text = "Materias Aprobadas: ${promedioDB?.matAprobadas}", color = Color.White)
                     Spacer(modifier = Modifier.height(2.dp))
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "Última actulizacíon: ${cargaDB?.fecha}", color = Color.White)
+                        Text(text = "Última actulizacíon: ${promedioDB?.fecha}", color = Color.White)
                     }
                 } else {
                     Column(modifier = Modifier.padding(16.dp)) {
@@ -199,45 +218,85 @@ fun BodyContentH(navController: NavController, viewModel: DataViewModel, Modifie
 }
 
 @Composable
-fun DisplayItemCargaAc(item: CargaAcademicaItem) {
+fun DisplayItemKardex(item: KardexItem, promedio: Promedio) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
         // Display each property of the object in a Text or other Compose components
+        Text(text = "CVE: ${item.clvMat}", color = Color.White)
+        Text(text = "CVE Oficial: ${item.clvOfiMat}", color = Color.White)
         Text(text = "Materia: ${item.materia}", color = Color.White)
-        Text(text = "Grupo: ${item.grupo}", color = Color.White)
-        Text(text = "Docente: ${item.docente}", color = Color.White)
-        Text(text = "Lunes: ${item.lunes}", color = Color.White)
-        Text(text = "Martes: ${item.martes}", color = Color.White)
-        Text(text = "Miercoles: ${item.miercoles}", color = Color.White)
-        Text(text = "Jueves: ${item.jueves}", color = Color.White)
-        Text(text = "Viernes: ${item.viernes}", color = Color.White)
-        Text(text = "Sabado: ${item.sabado}", color = Color.White)
-        Text(text = "Creditos: ${item.creditosMateria}", color = Color.White)
+        Text(text = "Creditos: ${item.cdts}", color = Color.White)
+        Text(text = "Calificación: ${item.calif}", color = Color.White)
+        Text(text = "Acreditación: ${item.acred}", color = Color.White)
+        if(item.s1?.length!! >0){
+            Text(text = "Semestre: ${item.s1}", color = Color.White)
+        }else if(item.s2?.length!! >0){
+            Text(text = "Semestre: ${item.s2}", color = Color.White)
+        }
+        else if(item.s3?.length!! >0){
+            Text(text = "Semestre: ${item.s3}", color = Color.White)
+        }
+        if(item.p1?.length!!>0){
+            Text(text = "Periodo: ${item.p1}", color = Color.White)
+        }else if(item.p2?.length!! >0){
+            Text(text = "Periodo: ${item.p2}", color = Color.White)
+        }
+        else if(item.p3?.length!! >0){
+            Text(text = "Periodo: ${item.p3}", color = Color.White)
+        }
+        if(item.a1?.length!!>0){
+            Text(text = "Año: ${item.a1}", color = Color.White)
+        }else if(item.a2?.length!! >0){
+            Text(text = "Año: ${item.a2}", color = Color.White)
+        }
+        else if(item.a3?.length!! >0){
+            Text(text = "Año: ${item.a3}", color = Color.White)
+        }
         Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
 @Composable
-fun DisplayItemCargaAcOffline(item: CargaAcademicaItemDB) {
+fun DisplayItemKardexOffline(item: KardexItemDB, promedio: PromedioDB) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
         // Display each property of the object in a Text or other Compose components
+        Text(text = "CVE: ${item.clvMat}", color = Color.White)
+        Text(text = "CVE Oficial: ${item.clvOfiMat}", color = Color.White)
         Text(text = "Materia: ${item.materia}", color = Color.White)
-        Text(text = "Grupo: ${item.grupo}", color = Color.White)
-        Text(text = "Docente: ${item.docente}", color = Color.White)
-        Text(text = "Lunes: ${item.lunes}", color = Color.White)
-        Text(text = "Martes: ${item.martes}", color = Color.White)
-        Text(text = "Miercoles: ${item.miercoles}", color = Color.White)
-        Text(text = "Jueves: ${item.jueves}", color = Color.White)
-        Text(text = "Viernes: ${item.viernes}", color = Color.White)
-        Text(text = "Sabado: ${item.sabado}", color = Color.White)
-        Text(text = "Creditos: ${item.creditosMateria}", color = Color.White)
+        Text(text = "Creditos: ${item.cdts}", color = Color.White)
+        Text(text = "Calificación: ${item.calif}", color = Color.White)
+        Text(text = "Acreditación: ${item.acred}", color = Color.White)
+        if(item.s1?.length!!>0){
+            Text(text = "Semestre: ${item.s1}", color = Color.White)
+        }else if(item.s2?.length!!>0){
+            Text(text = "Semestre: ${item.s2}", color = Color.White)
+        }
+        else if(item.s3?.length!!>0){
+            Text(text = "Semestre: ${item.s3}", color = Color.White)
+        }
+        if(item.p1?.length!!>0){
+            Text(text = "Periodo: ${item.p1}", color = Color.White)
+        }else if(item.p2?.length!!>0){
+            Text(text = "Periodo: ${item.p2}", color = Color.White)
+        }
+        else if(item.p3?.length!!>0){
+            Text(text = "Periodo: ${item.p3}", color = Color.White)
+        }
+        if(item.a1?.length!!>0){
+            Text(text = "Año: ${item.a1}", color = Color.White)
+        }else if(item.a2?.length!! >0){
+            Text(text = "Año: ${item.a2}", color = Color.White)
+        }
+        else if(item.a3?.length!!>0){
+            Text(text = "Año: ${item.a3}", color = Color.White)
+        }
         Spacer(modifier = Modifier.height(8.dp))
     }
 }

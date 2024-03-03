@@ -39,11 +39,13 @@ import com.example.login_sicenet.model.CargaAcademicaItem
 import com.example.login_sicenet.model.CargaAcademicaItemDB
 import com.example.login_sicenet.model.Kardex
 import com.example.login_sicenet.model.KardexItem
+import com.example.login_sicenet.model.KardexItemDB
 import com.example.login_sicenet.model.KardexItemDetails
 import com.example.login_sicenet.model.KardexUiState
 import com.example.login_sicenet.model.ProfileDetails
 import com.example.login_sicenet.model.ProfileUiState
 import com.example.login_sicenet.model.Promedio
+import com.example.login_sicenet.model.PromedioDB
 import com.example.login_sicenet.model.PromedioDetails
 import com.example.login_sicenet.model.PromedioUiState
 import com.example.login_sicenet.model.toItem
@@ -95,18 +97,16 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     var internet: Boolean = true
 
     var perfilDB: AlumnoAcademicoResultDB? = null
-    var caliUnidadDB: List<CalificacionUnidadDB>? = null
     var caliUnidadDB1: CalificacionUnidadDB? = null
     var caliFinalDB1: CalificacionDB? = null
     var cargaAcDB1: CargaAcademicaItemDB? = null
+    var kardexDB1: KardexItemDB? = null
+    var promedioDB1: PromedioDB? = null
+
 
 
     var siceUiState: SiceUiState by mutableStateOf(SiceUiState.Loading)
         private set
-
-//    init {
-//        login()
-//    }
 
     fun login() {
         viewModelScope.launch {
@@ -616,12 +616,6 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
 
     }
 
-    private fun validateInputCargaAc(uiState: CargaAcDetails = cargaAcUiState.cargaAcDetails): Boolean {
-        return with(uiState) {
-            fecha.isNotBlank()
-        }
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateUiStatCargaAc(accessDetails: CargaAcDetails, CargaAcademicaItem: CargaAcademicaItem, matricula: String) {
         val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
@@ -630,7 +624,7 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
             docente = CargaAcademicaItem.docente, clvOficial = CargaAcademicaItem.clvOficial, sabado = CargaAcademicaItem.sabado, viernes = CargaAcademicaItem.viernes,
             jueves = CargaAcademicaItem.jueves, miercoles = CargaAcademicaItem.miercoles, martes = CargaAcademicaItem.martes, lunes = CargaAcademicaItem.lunes,
             estadoMateria = CargaAcademicaItem.estadoMateria, creditosMateria = CargaAcademicaItem.creditosMateria,fecha = currentDateTime)
-        cargaAcUiState = CargaAcUiState(cargaAcDetails = updatedCargaAcDetails, isEntryValid = validateInputCaliUnidad())
+        cargaAcUiState = CargaAcUiState(cargaAcDetails = updatedCargaAcDetails, isEntryValid = true)
     }
 
     //KARDEXITEM DB
@@ -642,12 +636,85 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
         }
     }
 
+    suspend fun getKardexExistente(matricula: String): Boolean? {
+        // Utiliza viewModelScope.async para obtener un Deferred
+        val deferred = viewModelScope.async {
+            PromedioRepository.getItemStream(matricula)
+                .firstOrNull()
+                ?.toItemUiState(true)
+        }
+
+        return deferred.await() != null
+    }
+
+    suspend fun getKardex1(matricula: String): KardexItemDB {
+        // Utiliza viewModelScope.async para obtener un Deferred
+
+        val deferred = viewModelScope.async {
+            KardexItemRepository.getItemStream(matricula)
+                .filterNotNull()
+                .first()
+                .toItemUiState(true)
+        }
+
+        return deferred.await().kardexItemDetails.toItem()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun saveKardex() {
-        if (validateInputKardex()) {
-            // Guarda la peticion de acceso y obtén el ID.
-            val kardexId = KardexItemRepository.insertItemAndGetId(kardexUiState.kardexItemDetails.toItem())
+        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        for(item in kardex?.lstKardex!!){
+            val item = KardexItemDB(
+                matricula = nControl,
+                s3 = item.s3,
+                p3 = item.p3,
+                a3 = item.a3,
+                s2 = item.s2,
+                p2 = item.p2,
+                a2 = item.a2,
+                s1 = item.s1,
+                p1 = item.p1,
+                a1 = item.a1,
+                clvMat = item.clvMat,
+                clvOfiMat = item.clvOfiMat,
+                cdts = item.cdts,
+                calif = item.calif,
+                materia = item.materia,
+                acred = item.acred,
+                fecha= currentDateTime
+            )
+            val califId = KardexItemRepository.insertItemAndGetId(item)
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun updateKardex() {
+        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        for(item in kardex?.lstKardex!!){
+            val item = KardexItemDB(
+                matricula = nControl,
+                s3 = item.s3,
+                p3 = item.p3,
+                a3 = item.a3,
+                s2 = item.s2,
+                p2 = item.p2,
+                a2 = item.a2,
+                s1 = item.s1,
+                p1 = item.p1,
+                a1 = item.a1,
+                clvMat = item.clvMat,
+                clvOfiMat = item.clvOfiMat,
+                cdts = item.cdts,
+                calif = item.calif,
+                materia = item.materia,
+                acred = item.acred,
+                fecha= currentDateTime
+            )
+            val califId = KardexItemRepository.updateItem(item)
+        }
+
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateUiStateKardex(accessDetails: KardexItemDetails, KardexItem: KardexItem, matricula: String) {
@@ -669,11 +736,33 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun savePromedio() {
-        if (validateInputKardex()) {
-            // Guarda la peticion de acceso y obtén el ID.
-            val promedioId = PromedioRepository.insertItemAndGetId(promedioUiState.promedioDetails.toItem())
+        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+            val item = PromedioDB(
+                matricula = nControl,
+                promedioGral = kardex?.promedio?.promedioGral,
+                cdtsAcum = kardex?.promedio?.cdtsAcum,
+                cdtsPlan = kardex?.promedio?.cdtsPlan,
+                matCursadas = kardex?.promedio?.matCursadas,
+                matAprobadas = kardex?.promedio?.matAprobadas,
+                avanceCdts = kardex?.promedio?.avanceCdts,
+                fecha= currentDateTime
+            )
+        val califId = PromedioRepository.insertItemAndGetId(item)
+    }
+
+    suspend fun getPromedio1(matricula: String): PromedioDB {
+        // Utiliza viewModelScope.async para obtener un Deferred
+
+        val deferred = viewModelScope.async {
+            PromedioRepository.getItemStream(matricula)
+                .filterNotNull()
+                .first()
+                .toItemUiState(true)
         }
+
+        return deferred.await().promedioDetails.toItem()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

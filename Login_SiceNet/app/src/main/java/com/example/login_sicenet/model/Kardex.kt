@@ -53,13 +53,13 @@ data class KardexItem(
     val acred: String,
 
     @SerialName("S1")
-    val s1: String,
+    val s1: String?,
 
     @SerialName("P1")
-    val p1: String,
+    val p1: String?,
 
     @SerialName("A1")
-    val a1: String,
+    val a1: String?,
 
     @SerialName("S2")
     val s2: String?,
