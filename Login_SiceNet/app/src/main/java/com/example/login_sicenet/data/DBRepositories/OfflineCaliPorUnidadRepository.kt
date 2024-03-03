@@ -17,6 +17,8 @@ class OfflineCaliPorUnidadRepository(private val caliUnidadDAO: CalifPorUnidadDA
 
     override suspend fun updateItem(item: CalificacionUnidadDB) = caliUnidadDAO.update(item)
 
+    override suspend fun updateQuery(matricula: String, fecha: String) = caliUnidadDAO.updateQuery(matricula,fecha)
+
     override suspend fun insertItemAndGetId(item: CalificacionUnidadDB): Long {
         return caliUnidadDAO.insertAndGetId(item)
     }

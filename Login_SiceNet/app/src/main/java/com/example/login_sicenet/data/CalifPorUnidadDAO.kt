@@ -27,6 +27,9 @@ interface CalifPorUnidadDAO {
     @Query("SELECT * from calificacionesUnidad WHERE matricula = :matricula")
     fun getItem(matricula: String): Flow<CalificacionUnidadDB>
 
+    @Query("UPDATE calificacionesUnidad SET fecha = :fecha WHERE matricula = :matricula")
+    fun updateQuery(matricula: String, fecha: String)
+
     @Query("SELECT * from calificacionesUnidad WHERE matricula = :nControl")
     fun getAllItems(nControl: String): Flow<List<CalificacionUnidadDB>>
 }

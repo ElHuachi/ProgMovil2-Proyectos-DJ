@@ -30,6 +30,7 @@ import com.example.login_sicenet.model.CaliUnidadUiState
 import com.example.login_sicenet.model.CalifFinDetails
 import com.example.login_sicenet.model.CalifUnidadDetails
 import com.example.login_sicenet.model.Calificacion
+import com.example.login_sicenet.model.CalificacionDB
 import com.example.login_sicenet.model.CalificacionUnidad
 import com.example.login_sicenet.model.CalificacionUnidadDB
 import com.example.login_sicenet.model.CargaAcDetails
@@ -95,6 +96,7 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     var perfilDB: AlumnoAcademicoResultDB? = null
     var caliUnidadDB: List<CalificacionUnidadDB>? = null
     var caliUnidadDB1: CalificacionUnidadDB? = null
+    var caliFinalDB1: CalificacionDB? = null
 
     var siceUiState: SiceUiState by mutableStateOf(SiceUiState.Loading)
         private set
@@ -398,13 +400,6 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
         }
     }
 
-    suspend fun saveCaliFinales() {
-        if (validateInputCaliFinales()) {
-            // Guarda la peticion de acceso y obtén el ID.
-            val califId = CaliFinalesRepository.insertItemAndGetId(caliFinUiState.califFinDetails.toItem())
-        }
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateUiStatCaliFinales(accessDetails: CalifFinDetails, Calificacion: Calificacion, matricula: String) {
         val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
@@ -412,6 +407,47 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
             acred =  Calificacion.acred, grupo = Calificacion.grupo, materia = Calificacion.materia,
             observaciones = Calificacion.observaciones,fecha = currentDateTime)
         caliFinUiState = CaliFinalesUiState(califFinDetails = updatedCaliFinDetails, isEntryValid = validateInputCaliFinales())
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun saveCaliFinal() {
+        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        for(cali in califFinales!!){
+            val calif = CalificacionDB(
+                matricula = nControl,
+                observaciones = cali.observaciones,
+                acred = cali.acred,
+                calif = cali.calif,
+                materia = cali.materia,
+                grupo = cali.grupo,
+                fecha= currentDateTime
+            )
+            val califId = CaliFinalesRepository.insertItemAndGetId(calif)
+        }
+    }
+
+    suspend fun getCaliFinal1(matricula: String): CalificacionDB {
+        // Utiliza viewModelScope.async para obtener un Deferred
+
+        val deferred = viewModelScope.async {
+            CaliFinalesRepository.getItemStream(matricula)
+                .filterNotNull()
+                .first()
+                .toItemUiState(true)
+        }
+
+        return deferred.await().califFinDetails.toItem()
+    }
+
+    suspend fun getCaliFinalExistente(matricula: String): Boolean? {
+        // Utiliza viewModelScope.async para obtener un Deferred
+        val deferred = viewModelScope.async {
+            CaliFinalesRepository.getItemStream(matricula)
+                .firstOrNull()
+                ?.toItemUiState(true)
+        }
+
+        return deferred.await() != null
     }
 
     //CALI UNIDAD
@@ -461,6 +497,36 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
                 fecha= currentDateTime
             )
             val califId = CaliPorUnidadRepository.insertItemAndGetId(calif)
+        }
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun updateCaliUnidad() {
+        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        for(cali in califUnidades!!){
+            val calif = CalificacionUnidadDB(
+                matricula = nControl,
+                observaciones = cali.observaciones,
+                c13 = cali.c13,
+                c12 = cali.c12,
+                c11 = cali.c11,
+                c10 = cali.c10,
+                c9 = cali.c9,
+                c8 = cali.c8,
+                c7 = cali.c7,
+                c6 = cali.c6,
+                c5 = cali.c5,
+                c4 = cali.c4,
+                c3 = cali.c3,
+                c2 = cali.c2,
+                c1 = cali.c1,
+                unidadesActivas = cali.unidadesActivas,
+                materia = cali.materia,
+                grupo = cali.grupo,
+                fecha= currentDateTime
+            )
+            val califId = CaliPorUnidadRepository.updateQuery(nControl,currentDateTime)
         }
 
     }

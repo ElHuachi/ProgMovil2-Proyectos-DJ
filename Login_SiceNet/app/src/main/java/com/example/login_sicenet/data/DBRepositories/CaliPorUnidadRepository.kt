@@ -30,5 +30,7 @@ interface CaliPorUnidadRepository {
      */
     suspend fun updateItem(item: CalificacionUnidadDB)
 
+    suspend fun updateQuery(matricula: String, fecha: String)
+
     suspend fun insertItemAndGetId(item: CalificacionUnidadDB): Long
 }

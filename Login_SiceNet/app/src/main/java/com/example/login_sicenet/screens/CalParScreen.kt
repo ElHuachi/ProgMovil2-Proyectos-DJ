@@ -136,7 +136,7 @@ fun BodyContentCalif(navController: NavController, viewModel: DataViewModel, Mod
                     val existente = viewModel.getCaliUnidadExistente(viewModel.nControl)
                         if(existente==true){
                             Log.e("ya estan", "ya estan")
-
+                            //viewModel.updateCaliUnidad()
                         }else{
                             viewModel.saveCaliUnidad()
 
@@ -171,7 +171,7 @@ fun BodyContentCalif(navController: NavController, viewModel: DataViewModel, Mod
                     }
                 } else {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "No se pudo obtener el perfil académico.", color = Color.White)
+                        Text(text = "No se pudieron obtener las calificaciones", color = Color.White)
                     }
                 }
             }
