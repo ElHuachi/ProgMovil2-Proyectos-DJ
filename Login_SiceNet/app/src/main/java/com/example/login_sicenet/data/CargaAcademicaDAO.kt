@@ -27,6 +27,9 @@ interface CargaAcademicaDAO {
     @Query("SELECT * from carga_academica_items WHERE matricula = :matricula")
     fun getItem(matricula: String): Flow<CargaAcademicaItemDB>
 
+    @Query("UPDATE carga_academica_items SET fecha = :fecha WHERE matricula = :matricula")
+    fun updateQuery(matricula: String, fecha: String)
+
     @Query("SELECT * from carga_academica_items ORDER BY matricula ASC")
     fun getAllItems(): Flow<List<CargaAcademicaItemDB>>
 }

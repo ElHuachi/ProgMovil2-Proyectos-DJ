@@ -17,6 +17,8 @@ class OfflineCargaAcademicaRepository (private val cargaAcDAO: CargaAcademicaDAO
 
     override suspend fun updateItem(item: CargaAcademicaItemDB) = cargaAcDAO.update(item)
 
+    override suspend fun updateQuery(matricula: String, fecha: String) = cargaAcDAO.updateQuery(matricula,fecha)
+
     override suspend fun insertItemAndGetId(item: CargaAcademicaItemDB): Long {
         return cargaAcDAO.insertAndGetId(item)
     }

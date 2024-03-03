@@ -15,7 +15,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class CargaAcademicaItemDB(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") var id: Int,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") var id: Int=0,
 
     @ColumnInfo(name = "matricula")
     var matricula: String? = null,

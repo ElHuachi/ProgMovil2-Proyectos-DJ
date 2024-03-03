@@ -36,6 +36,7 @@ import com.example.login_sicenet.model.CalificacionUnidadDB
 import com.example.login_sicenet.model.CargaAcDetails
 import com.example.login_sicenet.model.CargaAcUiState
 import com.example.login_sicenet.model.CargaAcademicaItem
+import com.example.login_sicenet.model.CargaAcademicaItemDB
 import com.example.login_sicenet.model.Kardex
 import com.example.login_sicenet.model.KardexItem
 import com.example.login_sicenet.model.KardexItemDetails
@@ -97,6 +98,8 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     var caliUnidadDB: List<CalificacionUnidadDB>? = null
     var caliUnidadDB1: CalificacionUnidadDB? = null
     var caliFinalDB1: CalificacionDB? = null
+    var cargaAcDB1: CargaAcademicaItemDB? = null
+
 
     var siceUiState: SiceUiState by mutableStateOf(SiceUiState.Loading)
         private set
@@ -546,16 +549,76 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     //CARGA ACADEMICA
     var cargaAcUiState by mutableStateOf(CargaAcUiState())
         private set
-    private fun validateInputCargaAc(uiState: CargaAcDetails = cargaAcUiState.cargaAcDetails): Boolean {
-        return with(uiState) {
-            fecha.isNotBlank()
+
+    suspend fun getCargaAcademica1(matricula: String): CargaAcademicaItemDB {
+        // Utiliza viewModelScope.async para obtener un Deferred
+
+        val deferred = viewModelScope.async {
+            CargaAcademicaRepository.getItemStream(matricula)
+                .filterNotNull()
+                .first()
+                .toItemUiState(true)
+        }
+
+        return deferred.await().cargaAcDetails.toItem()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun saveCargaAc() {
+        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        for(clase in cargaAcademica!!){
+            val clase = CargaAcademicaItemDB(
+                matricula = nControl,
+                observaciones = clase.observaciones,
+                semipresencial = clase.semipresencial,
+                docente = clase.docente,
+                clvOficial = clase.clvOficial,
+                sabado = clase.sabado,
+                viernes = clase.viernes,
+                jueves = clase.jueves,
+                miercoles = clase.miercoles,
+                martes = clase.martes,
+                lunes = clase.lunes,
+                materia = clase.materia,
+                estadoMateria = clase.estadoMateria,
+                creditosMateria = clase.creditosMateria,
+                grupo = clase.grupo,
+                fecha= currentDateTime
+            )
+            val califId = CargaAcademicaRepository.insertItemAndGetId(clase)
         }
     }
 
-    suspend fun saveCargaAc() {
-        if (validateInputCaliUnidad()) {
-            // Guarda la peticion de acceso y obtén el ID.
-            val cargaId = CargaAcademicaRepository.insertItemAndGetId(cargaAcUiState.cargaAcDetails.toItem())
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun updateCargaAc() {
+        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        for(clase in cargaAcademica!!){
+            val clase = CargaAcademicaItemDB(
+                matricula = nControl,
+                observaciones = clase.observaciones,
+                semipresencial = clase.semipresencial,
+                docente = clase.docente,
+                clvOficial = clase.clvOficial,
+                sabado = clase.sabado,
+                viernes = clase.viernes,
+                jueves = clase.jueves,
+                miercoles = clase.miercoles,
+                martes = clase.martes,
+                lunes = clase.lunes,
+                materia = clase.materia,
+                estadoMateria = clase.estadoMateria,
+                creditosMateria = clase.creditosMateria,
+                grupo = clase.grupo,
+                fecha= currentDateTime
+            )
+            val califId = CargaAcademicaRepository.updateQuery(nControl,currentDateTime)
+        }
+
+    }
+
+    private fun validateInputCargaAc(uiState: CargaAcDetails = cargaAcUiState.cargaAcDetails): Boolean {
+        return with(uiState) {
+            fecha.isNotBlank()
         }
     }
 
