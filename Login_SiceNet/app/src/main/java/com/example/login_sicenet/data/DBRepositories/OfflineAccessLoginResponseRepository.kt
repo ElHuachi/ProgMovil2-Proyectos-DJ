@@ -11,7 +11,7 @@ class OfflineAccessLoginResponseRepository(private val accessDAO: AccessLoginRes
 
     override suspend fun insertItem(item: AccessLoginResponseDB) = accessDAO.insert(item)
 
-    override suspend fun deleteItem(item: AccessLoginResponseDB) = accessDAO.delete(item)
+    override suspend fun deleteItem(matricula: String) = accessDAO.delete(matricula)
 
     override suspend fun updateItem(item: AccessLoginResponseDB) = accessDAO.update(item)
 

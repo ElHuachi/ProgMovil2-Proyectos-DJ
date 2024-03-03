@@ -23,8 +23,8 @@ interface AccessLoginResponseDAO {
     @Query("UPDATE login SET fecha = :fecha WHERE matricula = :matricula")
     suspend fun updateQuery(matricula: String, fecha: String)
 
-    @Delete
-    suspend fun delete(login: AccessLoginResponseDB)
+    @Query("DELETE from login WHERE matricula = :matricula")
+    suspend fun delete(matricula: String)
 
     @Query("SELECT * from login WHERE matricula = :matricula")
     fun getItem(matricula: String): Flow<AccessLoginResponseDB>

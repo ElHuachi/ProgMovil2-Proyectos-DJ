@@ -37,7 +37,7 @@ abstract class AlumnoDatabase: RoomDatabase(){
         private var Instance: AlumnoDatabase? = null
 
         fun getDatabase(context: Context): AlumnoDatabase {
-            return Instance ?: synchronized(this) {
+            return Instance ?: synchronized(this) { //alumnos_database
                 Room.databaseBuilder(context, AlumnoDatabase::class.java, "alumnos_database")
                     .fallbackToDestructiveMigration()
                     .build()

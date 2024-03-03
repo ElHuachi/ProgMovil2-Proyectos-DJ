@@ -22,7 +22,7 @@ interface AccessLoginResponseRepository {
     /**
      * Delete item from the data source
      */
-    suspend fun deleteItem(item: AccessLoginResponseDB)
+    suspend fun deleteItem(matricula: String)
 
     /**
      * Update item in the data source

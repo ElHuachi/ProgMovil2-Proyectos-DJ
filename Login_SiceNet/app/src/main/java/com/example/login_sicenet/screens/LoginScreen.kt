@@ -1,7 +1,6 @@
 package com.example.login_sicenet.screens
 
 import android.content.Context
-import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,13 +41,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.login_sicenet.R
@@ -301,27 +297,16 @@ fun RowButtonLogin(
                         viewModel.getCalifUnidades()
                         viewModel.getKardex()
                         viewModel.getCargaAcademica()
+                        val accesoLoginResult = viewModel.accesoLoginResult
                         //INSERTAR REGISTRO
                         coroutineScope.launch {
-                            var existente: Boolean? = viewModel.getAccesoExistente(nControl)
-                            Log.e("INSERTAR?",existente.toString())
-                            val accesoLoginResult = viewModel.accesoLoginResult
                             if (accesoLoginResult != null) {
-                                if(existente==false){
-                                    viewModel.updateUiStateAccess(
-                                        viewModel.accesoUiState.accesoDetails,
-                                        accesoLoginResult
-                                    )
-                                    viewModel.saveAccessResult()
-                                    Log.d("INSERTAR","INSERTAR")
-                                    viewModel.alumnoAcademicoResult?.let {
-                                        viewModel.updateUiStatProfile(
-                                            viewModel.profileUiState.profileDetails,
-                                            it
-                                        )
-                                    }
-                                    viewModel.saveProfileResult()
-                                }else{
+                                Log.e("entro","entro")
+                                Log.e("XXXXX","XXXXX")
+                                var existente: Boolean? = false
+                                existente=viewModel.getAccesoExistente(nControl)
+                                Log.e("INSERTAR?",existente.toString())
+                                if(existente==true){
                                     viewModel.updateUiStateAccess(
                                         viewModel.accesoUiState.accesoDetails,
                                         accesoLoginResult
@@ -335,6 +320,21 @@ fun RowButtonLogin(
                                         )
                                     }
                                     viewModel.updateProfileDB()
+                                }else{
+                                    Log.e("insertar","insertar")
+                                    viewModel.updateUiStateAccess(
+                                        viewModel.accesoUiState.accesoDetails,
+                                        accesoLoginResult
+                                    )
+                                    viewModel.saveAccessResult()
+                                    Log.d("INSERTAR","INSERTAR")
+                                    viewModel.alumnoAcademicoResult?.let {
+                                        viewModel.updateUiStatProfile(
+                                            viewModel.profileUiState.profileDetails,
+                                            it
+                                        )
+                                    }
+                                    viewModel.saveProfileResult()
                                 }
                                 viewModel.internet=true
                                 navController.navigate("data")
@@ -344,6 +344,8 @@ fun RowButtonLogin(
                 }else{
                     Log.d("INTERNET","NO HAY INTERNET")
                     viewModel.internet=false
+                    viewModel.nControl=nControl
+                    viewModel.pass=password
                     navController.navigate("data")
                 }
                     //authenticate(context, nControl, password, navController, viewModel)

@@ -2,7 +2,6 @@ package com.example.login_sicenet.screens
 
 import android.os.Build
 import android.util.Log
-import android.webkit.CookieManager
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +24,7 @@ import com.example.login_sicenet.model.AccesoDetails
 import com.example.login_sicenet.model.AccesoLoginResult
 import com.example.login_sicenet.model.AccesoUiState
 import com.example.login_sicenet.model.AlumnoAcademicoResult
+import com.example.login_sicenet.model.AlumnoAcademicoResultDB
 import com.example.login_sicenet.model.CaliFinalesUiState
 import com.example.login_sicenet.model.CaliUnidadUiState
 import com.example.login_sicenet.model.CalifFinDetails
@@ -49,6 +49,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -83,6 +84,8 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     var pass: String = ""
     var lineamiento: String = "2"
     var internet: Boolean = true
+
+    var perfilDB: AlumnoAcademicoResultDB? = null
 
     var siceUiState: SiceUiState by mutableStateOf(SiceUiState.Loading)
         private set
@@ -249,22 +252,41 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
         // Utiliza viewModelScope.async para obtener un Deferred
         val deferred = viewModelScope.async {
             AccessLoginResponseRepository.getItemStream(matricula)
+                .firstOrNull()
+                ?.toItemUiState(true)
+        }
+
+        return deferred.await() != null
+    }
+
+    suspend fun getProfileDB(matricula: String): AlumnoAcademicoResultDB? {
+        var profileResponse: ProfileUiState? = null
+
+        // Utiliza viewModelScope.async para obtener un Deferred
+        val deferred = viewModelScope.async {
+            AlumnoAcademicoWithLineamientoRepository.getItemStream(matricula)
                 .filterNotNull()
                 .first()
                 .toItemUiState(true)
         }
 
         // Espera hasta que la operación asíncrona se complete
-        accesoResponse = deferred.await()
+        profileResponse = deferred.await()
 
-        accesoResponse?.accesoDetails?.matricula?.let { Log.e("REGISTRO EXISTENTE", it) }
-        return accesoResponse?.accesoDetails?.acceso
+        profileResponse?.profileDetails?.matricula?.let { Log.e("OBTENIENDO REGISTRO", it) }
+        return profileResponse?.profileDetails?.toItem()
     }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun updateAccessDB() {
         var fecha  = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         AccessLoginResponseRepository.updateItemQuery(nControl,fecha)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun deleteAccessDB(matricula: String) {
+        AccessLoginResponseRepository.deleteItem(matricula)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -299,7 +321,6 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     //PROFILE
     var profileUiState by mutableStateOf(ProfileUiState())
         private set
-
 
     suspend fun saveProfileResult() {
         // Guarda la peticion de acceso y obtén el ID.
