@@ -47,7 +47,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.login_sicenet.R
@@ -88,22 +91,23 @@ fun CalParScreen(navController: NavController, viewModel: DataViewModel){
                                 DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = { navController.navigate("calpar_screen") })
                                 DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = { navController.navigate("final_screen") })
                                 DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = { navController.navigate("horario_screen") })
+                                DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = { navController.navigate("kardex_screen") })
                             }
                         }
                     }
                 }
             )
         }
-    ) {innerPadding ->
+    ) {
         // Adjust the padding for the content to prevent it from being hidden by the top app bar
-        BodyContentCalif(navController, viewModel, Modifier.padding(top = innerPadding.calculateTopPadding()))
+        BodyContentCalif(viewModel)
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition", "SuspiciousIndentation")
 @Composable
-fun BodyContentCalif(navController: NavController, viewModel: DataViewModel, Modifier: Modifier) {
+fun BodyContentCalif(viewModel: DataViewModel) {
     val coroutineScope = rememberCoroutineScope()
     Box (modifier = Modifier
         .fillMaxSize()
@@ -184,49 +188,180 @@ fun DisplayItem(item: CalificacionUnidad) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(top = 70.dp)
+            .padding(horizontal = 16.dp)
     ) {
         // Display each property of the object in a Text or other Compose components
-        Text(text = "Materia: ${item.materia}", color = Color.White)
-        Text(text = "Grupo: ${item.grupo}", color = Color.White)
+//        Text(text = "Materia: ${item.materia}", color = Color.White)
+        Card {
+            Text(text = buildAnnotatedString {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append("Materia: ")
+                }
+                append(item.materia)
+                append("\n ")
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append("Grupo: ")
+                }
+                append(item.grupo)
+            })
+
+        }
+//        Text(text = "Grupo: ${item.grupo}", color = Color.White)
         if(item.unidadesActivas.length>=1){
-            Text(text = "U1: ${item.c1}", color = Color.White)
+            Card {
+                Text(text = buildAnnotatedString {
+                    append("\n ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("U1: ")
+                    }
+                    append(item.c1)
+                })
+            }
         }
         if(item.unidadesActivas.length>=2){
-            Text(text = "U2: ${item.c2}", color = Color.White)
+            Card {
+                Text(text = buildAnnotatedString {
+                    append("\n ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("U2: ")
+                    }
+                    append(item.c2)
+                })
+            }
+//            Text(text = "U2: ${item.c2}", color = Color.White)
         }
         if(item.unidadesActivas.length>=3){
-            Text(text = "U3: ${item.c3}", color = Color.White)
+            Card {
+                Text(text = buildAnnotatedString {
+                    append("\n ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("U3: ")
+                    }
+                    append(item.c3)
+                })
+            }
+//            Text(text = "U3: ${item.c3}", color = Color.White)
         }
         if(item.unidadesActivas.length>=4){
-            Text(text = "U4: ${item.c4}", color = Color.White)
+            Card {
+                Text(text = buildAnnotatedString {
+                    append("\n ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("U4: ")
+                    }
+                    append(item.c4)
+                })
+            }
+//            Text(text = "U4: ${item.c4}", color = Color.White)
         }
         if(item.unidadesActivas.length>=5){
-            Text(text = "U5: ${item.c5}", color = Color.White)
+            Card {
+                Text(text = buildAnnotatedString {
+                    append("\n ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("U5: ")
+                    }
+                    append(item.c5)
+                })
+            }
+//            Text(text = "U5: ${item.c5}", color = Color.White)
         }
         if(item.unidadesActivas.length>=6){
-            Text(text = "U6: ${item.c6}", color = Color.White)
+            Card {
+                Text(text = buildAnnotatedString {
+                    append("\n ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("U6: ")
+                    }
+                    append(item.c6)
+                })
+            }
+//            Text(text = "U6: ${item.c6}", color = Color.White)
         }
         if(item.unidadesActivas.length>=7){
-            Text(text = "U7: ${item.c7}", color = Color.White)
+            Card {
+                Text(text = buildAnnotatedString {
+                    append("\n ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("U7: ")
+                    }
+                    append(item.c7)
+                })
+            }
+//            Text(text = "U7: ${item.c7}", color = Color.White)
         }
         if(item.unidadesActivas.length>=8){
-            Text(text = "U8: ${item.c8}", color = Color.White)
+            Card {
+                Text(text = buildAnnotatedString {
+                    append("\n ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("U8: ")
+                    }
+                    append(item.c8)
+                })
+            }
+//            Text(text = "U8: ${item.c8}", color = Color.White)
         }
         if(item.unidadesActivas.length>=9){
-            Text(text = "U9: ${item.c9}", color = Color.White)
+            Card {
+                Text(text = buildAnnotatedString {
+                    append("\n ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("U9: ")
+                    }
+                    append(item.c9)
+                })
+            }
+//            Text(text = "U9: ${item.c9}", color = Color.White)
         }
         if(item.unidadesActivas.length>=10){
-            Text(text = "U10: ${item.c10}", color = Color.White)
+            Card {
+                Text(text = buildAnnotatedString {
+                    append("\n ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("U10: ")
+                    }
+                    append(item.c10)
+                })
+            }
+//            Text(text = "U10: ${item.c10}", color = Color.White)
         }
         if(item.unidadesActivas.length>=11){
-            Text(text = "U11: ${item.c11}", color = Color.White)
+            Card {
+                Text(text = buildAnnotatedString {
+                    append("\n ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("U11: ")
+                    }
+                    append(item.c11)
+                })
+            }
+//            Text(text = "U11: ${item.c11}", color = Color.White)
         }
         if(item.unidadesActivas.length>=12){
-            Text(text = "U12: ${item.c12}", color = Color.White)
+            Card {
+                Text(text = buildAnnotatedString {
+                    append("\n ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("U12: ")
+                    }
+                    append(item.c12)
+                })
+            }
+//            Text(text = "U12: ${item.c12}", color = Color.White)
         }
         if(item.unidadesActivas.length==13){
-            Text(text = "U13: ${item.c13}", color = Color.White)
+            Card {
+                Text(text = buildAnnotatedString {
+                    append("\n ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("U13: ")
+                    }
+                    append(item.c13)
+                })
+            }
+//            Text(text = "U13: ${item.c13}", color = Color.White)
         }
         Spacer(modifier = Modifier.height(8.dp))
     }

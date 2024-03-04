@@ -7,4 +7,5 @@ sealed class AppScreens(val route : String) {
     object CalFinalScreen : AppScreens("final_screen")
     object HorarioScreen : AppScreens("horario_screen")
     object CalParScreen : AppScreens("calpar_screen")
+    object KardexScreen : AppScreens("kardex_screen")
 }
