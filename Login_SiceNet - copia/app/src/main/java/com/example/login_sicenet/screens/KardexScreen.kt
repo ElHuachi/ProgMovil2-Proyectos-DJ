@@ -2,6 +2,7 @@ package com.example.login_sicenet.screens
 
 import android.annotation.SuppressLint
 import android.graphics.ColorSpace
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,12 +33,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.login_sicenet.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -47,7 +51,7 @@ fun KardexScreen (navController: NavController, viewModel: DataViewModel){
     Scaffold (
         topBar = {
             TopAppBar(title = {
-                IconButton(onClick = { navController.navigate("data") }) {
+                IconButton(onClick = { navController.navigate("data_screen") }) {
                     Icon(imageVector = Icons.Filled.House, contentDescription = "Inicio")
                 }
                 Text(text = "Kardex",
@@ -89,6 +93,8 @@ fun BodyContentK(viewModel: DataViewModel) {
         contentColor = Color.Black,
 
         )
+    Image(painter = painterResource(id = R.drawable.backgrounddata), contentDescription = "Fondo de pantalla",
+        modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
     if (kardex != null) {
         LazyColumn(
             modifier = Modifier

@@ -78,7 +78,6 @@ fun LoginScreen(navController: NavController, viewModel: DataViewModel){
     val cardColors = CardDefaults.cardColors(
         containerColor = Color(0xFF4E7559),
         contentColor = Color.Black,
-
         )
     Box(modifier = Modifier
         .fillMaxSize()
@@ -208,7 +207,6 @@ fun RowPass(
             },
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = if (isValidPass) Color.Green else Color.Red,
-//                unfocusedIndicatorColor = if (isValidPass) Color.Green else Color.Red
             )
         )
     }

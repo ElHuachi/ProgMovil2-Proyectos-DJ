@@ -84,12 +84,6 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
                                 Icon(imageVector = Icons.Filled.DensityMedium, contentDescription = "Más Opciones",
                                 modifier = Modifier
                                     .size(40.dp))
-//                                Icon(
-//                                    painter = painterResource(id = R.drawable.logoitsur_removebg_preview),
-//                                    contentDescription = "SiceNet Logo",
-//                                    modifier = Modifier
-//                                        .size(40.dp)
-//                                )
                                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                                     DropdownMenuItem(text = { Text(text = "Información del alumno") }, onClick = { navController.navigate("data_screen") })
                                     DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = { navController.navigate("calpar_screen") })

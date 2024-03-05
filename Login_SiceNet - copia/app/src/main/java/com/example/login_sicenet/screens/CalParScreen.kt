@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DensityMedium
@@ -109,261 +111,157 @@ fun CalParScreen(navController: NavController, viewModel: DataViewModel){
 @Composable
 fun BodyContentCalif(viewModel: DataViewModel) {
     val coroutineScope = rememberCoroutineScope()
-    Box (modifier = Modifier
-        .fillMaxSize()
-        .background(color = Color(0xFFf5f5f5))
+    Image(painter = painterResource(id = R.drawable.backgrounddata), contentDescription = "Fondo de pantalla",
+        modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val context = LocalContext.current
-        Image(
-            painter = painterResource(id = R.drawable.backgrounddata),
-            contentDescription = "Imagen de fondo",
-            modifier = Modifier.fillMaxHeight(),
-            contentScale = ContentScale.FillHeight
-        )
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            if(viewModel.internet==true){
-                //viewModel.getCalifUnidades()
-                val calif = viewModel.califUnidades
-                // Verifica si alumnoAcademicoResult es null
-                if (calif != null) {
-                    LazyColumn {
-                        items(calif.size) { item ->
-                            // Function to display each item
-                            DisplayItem(calif[item])
-                        }
-                    }
-                    coroutineScope.launch {
-                    val existente = viewModel.getCaliUnidadExistente(viewModel.nControl)
-                        if(existente==true){
-                            Log.e("ya estan", "ya estan")
-
-                        }else{
-                            viewModel.saveCaliUnidad()
-
-                        }
-                    }
-                } else {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "No se pudieron obtener las calificaciones")
+        if (viewModel.internet) {
+            //viewModel.getCalifUnidades()
+            val calif = viewModel.califUnidades
+            // Verifica si alumnoAcademicoResult es null
+            if (calif != null) {
+                LazyColumn {
+                    items(calif.size) { item ->
+                        // Function to display each item
+                        DisplayItem(calif[item])
                     }
                 }
-            }else{
-                Log.d("obteniendo perfil", "obteniendo perfil")
                 coroutineScope.launch {
-                    Log.e("check","check")
-                    viewModel.caliUnidadDB1=viewModel.getCaliUnidad1(viewModel.nControl)
+                    val existente = viewModel.getCaliUnidadExistente(viewModel.nControl)
+                    if (existente == true) {
+                        Log.e("ya estan", "ya estan")
 
-                    //viewModel.deleteAccessDB("S20120179")
+                    } else {
+                        viewModel.saveCaliUnidad()
+
+                    }
                 }
-                val caliDB = viewModel.caliUnidadDB1
-                //PANTALLA LLENADA DESDE LA BASE DE DATOS
-                if (caliDB != null) {
+            } else {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "No se pudieron obtener las calificaciones")
+                }
+            }
+        } else {
+            Log.d("obteniendo perfil", "obteniendo perfil")
+            coroutineScope.launch {
+                Log.e("check", "check")
+                viewModel.caliUnidadDB1 = viewModel.getCaliUnidad1(viewModel.nControl)
 
-                    LazyColumn {
-                        items(1) { item ->
-                            // Function to display each item
-                            DisplayItemDB(caliDB)
-                        }
+                //viewModel.deleteAccessDB("S20120179")
+            }
+            val caliDB = viewModel.caliUnidadDB1
+            //PANTALLA LLENADA DESDE LA BASE DE DATOS
+            if (caliDB != null) {
+
+                LazyColumn (
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxSize()
+                        .padding(top = 60.dp)
+                ) {
+                    items(1) { item ->
+                        DisplayItemDB(caliDB)
                     }
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "Última actulizacíon: ${caliDB?.fecha}", color = Color.White)
-                    }
-                } else {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "No se pudo obtener el perfil académico.", color = Color.White)
-                    }
+                }
+                Spacer(modifier = Modifier.height(2.dp))
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "Última actulizacíon: ${caliDB?.fecha}", color = Color.White)
+                }
+            } else {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "No se pudo obtener el perfil académico.", color = Color.White)
                 }
             }
         }
     }
 }
-
 @Composable
 fun DisplayItem(item: CalificacionUnidad) {
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 70.dp)
+            .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
-        // Display each property of the object in a Text or other Compose components
-//        Text(text = "Materia: ${item.materia}", color = Color.White)
-        Card {
-            Text(text = buildAnnotatedString {
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append("Materia: ")
-                }
-                append(item.materia)
-                append("\n ")
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append("Grupo: ")
-                }
-                append(item.grupo)
-            })
-
-        }
-//        Text(text = "Grupo: ${item.grupo}", color = Color.White)
-        if(item.unidadesActivas.length>=1){
-            Card {
+        // Itera sobre las unidades y crea un solo Text con unidades y calificaciones
+        if (item.unidadesActivas.isNotEmpty()) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF009688),
+                    contentColor = Color.Black,
+                )
+            ) {
                 Text(text = buildAnnotatedString {
-                    append("\n ")
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("U1: ")
+                        append("Materia: ")
                     }
-                    append(item.c1)
-                })
-            }
-        }
-        if(item.unidadesActivas.length>=2){
-            Card {
-                Text(text = buildAnnotatedString {
-                    append("\n ")
+                    append(item.materia)
+                    append("  ") // Agrega un espacio entre Materia y Grupo
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("U2: ")
+                        append("Grupo: ")
                     }
-                    append(item.c2)
+                    append(item.grupo)
                 })
-            }
-//            Text(text = "U2: ${item.c2}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=3){
-            Card {
-                Text(text = buildAnnotatedString {
-                    append("\n ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("U3: ")
+                Text(
+                    text = buildAnnotatedString {
+                        for (i in item.unidadesActivas.indices) {
+                            if (i > 0) {
+                                append("  ") // Agrega un espacio entre unidades
+                            }
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append("U${i+1}: ")
+                            }
+                            append("${getCalificacion(item, i)}")
+                        }
                     }
-                    append(item.c3)
-                })
+                )
             }
-//            Text(text = "U3: ${item.c3}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=4){
-            Card {
-                Text(text = buildAnnotatedString {
-                    append("\n ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("U4: ")
-                    }
-                    append(item.c4)
-                })
-            }
-//            Text(text = "U4: ${item.c4}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=5){
-            Card {
-                Text(text = buildAnnotatedString {
-                    append("\n ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("U5: ")
-                    }
-                    append(item.c5)
-                })
-            }
-//            Text(text = "U5: ${item.c5}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=6){
-            Card {
-                Text(text = buildAnnotatedString {
-                    append("\n ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("U6: ")
-                    }
-                    append(item.c6)
-                })
-            }
-//            Text(text = "U6: ${item.c6}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=7){
-            Card {
-                Text(text = buildAnnotatedString {
-                    append("\n ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("U7: ")
-                    }
-                    append(item.c7)
-                })
-            }
-//            Text(text = "U7: ${item.c7}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=8){
-            Card {
-                Text(text = buildAnnotatedString {
-                    append("\n ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("U8: ")
-                    }
-                    append(item.c8)
-                })
-            }
-//            Text(text = "U8: ${item.c8}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=9){
-            Card {
-                Text(text = buildAnnotatedString {
-                    append("\n ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("U9: ")
-                    }
-                    append(item.c9)
-                })
-            }
-//            Text(text = "U9: ${item.c9}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=10){
-            Card {
-                Text(text = buildAnnotatedString {
-                    append("\n ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("U10: ")
-                    }
-                    append(item.c10)
-                })
-            }
-//            Text(text = "U10: ${item.c10}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=11){
-            Card {
-                Text(text = buildAnnotatedString {
-                    append("\n ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("U11: ")
-                    }
-                    append(item.c11)
-                })
-            }
-//            Text(text = "U11: ${item.c11}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=12){
-            Card {
-                Text(text = buildAnnotatedString {
-                    append("\n ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("U12: ")
-                    }
-                    append(item.c12)
-                })
-            }
-//            Text(text = "U12: ${item.c12}", color = Color.White)
-        }
-        if(item.unidadesActivas.length==13){
-            Card {
-                Text(text = buildAnnotatedString {
-                    append("\n ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("U13: ")
-                    }
-                    append(item.c13)
-                })
-            }
-//            Text(text = "U13: ${item.c13}", color = Color.White)
         }
         Spacer(modifier = Modifier.height(8.dp))
+    }
+}
+
+// Función para obtener la calificación de la unidad específica
+private fun getCalificacion(item: CalificacionUnidad, unidadIndex: Int): String? {
+    return when (unidadIndex) {
+        0 -> item.c1
+        1 -> item.c2
+        2 -> item.c3
+        3 -> item.c4
+        4 -> item.c5
+        5 -> item.c6
+        6 -> item.c7
+        7 -> item.c8
+        8 -> item.c9
+        9 -> item.c10
+        10 -> item.c11
+        11 -> item.c12
+        12 -> item.c13
+        else -> ""
+    }
+}
+
+private fun getCalificacionDB(item: CalificacionUnidadDB, unidadIndex: Int): String? {
+    return when (unidadIndex) {
+        0 -> item.c1
+        1 -> item.c2
+        2 -> item.c3
+        3 -> item.c4
+        4 -> item.c5
+        5 -> item.c6
+        6 -> item.c7
+        7 -> item.c8
+        8 -> item.c9
+        9 -> item.c10
+        10 -> item.c11
+        11 -> item.c12
+        12 -> item.c13
+        else -> ""
     }
 }
 
@@ -374,48 +272,40 @@ fun DisplayItemDB(item: CalificacionUnidadDB) {
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        // Display each property of the object in a Text or other Compose components
-        Text(text = "Materia: ${item.materia}", color = Color.White)
-        Text(text = "Grupo: ${item.grupo}", color = Color.White)
-        if(item.unidadesActivas.length>=1){
-            Text(text = "U1: ${item.c1}", color = Color.White)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFFA7C58D),
+                contentColor = Color.Black,
+            )
+        ) {
+            Text(text = buildAnnotatedString {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append("Materia: ")
+                }
+                append(item.materia)
+                append("  ") // Agrega un espacio entre Materia y Grupo
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append("Grupo: ")
+                }
+                append(item.grupo)
+            })
+            Text(
+                text = buildAnnotatedString {
+                    for (i in item.unidadesActivas.indices) {
+                        if (i > 0) {
+                            append("  ") // Agrega un espacio entre unidades
+                        }
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append("U${i + 1}: ")
+                        }
+                        append("${getCalificacionDB(item, i)}")
+                    }
+                }
+            )
         }
-        if(item.unidadesActivas.length>=2){
-            Text(text = "U2: ${item.c2}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=3){
-            Text(text = "U3: ${item.c3}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=4){
-            Text(text = "U4: ${item.c4}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=5){
-            Text(text = "U5: ${item.c5}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=6){
-            Text(text = "U6: ${item.c6}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=7){
-            Text(text = "U7: ${item.c7}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=8){
-            Text(text = "U8: ${item.c8}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=9){
-            Text(text = "U9: ${item.c9}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=10){
-            Text(text = "U10: ${item.c10}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=11){
-            Text(text = "U11: ${item.c11}", color = Color.White)
-        }
-        if(item.unidadesActivas.length>=12){
-            Text(text = "U12: ${item.c12}", color = Color.White)
-        }
-        if(item.unidadesActivas.length==13){
-            Text(text = "U13: ${item.c13}", color = Color.White)
-        }
-        Spacer(modifier = Modifier.height(8.dp))
     }
+    Spacer(modifier = Modifier.height(8.dp))
 }
