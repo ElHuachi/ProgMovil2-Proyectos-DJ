@@ -544,7 +544,8 @@ fun BodyContent(navController: NavController, viewModel: DataViewModel) {
                 addCookiesInterceptor.clearCookies()
                 viewModel.accesoLoginResult?.acceso=false
                 viewModel.perfilDB = null
-                navController.popBackStack(route = "login", inclusive = false)
+                viewModel.setLoginResult(false)
+                navController.popBackStack()
             }) {
                 Text(text = "Cerrar sesion")
             }

@@ -6,11 +6,17 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.example.login_sicenet.SicenetApplication
 import com.example.login_sicenet.data.DBRepositories.AccessLoginResponseRepository
 import com.example.login_sicenet.data.DBRepositories.AlumnoAcademicoWithLineamientoRepository
@@ -51,6 +57,7 @@ import com.example.login_sicenet.model.PromedioUiState
 import com.example.login_sicenet.model.toItem
 import com.example.login_sicenet.model.toItemDetails
 import com.example.login_sicenet.model.toItemUiState
+import com.example.login_sicenet.workers.LoginWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
@@ -83,6 +90,7 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
                     private val KardexItemRepository: KardexItemRepository,
                     private val PromedioRepository: PromedioRepository,
 ) : ViewModel() {
+    //VARIABLES PARA ALMACENAR LAS RESPUESTAS DEL SERVIDOR
     var accesoLoginResult: AccesoLoginResult? = null
     var alumnoAcademicoResult: AlumnoAcademicoResult? = null
     var califFinales: List<Calificacion>? = null
@@ -103,8 +111,9 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     var kardexDB1: KardexItemDB? = null
     var promedioDB1: PromedioDB? = null
 
+    var navigate: Boolean = true
 
-
+    //SOLICITUDES AL SERVIDOR
     var siceUiState: SiceUiState by mutableStateOf(SiceUiState.Loading)
         private set
 
@@ -126,7 +135,7 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
         }
     }
 
-    fun performLoginAndFetchAcademicProfile() {
+    fun loginAndGetProfile() {
         viewModelScope.launch {
             siceUiState = SiceUiState.Loading
 
@@ -776,53 +785,36 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
 
     //WORKERS
 
-    // LiveData que se actualizará cuando el Worker haya terminado
-//    private val _navigate = MutableLiveData<Boolean>()
-//    val navigate: LiveData<Boolean> get() = _navigate
-//
-//    val sicenetRepositorySerializer = SicenetRepositorySerializer(Gson())
-//    val serializedRepository = sicenetRepositorySerializer.serialize(SicenetRepository)
-//
-//    val accessLoginRepositorySerializer = AccessLoginRepositorySerializer(Gson())
-//    val serializedAccessRepository = accessLoginRepositorySerializer.serialize(AccessLoginResponseRepository)
-//
-//    val profileRepositorySerializer = ProfileRepositorySerializer(Gson())
-//    val serializedProfileRepository = profileRepositorySerializer.serialize(AlumnoAcademicoWithLineamientoRepository)
-//
-//    val accesoDetailsSerializer = AccesoDetailsSerializer(Gson())
-//   // val serializedAccesoDetails = accesoDetailsSerializer.serialize(accesoUiState.accesoDetails)
-//
-//    val profileDetailsSerializer = ProfileDetailsSerializer(Gson())
-//    //val serializedProfileDetails = profileDetailsSerializer.serialize(profileUiState.profileDetails)
-//
-//    val serializedAccesoDetails = AccesoDetailsSerializer(Gson()).serialize(accesoUiState.accesoDetails)
-//    val serializedProfileDetails = ProfileDetailsSerializer(Gson()).serialize(profileUiState.profileDetails)
-//
-//    fun startSyncProcess(context: Context): LiveData<WorkInfo> {
-//        val inputData = Data.Builder()
-//            .putString("nControl", nControl)
-//            .putString("pass", pass)
-//            .putString("serializedRepository", serializedRepository)
-//            .putString("serializedAccessRepository", serializedAccessRepository)
-//            .putString("serializedProfileRepository", serializedProfileRepository)
-//            .putString("serializedAccesoDetails", serializedAccesoDetails)
-//            .putString("serializedProfileDetails", serializedProfileDetails)
-//            .build()
-//
-//        val loginRequest = OneTimeWorkRequestBuilder<LoginWorker>()
-//            .setInputData(inputData)
-//            .build()
-//
-//        val workManager = WorkManager.getInstance(context)
-//        workManager.enqueue(loginRequest)
-//
-//        // Devuelve un LiveData que emite los cambios en los datos del Worker
-//        return workManager.getWorkInfoByIdLiveData(loginRequest.id)
-//    }
-//
-//    fun resetNavigate() {
-//        _navigate.value = false
-//    }
+    private val workManager = WorkManager.getInstance()
+
+    // LiveData para observar el estado del login
+    private val _loginResult = MutableLiveData<Boolean>()
+    val loginResult: LiveData<Boolean>
+        get() = _loginResult
+
+    // Función para establecer el resultado del login
+    fun setLoginResult(successful: Boolean) {
+        _loginResult.value = successful
+    }
+
+    fun loginWorkManager(matricula: String, pass: String){
+        val inputData = workDataOf("matricula" to matricula, "password" to pass)
+        val profileRequest = OneTimeWorkRequestBuilder<LoginWorker>()
+            .setInputData(inputData)
+            .build()
+
+        // Observar el estado del trabajo
+        workManager.getWorkInfoByIdLiveData(profileRequest.id)
+            .observeForever { workInfo ->
+                if (workInfo != null && workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    // El worker terminó correctamente, actualiza LiveData
+                    _loginResult.value = true
+                }
+            }
+
+        // Enqueue el trabajo
+        workManager.enqueue(profileRequest)
+    }
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {

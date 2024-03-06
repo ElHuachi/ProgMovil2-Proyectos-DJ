@@ -65,6 +65,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.6.1")
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.tracing:tracing-perfetto-handshake:1.0.0")
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -86,4 +87,9 @@ dependencies {
     implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
     implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
+
+    //WorkManager
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    implementation("androidx.compose.runtime:runtime-livedata:1.0.0")
+
 }

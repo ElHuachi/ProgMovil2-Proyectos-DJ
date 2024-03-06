@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -286,12 +287,15 @@ fun RowButtonLogin(
         Button(modifier = Modifier.fillMaxWidth(),
             onClick = {
                 if(checkInternetConnection(context)){
+                    viewModel.internet=true
                     login(context)
                     viewModel.nControl=nControl
                     viewModel.pass=password
-                    viewModel.performLoginAndFetchAcademicProfile()
-                    if(viewModel.accesoLoginResult?.acceso==true) {
-                        viewModel.lineamiento=viewModel.alumnoAcademicoResult?.lineamiento.toString()
+                    viewModel.loginAndGetProfile()
+                    viewModel.loginWorkManager(viewModel.nControl,viewModel.pass)
+                    //viewModel.navigate=true
+//                    if(viewModel.accesoLoginResult?.acceso==true) {
+//                        viewModel.lineamiento=viewModel.alumnoAcademicoResult?.lineamiento.toString()
 
                         viewModel.getCalifFinales()
                         viewModel.getCalifUnidades()
@@ -299,49 +303,49 @@ fun RowButtonLogin(
                         viewModel.getCargaAcademica()
                         val accesoLoginResult = viewModel.accesoLoginResult
                         //INSERTAR REGISTRO
-                        coroutineScope.launch {
+//                        coroutineScope.launch {
                             //viewModel.deleteAccessDB("S20120179")
-                            if (accesoLoginResult != null) {
-                                Log.e("entro","entro")
-                                Log.e("XXXXX","XXXXX")
-                                var existente: Boolean? = false
-                                existente=viewModel.getAccesoExistente(nControl)
-                                Log.e("INSERTAR?",existente.toString())
-                                if(existente==true){
-                                    viewModel.updateUiStateAccess(
-                                        viewModel.accesoUiState.accesoDetails,
-                                        accesoLoginResult
-                                    )
-                                    viewModel.updateAccessDB()
-                                    Log.d("UPDATE","UPDATE")
-                                    viewModel.alumnoAcademicoResult?.let {
-                                        viewModel.updateUiStatProfile(
-                                            viewModel.profileUiState.profileDetails,
-                                            it
-                                        )
-                                    }
-                                    viewModel.updateProfileDB()
-                                }else{
-                                    Log.e("insertar","insertar")
-                                    viewModel.updateUiStateAccess(
-                                        viewModel.accesoUiState.accesoDetails,
-                                        accesoLoginResult
-                                    )
-                                    viewModel.saveAccessResult()
-                                    Log.d("INSERTAR","INSERTAR")
-                                    viewModel.alumnoAcademicoResult?.let {
-                                        viewModel.updateUiStatProfile(
-                                            viewModel.profileUiState.profileDetails,
-                                            it
-                                        )
-                                    }
-                                    viewModel.saveProfileResult()
-                                }
-                                viewModel.internet=true
-                                navController.navigate("data")
-                            }
-                        }
-                    }
+//                            if (accesoLoginResult != null) {
+//                                Log.e("entro","entro")
+//                                Log.e("XXXXX","XXXXX")
+//                                var existente: Boolean? = false
+//                                existente=viewModel.getAccesoExistente(nControl)
+//                                Log.e("INSERTAR?",existente.toString())
+//                                if(existente==true){
+//                                    viewModel.updateUiStateAccess(
+//                                        viewModel.accesoUiState.accesoDetails,
+//                                        accesoLoginResult
+//                                    )
+//                                    viewModel.updateAccessDB()
+//                                    Log.d("UPDATE","UPDATE")
+//                                    viewModel.alumnoAcademicoResult?.let {
+//                                        viewModel.updateUiStatProfile(
+//                                            viewModel.profileUiState.profileDetails,
+//                                            it
+//                                        )
+//                                    }
+//                                    viewModel.updateProfileDB()
+//                                }else{
+//                                    Log.e("insertar","insertar")
+//                                    viewModel.updateUiStateAccess(
+//                                        viewModel.accesoUiState.accesoDetails,
+//                                        accesoLoginResult
+//                                    )
+//                                    viewModel.saveAccessResult()
+//                                    Log.d("INSERTAR","INSERTAR")
+//                                    viewModel.alumnoAcademicoResult?.let {
+//                                        viewModel.updateUiStatProfile(
+//                                            viewModel.profileUiState.profileDetails,
+//                                            it
+//                                        )
+//                                    }
+//                                    viewModel.saveProfileResult()
+//                                }
+//                                viewModel.internet=true
+//                                navController.navigate("data")
+                            //}
+//                        }
+//                    }
                 }else{
                     Log.d("INTERNET","NO HAY INTERNET")
                     viewModel.internet=false
@@ -354,6 +358,13 @@ fun RowButtonLogin(
             enabled = isValidUser) {
             Text("Iniciar Sesión")
         }
+    }
+    // Observar el resultado del login
+    val loginResult by viewModel.loginResult.observeAsState()
+
+    // Realizar la navegación cuando el login sea exitoso
+    if (loginResult == true) {
+        navController.navigate("data") // Cambiar al destino deseado después del login exitoso
     }
 }
 
@@ -377,107 +388,11 @@ fun checkInternetConnection(context: Context): Boolean {
     }
 }
 
-//CREACION DE REQEUSTS AL SERVIDOR
-//CREACION DE REQEUSTS AL SERVIDOR
-private fun authenticate(context: Context, matricula: String, contrasenia: String, navController: NavController , viewModel: DataViewModel) {
-    val bodyLogin = loginRequestBody(matricula, contrasenia)
-    val service = RetrofitClient(context).retrofitService
-    service.login(bodyLogin).enqueue(object : Callback<EnvelopeLogin>{
-        override fun onResponse(call: Call<EnvelopeLogin>, response: Response<EnvelopeLogin>){
-            if (response.isSuccessful) {
-                val envelope = response.body()
-                val accesoResultJson: String? = envelope?.bodyLogin?.accesoLoginResponse?.accesoLoginResult
-
-                // Deserializa la cadena JSON a AlumnoAcademicoResult
-                val json = Json { ignoreUnknownKeys = true }
-                val accesoResult: AccesoLoginResult? = accesoResultJson?.let { json.decodeFromString(it) }
-
-                Log.w("Exito", "Se obtuvo el perfil 2: ${accesoResult}")
-                val alumnoAcademicoResultJson = Json.encodeToString(accesoResult)
-
-                //VERIFICAR SI LAS CREDENCIALES INGRESADAS SON CORRECTAS
-                if(accesoResult?.acceso==true){
-                    Log.w("Exito", "Se obtuvo el perfil")
-                    getAcademicProfile(context, navController,viewModel)
-                    navController.navigate("data")
-                }else{
-                    showError(context, "ACCESO DENEGADO")
-                }
-            } else {
-                showError(context, "Error en la autenticación. Código de respuesta: ${response.code()}")
-            }
-        }
-        override fun onFailure(call: Call<EnvelopeLogin>, t: Throwable){
-            t.printStackTrace()
-            showError(context, "Error en la solicitud")
-        }
-    })
-}
-
-private fun getAcademicProfile(context: Context, navController: NavController, viewModel: DataViewModel) {
-    val service = RetrofitClient(context).retrofitService
-    val bodyProfile = profileRequestBody()
-    service.getAcademicProfile(bodyProfile).enqueue(object : Callback<Envelope> {
-        override fun onResponse(call: Call<Envelope>, response: Response<Envelope>) {
-            if (response.isSuccessful) {
-                val envelope = response.body()
-                val alumnoResultJson: String? = envelope?.body?.getAlumnoAcademicoWithLineamientoResponse?.getAlumnoAcademicoWithLineamientoResult
-
-                // Deserializa la cadena JSON
-                val json = Json { ignoreUnknownKeys = true }
-                val alumnoAcademicoResult: AlumnoAcademicoResult? = alumnoResultJson?.let { json.decodeFromString(it) }
-
-                Log.w("Exito", "Se obtuvo el perfil 2: ${alumnoAcademicoResult}")
-                val alumnoAcademicoResultJson = Json.encodeToString(alumnoAcademicoResult)
-
-                //BORRAR COOKIES DE SESION DESPUES DE UTILIZARLAS
-                val addCookiesInterceptor = AddCookiesInterceptor(context)
-                addCookiesInterceptor.clearCookies()
-
-                //ALMACENAR Y MOSTRAR LA INFORMACION DEL ALUMNO
-                viewModel.alumnoAcademicoResult=alumnoAcademicoResult
-                navController.navigate("data")
-            } else {
-                showError(context, "Error al obtener el perfil académico. Código de respuesta: ${response.code()}")
-            }
-        }
-        override fun onFailure(call: Call<Envelope>, t: Throwable) {
-            t.printStackTrace()
-            showError(context, "Error en la solicitud del perfil académico")
-        }
-    })
-}
-
 //MENSAJES FLOTANTES
 fun login(context: Context){
     Toast.makeText(context, "Iniciando sesión", Toast.LENGTH_SHORT).show()
 }
 
-private fun showError(context: Context, message: String) {
+fun showError(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-}
-
-//BODYS DE PETICION
-private fun loginRequestBody(matricula: String, contrasenia: String): RequestBody {
-    return """
-        <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-          <soap:Body>
-            <accesoLogin xmlns="http://tempuri.org/">
-              <strMatricula>$matricula</strMatricula>
-              <strContrasenia>$contrasenia</strContrasenia>
-              <tipoUsuario>ALUMNO</tipoUsuario>
-            </accesoLogin>
-          </soap:Body>
-        </soap:Envelope>
-    """.trimIndent().toRequestBody("text/xml; charset=utf-8".toMediaTypeOrNull())
-}
-
-private fun profileRequestBody(): RequestBody {
-    return """
-        <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-          <soap:Body>
-            <getAlumnoAcademicoWithLineamiento xmlns="http://tempuri.org/" />
-          </soap:Body>
-        </soap:Envelope>
-    """.trimIndent().toRequestBody("text/xml; charset=utf-8".toMediaTypeOrNull())
 }
