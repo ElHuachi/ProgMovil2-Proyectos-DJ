@@ -119,12 +119,12 @@ fun LoginScreen(navController: NavController, viewModel: DataViewModel){
                         },
                         isValidPass = isValidPass
                     )
-                    RowRememberCheckbox(
-                        rememberCredentials = rememberCredentials,
-                        onCheckedChange = { isChecked ->
-                            rememberCredentials = isChecked
-                        }
-                    )
+//                    RowRememberCheckbox(
+//                        rememberCredentials = rememberCredentials,
+//                        onCheckedChange = { isChecked ->
+//                            rememberCredentials = isChecked
+//                        }
+//                    )
                     RowButtonLogin(
                         context = context,
                         isValidUser = isValidUser,
@@ -210,28 +210,28 @@ fun RowPass(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RowRememberCheckbox(
-    rememberCredentials: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Checkbox(
-            checked = rememberCredentials,
-            onCheckedChange = onCheckedChange,
-            modifier = Modifier.padding(end = 8.dp)
-        )
-        Text("Recordar credenciales",
-            modifier = Modifier
-                .padding(vertical = 13.dp))
-    }
-}
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun RowRememberCheckbox(
+//    rememberCredentials: Boolean,
+//    onCheckedChange: (Boolean) -> Unit
+//) {
+//    Row(
+//        Modifier
+//            .fillMaxWidth()
+//            .padding(10.dp),
+//        horizontalArrangement = Arrangement.Center
+//    ) {
+//        Checkbox(
+//            checked = rememberCredentials,
+//            onCheckedChange = onCheckedChange,
+//            modifier = Modifier.padding(end = 8.dp)
+//        )
+//        Text("Recordar credenciales",
+//            modifier = Modifier
+//                .padding(vertical = 13.dp))
+//    }
+//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -293,58 +293,13 @@ fun RowButtonLogin(
                     viewModel.pass=password
                     viewModel.loginAndGetProfile()
                     viewModel.loginWorkManager(viewModel.nControl,viewModel.pass)
-                    //viewModel.navigate=true
-//                    if(viewModel.accesoLoginResult?.acceso==true) {
-//                        viewModel.lineamiento=viewModel.alumnoAcademicoResult?.lineamiento.toString()
+                    viewModel.getCalifFinales()
+                    viewModel.getCalifUnidades()
+                    viewModel.getKardex()
+                    viewModel.getCargaAcademica()
 
-                        viewModel.getCalifFinales()
-                        viewModel.getCalifUnidades()
-                        viewModel.getKardex()
-                        viewModel.getCargaAcademica()
-                        val accesoLoginResult = viewModel.accesoLoginResult
-                        //INSERTAR REGISTRO
-//                        coroutineScope.launch {
-                            //viewModel.deleteAccessDB("S20120179")
-//                            if (accesoLoginResult != null) {
-//                                Log.e("entro","entro")
-//                                Log.e("XXXXX","XXXXX")
-//                                var existente: Boolean? = false
-//                                existente=viewModel.getAccesoExistente(nControl)
-//                                Log.e("INSERTAR?",existente.toString())
-//                                if(existente==true){
-//                                    viewModel.updateUiStateAccess(
-//                                        viewModel.accesoUiState.accesoDetails,
-//                                        accesoLoginResult
-//                                    )
-//                                    viewModel.updateAccessDB()
-//                                    Log.d("UPDATE","UPDATE")
-//                                    viewModel.alumnoAcademicoResult?.let {
-//                                        viewModel.updateUiStatProfile(
-//                                            viewModel.profileUiState.profileDetails,
-//                                            it
-//                                        )
-//                                    }
-//                                    viewModel.updateProfileDB()
-//                                }else{
-//                                    Log.e("insertar","insertar")
-//                                    viewModel.updateUiStateAccess(
-//                                        viewModel.accesoUiState.accesoDetails,
-//                                        accesoLoginResult
-//                                    )
-//                                    viewModel.saveAccessResult()
-//                                    Log.d("INSERTAR","INSERTAR")
-//                                    viewModel.alumnoAcademicoResult?.let {
-//                                        viewModel.updateUiStatProfile(
-//                                            viewModel.profileUiState.profileDetails,
-//                                            it
-//                                        )
-//                                    }
-//                                    viewModel.saveProfileResult()
-//                                }
-//                                viewModel.internet=true
-//                                navController.navigate("data")
-                            //}
-//                        }
+//                    coroutineScope.launch {
+//                        viewModel.deleteAccessDB("S20120178")
 //                    }
                 }else{
                     Log.d("INTERNET","NO HAY INTERNET")

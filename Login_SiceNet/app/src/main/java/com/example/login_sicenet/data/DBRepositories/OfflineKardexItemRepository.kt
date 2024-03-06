@@ -7,7 +7,7 @@ import com.example.login_sicenet.model.KardexItemDB
 import kotlinx.coroutines.flow.Flow
 
 class OfflineKardexItemRepository(private val kardexDAO: KardexItemDAO): KardexItemRepository {
-    override fun getAllItemsStream(): Flow<List<KardexItemDB>> = kardexDAO.getAllItems()
+    override fun getAllItemsStream(matricula: String): List<KardexItemDB> = kardexDAO.getAllItems(matricula)
 
     override fun getItemStream(nControl: String): Flow<KardexItemDB?> = kardexDAO.getItem(nControl)
 

@@ -55,6 +55,7 @@ import com.example.login_sicenet.model.KardexItem
 import com.example.login_sicenet.model.KardexItemDB
 import com.example.login_sicenet.model.Promedio
 import com.example.login_sicenet.model.PromedioDB
+import com.example.login_sicenet.screens.DisplayItemCargaAcOffline
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -66,7 +67,10 @@ fun KardexScreen (navController: NavController, viewModel: DataViewModel){
     Scaffold (
         topBar = {
             TopAppBar(title = {
-                IconButton(onClick = { navController.navigate("data") }) {
+                IconButton(onClick = {
+                    viewModel.setKardexResult(false)
+                    navController.navigate("data")
+                }) {
                     Icon(imageVector = Icons.Filled.House, contentDescription = "Inicio")
                 }
                 Text(text = "Kardex",
@@ -160,7 +164,7 @@ fun BodyKardex(viewModel: DataViewModel, Modifier: Modifier){
                     LazyColumn {
                         items(kardex.size) { item ->
                             // Function to display each item
-                            DisplayItemKardex(kardex[item], promedio)
+                            DisplayItemKardex(kardex[item])
                         }
                     }
                     Spacer(modifier = androidx.compose.ui.Modifier.height(8.dp))
@@ -180,35 +184,34 @@ fun BodyKardex(viewModel: DataViewModel, Modifier: Modifier){
                 Log.d("obteniendo carga", "obteniendo carga")
                 coroutineScope.launch {
                     Log.e("check","check")
-                    viewModel.kardexDB1=viewModel.getKardex1(viewModel.nControl)
+                    viewModel.kardexDB=viewModel.getKardex(viewModel.nControl)
                     viewModel.promedioDB1=viewModel.getPromedio1(viewModel.nControl)
-
-                    //viewModel.deleteAccessDB("S20120179")
                 }
-                val kardexDB = viewModel.kardexDB1
+                val kardexDB = viewModel.kardexDB
                 val promedioDB = viewModel.promedioDB1
                 //PANTALLA LLENADA DESDE LA BASE DE DATOS
                 if (kardexDB != null) {
-
-//                    LazyColumn {
-//                        items(1) { item ->
-//                            // Function to display each item
-//                            if (promedioDB != null) {
-//                                DisplayItemKardexOffline(kardexDB, promedioDB)
-//                            }
-//                        }
-//                    }
-                    Spacer(modifier = androidx.compose.ui.Modifier.height(8.dp))
-                    Text(text = "PROMEDIO", color = Color.White)
-                    Text(text = "Promedio General: ${promedioDB?.promedioGral}", color = Color.White)
-                    Text(text = "Creditos Acumulados: ${promedioDB?.cdtsAcum}", color = Color.White)
-                    Text(text = "Creditos Totales: ${promedioDB?.cdtsPlan}", color = Color.White)
-                    Text(text = "Avance de Craditos: ${promedioDB?.avanceCdts}%", color = Color.White)
-                    Text(text = "Materias Cursadas: ${promedioDB?.matCursadas}", color = Color.White)
-                    Text(text = "Materias Aprobadas: ${promedioDB?.matAprobadas}", color = Color.White)
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "Última actulizacíon: ${promedioDB?.fecha}", color = Color.White)
+                    LazyColumn {
+                        items(kardexDB.size) { item ->
+                            // Function to display each item
+                            DisplayItemKardexOffline(kardexDB[item])
+                        }
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(text = "PROMEDIO", color = Color.White)
+                                Text(text = "Promedio General: ${promedioDB?.promedioGral}", color = Color.White)
+                                Text(text = "Creditos Acumulados: ${promedioDB?.cdtsAcum}", color = Color.White)
+                                Text(text = "Creditos Totales: ${promedioDB?.cdtsPlan}", color = Color.White)
+                                Text(text = "Avance de Craditos: ${promedioDB?.avanceCdts}%", color = Color.White)
+                                Text(text = "Materias Cursadas: ${promedioDB?.matCursadas}", color = Color.White)
+                                Text(text = "Materias Aprobadas: ${promedioDB?.matAprobadas}", color = Color.White)
+                                Text(text = "Última actulizacíon: ${promedioDB?.fecha}", color = Color.White)
+                            }
+                        }
                     }
                 } else {
                     Column(modifier = Modifier.padding(16.dp)) {
@@ -221,7 +224,7 @@ fun BodyKardex(viewModel: DataViewModel, Modifier: Modifier){
 }
 
 @Composable
-fun DisplayItemKardex(item: KardexItem, promedio: Promedio) {
+fun DisplayItemKardex(item: KardexItem) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -263,7 +266,7 @@ fun DisplayItemKardex(item: KardexItem, promedio: Promedio) {
 }
 
 @Composable
-fun DisplayItemKardexOffline(item: KardexItemDB, promedio: PromedioDB) {
+fun DisplayItemKardexOffline(item: KardexItemDB) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

@@ -30,6 +30,6 @@ interface KardexItemDAO {
     @Query("UPDATE kardex_items SET fecha = :fecha WHERE matricula = :matricula")
     fun updateQuery(matricula: String, fecha: String)
 
-    @Query("SELECT * from kardex_items ORDER BY matricula ASC")
-    fun getAllItems(): Flow<List<KardexItemDB>>
+    @Query("SELECT * from kardex_items WHERE matricula = :matricula")
+    fun getAllItems(matricula: String): List<KardexItemDB>
 }

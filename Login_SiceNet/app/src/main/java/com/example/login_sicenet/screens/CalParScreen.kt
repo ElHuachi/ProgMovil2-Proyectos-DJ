@@ -66,7 +66,10 @@ fun CalParScreen(navController: NavController, viewModel: DataViewModel){
     Scaffold (
         topBar = {
             TopAppBar(title = {
-                IconButton(onClick = { navController.navigate("data") }) {
+                IconButton(onClick = {
+                    viewModel.setCalifUResult(false)
+                    navController.navigate("data")
+                }) {
                     Icon(imageVector = Icons.Filled.House, contentDescription = "Inicio")
                 }
                 Text(text = "Calif. Parciales",
@@ -175,23 +178,29 @@ fun BodyContentCalif(navController: NavController, viewModel: DataViewModel, Mod
                 Log.d("obteniendo perfil", "obteniendo perfil")
                 coroutineScope.launch {
                     Log.e("check","check")
-                    viewModel.caliUnidadDB1=viewModel.getCaliUnidad1(viewModel.nControl)
-
-                    //viewModel.deleteAccessDB("S20120179")
+                    viewModel.caliUnidadDB=viewModel.getCaliUnidad(viewModel.nControl)
                 }
-                val caliDB = viewModel.caliUnidadDB1
+                val caliDB = viewModel.caliUnidadDB
                 //PANTALLA LLENADA DESDE LA BASE DE DATOS
                 if (caliDB != null) {
 
                     LazyColumn {
-                        items(1) { item ->
+                        items(caliDB.size) { item ->
                             // Function to display each item
-                            DisplayItemDB(caliDB)
+                            DisplayItemDB(caliDB[item])
                         }
-                    }
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "Última actulizacíon: ${caliDB?.fecha}", color = Color.White)
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "Última actualización: ${caliDB[0].fecha}",
+                                    color = Color.White
+                                )
+                            }
+                        }
                     }
                 } else {
                     Column(modifier = Modifier.padding(16.dp)) {

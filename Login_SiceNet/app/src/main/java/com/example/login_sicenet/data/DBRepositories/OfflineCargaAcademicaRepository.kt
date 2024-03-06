@@ -7,7 +7,7 @@ import com.example.login_sicenet.model.CargaAcademicaItemDB
 import kotlinx.coroutines.flow.Flow
 
 class OfflineCargaAcademicaRepository (private val cargaAcDAO: CargaAcademicaDAO): CargaAcademicaRepository{
-    override fun getAllItemsStream(): Flow<List<CargaAcademicaItemDB>> = cargaAcDAO.getAllItems()
+    override fun getAllItemsStream(matricula: String): List<CargaAcademicaItemDB> = cargaAcDAO.getAllItems(matricula)
 
     override fun getItemStream(nControl: String): Flow<CargaAcademicaItemDB?> = cargaAcDAO.getItem(nControl)
 

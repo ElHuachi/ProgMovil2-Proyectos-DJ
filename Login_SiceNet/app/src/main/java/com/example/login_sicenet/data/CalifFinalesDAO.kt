@@ -30,6 +30,6 @@ interface CalifFinalesDAO {
     @Query("UPDATE calificacionesFinales SET fecha = :fecha WHERE matricula = :matricula")
     fun updateQuery(matricula: String, fecha: String)
 
-    @Query("SELECT * from calificacionesFinales ORDER BY matricula ASC")
-    fun getAllItems(): Flow<List<CalificacionDB>>
+    @Query("SELECT * from calificacionesFinales WHERE matricula = :matricula")
+    fun getAllItems(matricula: String): List<CalificacionDB>
 }

@@ -69,7 +69,10 @@ fun HorarioScreen (navController: NavController, viewModel: DataViewModel){
     Scaffold (
         topBar = {
             TopAppBar(title = {
-                IconButton(onClick = { navController.navigate("data") }) {
+                IconButton(onClick = {
+                    viewModel.setCargaAcResult(false)
+                    navController.navigate("data")
+                }) {
                     Icon(imageVector = Icons.Filled.House, contentDescription = "Inicio")
                 }
                 Text(text = "Carga academica",
@@ -175,17 +178,6 @@ fun BodyContentH(navController: NavController, viewModel: DataViewModel, Modifie
                             DisplayItemCargaAc(cargaAc[item])
                         }
                     }
-//                    coroutineScope.launch {
-//                        val existente = viewModel.getCaliFinalExistente(viewModel.nControl)
-//                        if(existente==true){
-//
-//                            //viewModel.updateCargaAc()
-//                            viewModel.saveCargaAc()
-//                        }else{
-//
-//                            Log.e("ya estan", "ya estan")
-//                        }
-//                    }
                 } else {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = "No se pudo obtener la carga académica.")
@@ -195,23 +187,29 @@ fun BodyContentH(navController: NavController, viewModel: DataViewModel, Modifie
                 Log.d("obteniendo carga", "obteniendo carga")
                 coroutineScope.launch {
                     Log.e("check","check")
-                    viewModel.cargaAcDB1=viewModel.getCargaAcademica1(viewModel.nControl)
-
-                    //viewModel.deleteAccessDB("S20120179")
+                    viewModel.cargaAcDB=viewModel.getCargaAc(viewModel.nControl)
                 }
-                val cargaDB = viewModel.cargaAcDB1
+                val cargaDB = viewModel.cargaAcDB
                 //PANTALLA LLENADA DESDE LA BASE DE DATOS
                 if (cargaDB != null) {
 
                     LazyColumn {
-                        items(1) { item ->
+                        items(cargaDB.size) { item ->
                             // Function to display each item
-                            DisplayItemCargaAcOffline(cargaDB)
+                            DisplayItemCargaAcOffline(cargaDB[item])
                         }
-                    }
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "Última actulizacíon: ${cargaDB?.fecha}", color = Color.White)
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "Última actualización: ${cargaDB[0].fecha}",
+                                    color = Color.White
+                                )
+                            }
+                        }
                     }
                 } else {
                     Column(modifier = Modifier.padding(16.dp)) {

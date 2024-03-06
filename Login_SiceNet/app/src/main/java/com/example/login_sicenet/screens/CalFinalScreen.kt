@@ -63,7 +63,10 @@ fun CalFinalScreen(navController: NavController, viewModel: DataViewModel){
     Scaffold (
         topBar = {
             TopAppBar(title = {
-                IconButton(onClick = { navController.navigate("data") }) {
+                IconButton(onClick = {
+                    viewModel.setCalifFResult(false)
+                    navController.navigate("data")
+                }) {
                     Icon(imageVector = Icons.Filled.House, contentDescription = "Inicio")
                 }
                 Text(text = "Calif. Finales",
@@ -169,16 +172,6 @@ fun BodyContentCF(navController: NavController, viewModel: DataViewModel, Modifi
                             DisplayItemFinales(calif[item])
                         }
                     }
-//                    coroutineScope.launch {
-//                        val existente = viewModel.getCaliFinalExistente(viewModel.nControl)
-//                        if(existente==true){
-//                            Log.e("ya estan", "ya estan")
-//                            //viewModel.updateCaliFinal()
-//                        }else{
-//                            viewModel.saveCaliFinal()
-//
-//                        }
-//                    }
                 } else {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = "No se pudieron obtener las calificaciones")
@@ -188,23 +181,29 @@ fun BodyContentCF(navController: NavController, viewModel: DataViewModel, Modifi
                 Log.d("obteniendo perfil", "obteniendo perfil")
                 coroutineScope.launch {
                     Log.e("check","check")
-                    viewModel.caliFinalDB1=viewModel.getCaliFinal1(viewModel.nControl)
-
-                    //viewModel.deleteAccessDB("S20120179")
+                    viewModel.caliFinalDB=viewModel.getCaliFinal(viewModel.nControl)
                 }
-                val caliDB = viewModel.caliFinalDB1
+                val caliDB = viewModel.caliFinalDB
                 //PANTALLA LLENADA DESDE LA BASE DE DATOS
                 if (caliDB != null) {
 
                     LazyColumn {
-                        items(1) { item ->
+                        items(caliDB.size) { item ->
                             // Function to display each item
-                            DisplayItemFinalesOffline(caliDB)
+                            DisplayItemFinalesOffline(caliDB[item])
                         }
-                    }
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "Última actulizacíon: ${caliDB?.fecha}", color = Color.White)
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "Última actualización: ${caliDB[0].fecha}",
+                                    color = Color.White
+                                )
+                            }
+                        }
                     }
                 } else {
                     Column(modifier = Modifier.padding(16.dp)) {

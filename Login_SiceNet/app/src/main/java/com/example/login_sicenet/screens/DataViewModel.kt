@@ -100,7 +100,6 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     var califFinales: List<Calificacion>? = null
     var califUnidades: List<CalificacionUnidad>? = null
     var kardex: Kardex? = null
-    var promedio: Promedio? = null
     var cargaAcademica: List<CargaAcademicaItem>? = null
 
     var nControl: String = ""
@@ -109,13 +108,11 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     var internet: Boolean = true
 
     var perfilDB: AlumnoAcademicoResultDB? = null
-    var caliUnidadDB1: CalificacionUnidadDB? = null
-    var caliFinalDB1: CalificacionDB? = null
-    var cargaAcDB1: CargaAcademicaItemDB? = null
-    var kardexDB1: KardexItemDB? = null
+    var caliUnidadDB: List<CalificacionUnidadDB>? = null
+    var caliFinalDB: List<CalificacionDB>? = null
+    var cargaAcDB: List<CargaAcademicaItemDB>? = null
+    var kardexDB: List<KardexItemDB>? = null
     var promedioDB1: PromedioDB? = null
-
-    var navigate: Boolean = true
 
     //SOLICITUDES AL SERVIDOR
     var siceUiState: SiceUiState by mutableStateOf(SiceUiState.Loading)
@@ -267,15 +264,7 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
 
     //BASE DE DATOS
     //ACCESO
-    var accesoUiState by mutableStateOf(AccesoUiState())
-        private set
-
-    var accesoResponse by mutableStateOf(AccesoUiState())
-        private set
-
     suspend fun getAccesoExistente(matricula: String): Boolean? {
-        var accesoResponse: AccesoUiState? = null
-
         // Utiliza viewModelScope.async para obtener un Deferred
         val deferred = viewModelScope.async {
             AccessLoginResponseRepository.getItemStream(matricula)
@@ -287,60 +276,11 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun updateAccessDB() {
-        var fecha  = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        AccessLoginResponseRepository.updateItemQuery(nControl,fecha)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun deleteAccessDB(matricula: String) {
         AccessLoginResponseRepository.deleteItem(matricula)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun updateUiStateAccessU(accessDetails: AccesoDetails) {
-        accessDetails.fecha  = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        val updatedAccesoDetails = accessDetails.copy(fecha = accessDetails.fecha)
-        accesoResponse = AccesoUiState(accesoDetails = updatedAccesoDetails, isEntryValid = validateInputAccess(accessDetails))
-    }
-
-    private fun validateInputAccess(uiState: AccesoDetails = accesoUiState.accesoDetails): Boolean {
-        return with(uiState) {
-            fecha.isNotBlank()
-        }
-    }
-
-    suspend fun saveAccessResult() {
-        if (validateInputAccess()) {
-            // Guarda la peticion de acceso y obtén el ID.
-            val accessId = AccessLoginResponseRepository.insertItemAndGetId(accesoUiState.accesoDetails.toItem())
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun updateUiStateAccess(accessDetails: AccesoDetails, AccessLoginResult: AccesoLoginResult) {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        val updatedAccesoDetails = accessDetails.copy(acceso = AccessLoginResult.acceso, matricula = AccessLoginResult.matricula,
-            estatus =  AccessLoginResult.estatus, tipo_usuario = AccessLoginResult.tipoUsuario,
-            contrasenia = AccessLoginResult.contrasenia, fecha = currentDateTime)
-        accesoUiState = AccesoUiState(accesoDetails = updatedAccesoDetails, isEntryValid = validateInputAccess(updatedAccesoDetails))
-    }
-
     //PROFILE
-    var profileUiState by mutableStateOf(ProfileUiState())
-        private set
-
-    suspend fun saveProfileResult() {
-        // Guarda la peticion de acceso y obtén el ID.
-        val profileId = AlumnoAcademicoWithLineamientoRepository.insertItemAndGetId(profileUiState.profileDetails.toItem())
-
-    }
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun updateProfileDB() {
-        var fecha  = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        AlumnoAcademicoWithLineamientoRepository.updateItemQuery(nControl,fecha)
-    }
-
     suspend fun getProfileDB(matricula: String): AlumnoAcademicoResultDB? {
         var profileResponse: ProfileUiState? = null
 
@@ -359,412 +299,35 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
         return profileResponse?.profileDetails?.toItem()
     }
 
-    suspend fun getCaliUnidad(matricula: String): List<CalificacionUnidadDB> {
-        // Utiliza viewModelScope.async para obtener un Deferred
-
-        return CaliPorUnidadRepository.getAllItemsStream(matricula)
-            .toList()
-            .flatten()
-    }
-
-    suspend fun getCaliUnidad1(matricula: String): CalificacionUnidadDB {
-        // Utiliza viewModelScope.async para obtener un Deferred
-
-        val deferred = viewModelScope.async {
-            CaliPorUnidadRepository.getItemStream(matricula)
-                .filterNotNull()
-                .first()
-                .toItemUiState(true)
-        }
-
-        return deferred.await().califUnidadDetails.toItem()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun updateUiStateProfile(accessDetails: ProfileDetails) {
-        accessDetails.fecha  = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        val updatedAccesoDetails = accessDetails.copy(fecha = accessDetails.fecha)
-        profileUiState = ProfileUiState(profileDetails = updatedAccesoDetails, isEntryValid = true)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun actualizar() {
-        val currentItem = profileUiState.profileDetails.toItem()
-        AlumnoAcademicoWithLineamientoRepository.updateItem(currentItem.copy(fecha = LocalDateTime.now().format(
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun updateUiStatProfile(profileDetails: ProfileDetails, AlumnoAcademicoResult: AlumnoAcademicoResult) {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        val updatedProfileDetails = profileDetails.copy(matricula = AlumnoAcademicoResult.matricula, fechaReins = AlumnoAcademicoResult.fechaReins,
-            estatus =  AlumnoAcademicoResult.estatus, modEducativo = AlumnoAcademicoResult.modEducativo, adeudo = AlumnoAcademicoResult.adeudo,
-            urlFoto = AlumnoAcademicoResult.urlFoto, adeudoDescripcion = AlumnoAcademicoResult.adeudoDescripcion,
-            inscrito = AlumnoAcademicoResult.inscrito, semActual = AlumnoAcademicoResult.semActual, cdtosActuales = AlumnoAcademicoResult.cdtosActuales,
-            cdtosAcumulados = AlumnoAcademicoResult.cdtosAcumulados, especialidad = AlumnoAcademicoResult.especialidad,
-            carrera = AlumnoAcademicoResult.carrera, lineamiento = AlumnoAcademicoResult.lineamiento, nombre = AlumnoAcademicoResult.nombre,
-            fecha = currentDateTime)
-        profileUiState = ProfileUiState(profileDetails = updatedProfileDetails)
-    }
-
     //CALI FINALES
-    var caliFinUiState by mutableStateOf(CaliFinalesUiState())
-        private set
-    private fun validateInputCaliFinales(uiState: CalifFinDetails = caliFinUiState.califFinDetails): Boolean {
-        return with(uiState) {
-            fecha.isNotBlank()
+    suspend fun getCaliFinal(matricula: String): List<CalificacionDB> {
+        return withContext(Dispatchers.IO) {
+            CaliFinalesRepository.getAllItemsStream(matricula)
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun updateUiStatCaliFinales(accessDetails: CalifFinDetails, Calificacion: Calificacion, matricula: String) {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        val updatedCaliFinDetails = accessDetails.copy(matricula = matricula, calif = Calificacion.calif,
-            acred =  Calificacion.acred, grupo = Calificacion.grupo, materia = Calificacion.materia,
-            observaciones = Calificacion.observaciones,fecha = currentDateTime)
-        caliFinUiState = CaliFinalesUiState(califFinDetails = updatedCaliFinDetails, isEntryValid = validateInputCaliFinales())
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun saveCaliFinal() {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        for(cali in califFinales!!){
-            val calif = CalificacionDB(
-                matricula = nControl,
-                observaciones = cali.observaciones,
-                acred = cali.acred,
-                calif = cali.calif,
-                materia = cali.materia,
-                grupo = cali.grupo,
-                fecha= currentDateTime
-            )
-            val califId = CaliFinalesRepository.insertItemAndGetId(calif)
-        }
-    }
-
-    suspend fun getCaliFinal1(matricula: String): CalificacionDB {
-        // Utiliza viewModelScope.async para obtener un Deferred
-
-        val deferred = viewModelScope.async {
-            CaliFinalesRepository.getItemStream(matricula)
-                .filterNotNull()
-                .first()
-                .toItemUiState(true)
-        }
-
-        return deferred.await().califFinDetails.toItem()
-    }
-
-    suspend fun getCaliFinalExistente(matricula: String): Boolean? {
-        // Utiliza viewModelScope.async para obtener un Deferred
-        val deferred = viewModelScope.async {
-            CaliFinalesRepository.getItemStream(matricula)
-                .firstOrNull()
-                ?.toItemUiState(true)
-        }
-
-        return deferred.await() != null
     }
 
     //CALI UNIDAD
-    var caliUnidadUiState by mutableStateOf(CaliUnidadUiState())
-        private set
-
-    suspend fun getCaliUnidadExistente(matricula: String): Boolean? {
-        // Utiliza viewModelScope.async para obtener un Deferred
-        val deferred = viewModelScope.async {
-            CaliPorUnidadRepository.getItemStream(matricula)
-                .firstOrNull()
-                ?.toItemUiState(true)
+    suspend fun getCaliUnidad(matricula: String): List<CalificacionUnidadDB> {
+        return withContext(Dispatchers.IO) {
+            CaliPorUnidadRepository.getAllItemsStream(matricula)
         }
-
-        return deferred.await() != null
-    }
-
-    private fun validateInputCaliUnidad(uiState: CalifUnidadDetails = caliUnidadUiState.califUnidadDetails): Boolean {
-        return with(uiState) {
-            fecha.isNotBlank()
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun saveCaliUnidad() {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        for(cali in califUnidades!!){
-            val calif = CalificacionUnidadDB(
-                matricula = nControl,
-                observaciones = cali.observaciones,
-                c13 = cali.c13,
-                c12 = cali.c12,
-                c11 = cali.c11,
-                c10 = cali.c10,
-                c9 = cali.c9,
-                c8 = cali.c8,
-                c7 = cali.c7,
-                c6 = cali.c6,
-                c5 = cali.c5,
-                c4 = cali.c4,
-                c3 = cali.c3,
-                c2 = cali.c2,
-                c1 = cali.c1,
-                unidadesActivas = cali.unidadesActivas,
-                materia = cali.materia,
-                grupo = cali.grupo,
-                fecha= currentDateTime
-            )
-            val califId = CaliPorUnidadRepository.insertItemAndGetId(calif)
-        }
-
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun updateCaliUnidad() {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        for(cali in califUnidades!!){
-            val calif = CalificacionUnidadDB(
-                matricula = nControl,
-                observaciones = cali.observaciones,
-                c13 = cali.c13,
-                c12 = cali.c12,
-                c11 = cali.c11,
-                c10 = cali.c10,
-                c9 = cali.c9,
-                c8 = cali.c8,
-                c7 = cali.c7,
-                c6 = cali.c6,
-                c5 = cali.c5,
-                c4 = cali.c4,
-                c3 = cali.c3,
-                c2 = cali.c2,
-                c1 = cali.c1,
-                unidadesActivas = cali.unidadesActivas,
-                materia = cali.materia,
-                grupo = cali.grupo,
-                fecha= currentDateTime
-            )
-            val califId = CaliPorUnidadRepository.updateQuery(nControl,currentDateTime)
-        }
-
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun updateUiStatCaliUnidad(accessDetails: CalifUnidadDetails, CalificacionUnidad: CalificacionUnidad, matricula: String) {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        val updatedCaliUnidadDetails = accessDetails.copy(matricula = matricula, observaciones = CalificacionUnidad.observaciones,
-            unidadesActivas =  CalificacionUnidad.unidadesActivas, grupo = CalificacionUnidad.grupo, materia = CalificacionUnidad.materia,
-            c1 = CalificacionUnidad.c1, c2 = CalificacionUnidad.c2,c3 = CalificacionUnidad.c3,c4 = CalificacionUnidad.c4,
-            c5 = CalificacionUnidad.c5, c6 = CalificacionUnidad.c6,c7 = CalificacionUnidad.c7,c8 = CalificacionUnidad.c8,
-            c9 = CalificacionUnidad.c9, c10 = CalificacionUnidad.c10,c11 = CalificacionUnidad.c11,c12 = CalificacionUnidad.c12,
-            c13 = CalificacionUnidad.c13, fecha = currentDateTime)
-        caliUnidadUiState = CaliUnidadUiState(califUnidadDetails = updatedCaliUnidadDetails, isEntryValid = validateInputCaliUnidad())
     }
 
     //CARGA ACADEMICA
-    var cargaAcUiState by mutableStateOf(CargaAcUiState())
-        private set
-
-    suspend fun getCargaAcademica1(matricula: String): CargaAcademicaItemDB {
-        // Utiliza viewModelScope.async para obtener un Deferred
-
-        val deferred = viewModelScope.async {
-            CargaAcademicaRepository.getItemStream(matricula)
-                .filterNotNull()
-                .first()
-                .toItemUiState(true)
+    suspend fun getCargaAc(matricula: String): List<CargaAcademicaItemDB> {
+        return withContext(Dispatchers.IO) {
+            CargaAcademicaRepository.getAllItemsStream(matricula)
         }
-
-        return deferred.await().cargaAcDetails.toItem()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun saveCargaAc() {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        for(clase in cargaAcademica!!){
-            val clase = CargaAcademicaItemDB(
-                matricula = nControl,
-                observaciones = clase.observaciones,
-                semipresencial = clase.semipresencial,
-                docente = clase.docente,
-                clvOficial = clase.clvOficial,
-                sabado = clase.sabado,
-                viernes = clase.viernes,
-                jueves = clase.jueves,
-                miercoles = clase.miercoles,
-                martes = clase.martes,
-                lunes = clase.lunes,
-                materia = clase.materia,
-                estadoMateria = clase.estadoMateria,
-                creditosMateria = clase.creditosMateria,
-                grupo = clase.grupo,
-                fecha= currentDateTime
-            )
-            val califId = CargaAcademicaRepository.insertItemAndGetId(clase)
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun updateCargaAc() {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        for(clase in cargaAcademica!!){
-            val clase = CargaAcademicaItemDB(
-                matricula = nControl,
-                observaciones = clase.observaciones,
-                semipresencial = clase.semipresencial,
-                docente = clase.docente,
-                clvOficial = clase.clvOficial,
-                sabado = clase.sabado,
-                viernes = clase.viernes,
-                jueves = clase.jueves,
-                miercoles = clase.miercoles,
-                martes = clase.martes,
-                lunes = clase.lunes,
-                materia = clase.materia,
-                estadoMateria = clase.estadoMateria,
-                creditosMateria = clase.creditosMateria,
-                grupo = clase.grupo,
-                fecha= currentDateTime
-            )
-            val califId = CargaAcademicaRepository.updateQuery(nControl,currentDateTime)
-        }
-
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun updateUiStatCargaAc(accessDetails: CargaAcDetails, CargaAcademicaItem: CargaAcademicaItem, matricula: String) {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        val updatedCargaAcDetails = accessDetails.copy(matricula = matricula, observaciones = CargaAcademicaItem.observaciones,
-            semipresencial =  CargaAcademicaItem.semipresencial, grupo = CargaAcademicaItem.grupo, materia = CargaAcademicaItem.materia,
-            docente = CargaAcademicaItem.docente, clvOficial = CargaAcademicaItem.clvOficial, sabado = CargaAcademicaItem.sabado, viernes = CargaAcademicaItem.viernes,
-            jueves = CargaAcademicaItem.jueves, miercoles = CargaAcademicaItem.miercoles, martes = CargaAcademicaItem.martes, lunes = CargaAcademicaItem.lunes,
-            estadoMateria = CargaAcademicaItem.estadoMateria, creditosMateria = CargaAcademicaItem.creditosMateria,fecha = currentDateTime)
-        cargaAcUiState = CargaAcUiState(cargaAcDetails = updatedCargaAcDetails, isEntryValid = true)
     }
 
     //KARDEXITEM DB
-    var kardexUiState by mutableStateOf(KardexUiState())
-        private set
-    private fun validateInputKardex(uiState: KardexItemDetails = kardexUiState.kardexItemDetails): Boolean {
-        return with(uiState) {
-            fecha.isNotBlank()
+    suspend fun getKardex(matricula: String): List<KardexItemDB> {
+        return withContext(Dispatchers.IO) {
+            KardexItemRepository.getAllItemsStream(matricula)
         }
-    }
-
-    suspend fun getKardexExistente(matricula: String): Boolean? {
-        // Utiliza viewModelScope.async para obtener un Deferred
-        val deferred = viewModelScope.async {
-            PromedioRepository.getItemStream(matricula)
-                .firstOrNull()
-                ?.toItemUiState(true)
-        }
-
-        return deferred.await() != null
-    }
-
-    suspend fun getKardex1(matricula: String): KardexItemDB {
-        // Utiliza viewModelScope.async para obtener un Deferred
-
-        val deferred = viewModelScope.async {
-            KardexItemRepository.getItemStream(matricula)
-                .filterNotNull()
-                .first()
-                .toItemUiState(true)
-        }
-
-        return deferred.await().kardexItemDetails.toItem()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun saveKardex() {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        for(item in kardex?.lstKardex!!){
-            val item = KardexItemDB(
-                matricula = nControl,
-                s3 = item.s3,
-                p3 = item.p3,
-                a3 = item.a3,
-                s2 = item.s2,
-                p2 = item.p2,
-                a2 = item.a2,
-                s1 = item.s1,
-                p1 = item.p1,
-                a1 = item.a1,
-                clvMat = item.clvMat,
-                clvOfiMat = item.clvOfiMat,
-                cdts = item.cdts,
-                calif = item.calif,
-                materia = item.materia,
-                acred = item.acred,
-                fecha= currentDateTime
-            )
-            val califId = KardexItemRepository.insertItemAndGetId(item)
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun updateKardex() {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        for(item in kardex?.lstKardex!!){
-            val item = KardexItemDB(
-                matricula = nControl,
-                s3 = item.s3,
-                p3 = item.p3,
-                a3 = item.a3,
-                s2 = item.s2,
-                p2 = item.p2,
-                a2 = item.a2,
-                s1 = item.s1,
-                p1 = item.p1,
-                a1 = item.a1,
-                clvMat = item.clvMat,
-                clvOfiMat = item.clvOfiMat,
-                cdts = item.cdts,
-                calif = item.calif,
-                materia = item.materia,
-                acred = item.acred,
-                fecha= currentDateTime
-            )
-            val califId = KardexItemRepository.updateItem(item)
-        }
-
-    }
-
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun updateUiStateKardex(accessDetails: KardexItemDetails, KardexItem: KardexItem, matricula: String) {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        val updatedKardexDetails = accessDetails.copy(matricula = matricula, s3 = KardexItem.s3,
-            p3 =  KardexItem.p3, a3 = KardexItem.a3, materia = KardexItem.materia,
-            s2 = KardexItem.s2, p2 = KardexItem.s2, a2 = KardexItem.a2, p1 = KardexItem.p1,
-            s1 = KardexItem.s1, a1 = KardexItem.a1, clvMat = KardexItem.clvMat, clvOfiMat = KardexItem.clvOfiMat,
-            cdts = KardexItem.cdts, calif = KardexItem.calif, acred = KardexItem.acred, fecha = currentDateTime)
-        kardexUiState = KardexUiState(kardexItemDetails = updatedKardexDetails, isEntryValid = validateInputKardex())
     }
 
     //PROMEDIO DB
-    var promedioUiState by mutableStateOf(PromedioUiState())
-        private set
-    private fun validateInputPromedio(uiState: PromedioDetails = promedioUiState.promedioDetails): Boolean {
-        return with(uiState) {
-            fecha.isNotBlank()
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun savePromedio() {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-            val item = PromedioDB(
-                matricula = nControl,
-                promedioGral = kardex?.promedio?.promedioGral,
-                cdtsAcum = kardex?.promedio?.cdtsAcum,
-                cdtsPlan = kardex?.promedio?.cdtsPlan,
-                matCursadas = kardex?.promedio?.matCursadas,
-                matAprobadas = kardex?.promedio?.matAprobadas,
-                avanceCdts = kardex?.promedio?.avanceCdts,
-                fecha= currentDateTime
-            )
-        val califId = PromedioRepository.insertItemAndGetId(item)
-    }
-
     suspend fun getPromedio1(matricula: String): PromedioDB {
         // Utiliza viewModelScope.async para obtener un Deferred
 
@@ -776,15 +339,6 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
         }
 
         return deferred.await().promedioDetails.toItem()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun updateUiStatePromedio(accessDetails: PromedioDetails, Promedio: Promedio, matricula: String) {
-        val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        val updatedPromedioDetails = accessDetails.copy(matricula = matricula, promedioGral = Promedio.promedioGral,
-            cdtsAcum =  Promedio.cdtsAcum, cdtsPlan = Promedio.cdtsPlan, matAprobadas = Promedio.matAprobadas,
-            matCursadas = Promedio.matCursadas, avanceCdts = Promedio.avanceCdts, fecha = currentDateTime)
-        promedioUiState = PromedioUiState(promedioDetails = updatedPromedioDetails, isEntryValid = validateInputPromedio())
     }
 
     //WORKERS

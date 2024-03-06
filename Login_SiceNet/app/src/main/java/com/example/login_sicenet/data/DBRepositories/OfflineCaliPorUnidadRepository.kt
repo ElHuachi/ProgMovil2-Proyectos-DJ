@@ -7,7 +7,7 @@ import com.example.login_sicenet.model.CalificacionUnidadDB
 import kotlinx.coroutines.flow.Flow
 
 class OfflineCaliPorUnidadRepository(private val caliUnidadDAO: CalifPorUnidadDAO): CaliPorUnidadRepository {
-    override fun getAllItemsStream(nControl: String): Flow<List<CalificacionUnidadDB>> = caliUnidadDAO.getAllItems(nControl)
+    override fun getAllItemsStream(matricula: String): List<CalificacionUnidadDB> = caliUnidadDAO.getAllItems(matricula)
 
     override fun getItemStream(nControl: String): Flow<CalificacionUnidadDB?> = caliUnidadDAO.getItem(nControl)
 

@@ -8,7 +8,7 @@ interface CaliPorUnidadRepository {
     /**
      * Retrieve all the items from the the given data source.
      */
-    fun getAllItemsStream(matricula: String): Flow<List<CalificacionUnidadDB>>
+    fun getAllItemsStream(matricula: String): List<CalificacionUnidadDB>
 
     /**
      * Retrieve an item from the given data source that matches with the [nControl].

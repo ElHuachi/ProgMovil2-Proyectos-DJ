@@ -8,7 +8,7 @@ interface CaliFinalesRepository {
     /**
      * Retrieve all the items from the the given data source.
      */
-    fun getAllItemsStream(): Flow<List<CalificacionDB>>
+    fun getAllItemsStream(matricula: String): List<CalificacionDB>
 
     /**
      * Retrieve an item from the given data source that matches with the [nControl].
