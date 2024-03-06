@@ -17,6 +17,9 @@ class OfflineCaliFinalesRepository(private val caliFinalesDAO: CalifFinalesDAO):
 
     override suspend fun updateItem(item: CalificacionDB) = caliFinalesDAO.update(item)
 
+    override suspend fun updateQuery(matricula: String, fecha: String) = caliFinalesDAO.updateQuery(matricula,fecha)
+
+
     override suspend fun insertItemAndGetId(item: CalificacionDB): Long {
         return caliFinalesDAO.insertAndGetId(item)
     }

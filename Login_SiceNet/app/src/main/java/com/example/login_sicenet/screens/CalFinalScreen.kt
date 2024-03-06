@@ -81,11 +81,26 @@ fun CalFinalScreen(navController: NavController, viewModel: DataViewModel){
                                 modifier = Modifier
                                     .size(40.dp))
                             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                                DropdownMenuItem(text = { Text(text = "Información del alumno") }, onClick = { navController.navigate("data") })
-                                DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = { navController.navigate("calpar_screen") })
-                                DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = { navController.navigate("final_screen") })
-                                DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = { navController.navigate("horario_screen") })
-                                DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = { navController.navigate("kardex_screen") })
+                                DropdownMenuItem(text = { Text(text = "Información del alumno") }, onClick = {
+                                    viewModel.setCalifFResult(false)
+                                    navController.navigate("data")
+                                })
+                                DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = {
+                                    viewModel.setCalifFResult(false)
+                                    navController.navigate("calpar_screen")
+                                })
+                                DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = {
+                                    viewModel.setCalifFResult(false)
+                                    navController.navigate("final_screen")
+                                })
+                                DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = {
+                                    viewModel.setCalifFResult(false)
+                                    navController.navigate("horario_screen")
+                                })
+                                DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = {
+                                    viewModel.setCalifFResult(false)
+                                    navController.navigate("kardex_screen")
+                                })
                             }
                         }
                     }
@@ -134,7 +149,7 @@ fun BodyContentCF(navController: NavController, viewModel: DataViewModel, Modifi
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if(viewModel.internet==true){
-                //viewModel.getCalifUnidades()
+                viewModel.getCalifFinales()
                 val calif = viewModel.califFinales
                 // Verifica si alumnoAcademicoResult es null
                 if (calif != null) {
@@ -144,16 +159,16 @@ fun BodyContentCF(navController: NavController, viewModel: DataViewModel, Modifi
                             DisplayItemFinales(calif[item])
                         }
                     }
-                    coroutineScope.launch {
-                        val existente = viewModel.getCaliFinalExistente(viewModel.nControl)
-                        if(existente==true){
-                            Log.e("ya estan", "ya estan")
-                            //viewModel.updateCaliFinal()
-                        }else{
-                            viewModel.saveCaliFinal()
-
-                        }
-                    }
+//                    coroutineScope.launch {
+//                        val existente = viewModel.getCaliFinalExistente(viewModel.nControl)
+//                        if(existente==true){
+//                            Log.e("ya estan", "ya estan")
+//                            //viewModel.updateCaliFinal()
+//                        }else{
+//                            viewModel.saveCaliFinal()
+//
+//                        }
+//                    }
                 } else {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = "No se pudieron obtener las calificaciones")

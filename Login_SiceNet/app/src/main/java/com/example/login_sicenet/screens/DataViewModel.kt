@@ -57,6 +57,7 @@ import com.example.login_sicenet.model.PromedioUiState
 import com.example.login_sicenet.model.toItem
 import com.example.login_sicenet.model.toItemDetails
 import com.example.login_sicenet.model.toItemUiState
+import com.example.login_sicenet.workers.CalifFinalWorker
 import com.example.login_sicenet.workers.CalifUnidadWorker
 import com.example.login_sicenet.workers.LoginWorker
 import kotlinx.coroutines.Dispatchers
@@ -845,6 +846,36 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
 
         // Enqueue el trabajo
         workManager.enqueue(califURequest)
+    }
+
+    //WORKER CALIF FINAL
+    // LiveData para observar el estado del login
+    private val _califFResult = MutableLiveData<Boolean>()
+    val califFResult: LiveData<Boolean>
+        get() = _califFResult
+
+    // Función para establecer el resultado del login
+    fun setCalifFResult(successful: Boolean) {
+        _califFResult.value = successful
+    }
+
+    fun califFWorkManager(matricula: String){
+        val inputData = workDataOf("matricula" to matricula)
+        val califFRequest = OneTimeWorkRequestBuilder<CalifFinalWorker>()
+            .setInputData(inputData)
+            .build()
+
+        // Observar el estado del trabajo
+        workManager.getWorkInfoByIdLiveData(califFRequest.id)
+            .observeForever { workInfo ->
+                if (workInfo != null && workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    // El worker terminó correctamente, actualiza LiveData
+                    _califFResult.value = true
+                }
+            }
+
+        // Enqueue el trabajo
+        workManager.enqueue(califFRequest)
     }
 
     companion object {

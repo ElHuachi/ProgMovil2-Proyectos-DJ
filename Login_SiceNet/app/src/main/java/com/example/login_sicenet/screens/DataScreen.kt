@@ -97,7 +97,10 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
                                         viewModel.califUWorkManager(viewModel.nControl)
                                         //navController.navigate("calpar_screen")
                                     })
-                                    DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = { navController.navigate("final_screen") })
+                                    DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = {
+                                        viewModel.califFWorkManager(viewModel.nControl)
+                                        //navController.navigate("final_screen")
+                                         })
                                     DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = { navController.navigate("horario_screen") })
                                     DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = { navController.navigate("kardex_screen") })
                                 }
@@ -114,6 +117,14 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
             // Realizar la navegación cuando el login sea exitoso
             if (califUResult == true) {
                 navController.navigate("calpar_screen")
+            }
+
+            // Observar el resultado del login
+            val califFResult by viewModel.califFResult.observeAsState()
+
+            // Realizar la navegación cuando el login sea exitoso
+            if (califFResult == true) {
+                navController.navigate("final_screen")
             }
         }
 }
