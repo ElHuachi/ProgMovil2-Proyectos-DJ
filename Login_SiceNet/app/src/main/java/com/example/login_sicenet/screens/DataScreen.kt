@@ -105,7 +105,10 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
                                         viewModel.cargaAcWorkManager(viewModel.nControl)
                                         //navController.navigate("horario_screen")
                                     })
-                                    DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = { navController.navigate("kardex_screen") })
+                                    DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = {
+                                        viewModel.kardexWorkManager(viewModel.nControl)
+                                        //navController.navigate("kardex_screen")
+                                    })
                                 }
                             }
                         }
@@ -136,6 +139,14 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
             // Realizar la navegación cuando el login sea exitoso
             if (cargaAcResult == true) {
                 navController.navigate("horario_screen")
+            }
+
+            // Observar el resultado del login
+            val kardexResult by viewModel.kardexResult.observeAsState()
+
+            // Realizar la navegación cuando el login sea exitoso
+            if (kardexResult == true) {
+                navController.navigate("kardex_screen")
             }
         }
 }
@@ -578,7 +589,7 @@ fun BodyContent(navController: NavController, viewModel: DataViewModel) {
                 viewModel.perfilDB = null
                 viewModel.setLoginResult(false)
                 viewModel.setCalifUResult(false)
-                navController.popBackStack()
+                navController.navigate("login")
             }) {
                 Text(text = "Cerrar sesion")
             }

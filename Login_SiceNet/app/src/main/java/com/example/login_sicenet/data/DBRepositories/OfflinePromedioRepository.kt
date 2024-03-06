@@ -17,6 +17,9 @@ class OfflinePromedioRepository(private val promedioDAO: PromedioDAO): PromedioR
 
     override suspend fun updateItem(item: PromedioDB) = promedioDAO.update(item)
 
+    override suspend fun updateQuery(matricula: String, fecha: String) = promedioDAO.updateQuery(matricula,fecha)
+
+
     override suspend fun insertItemAndGetId(item: PromedioDB): Long {
         return promedioDAO.insertAndGetId(item)
     }

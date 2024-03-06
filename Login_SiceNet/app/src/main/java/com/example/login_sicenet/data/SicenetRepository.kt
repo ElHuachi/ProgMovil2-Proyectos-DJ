@@ -116,6 +116,7 @@ class NetworkSicenetRepository(
 
             val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
             val kardex: Kardex = json.decodeFromString(alumnoResultJson?: "")
+            Log.e("kardex",kardex.lstKardex[0].materia)
             Log.e("kardex",kardex.promedio.promedioGral.toString())
             return kardex
         } else {

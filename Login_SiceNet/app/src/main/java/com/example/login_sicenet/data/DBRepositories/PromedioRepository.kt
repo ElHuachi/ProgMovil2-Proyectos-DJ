@@ -30,5 +30,7 @@ interface PromedioRepository {
      */
     suspend fun updateItem(item: PromedioDB)
 
+    suspend fun updateQuery(matricula: String, fecha: String)
+
     suspend fun insertItemAndGetId(item: PromedioDB): Long
 }

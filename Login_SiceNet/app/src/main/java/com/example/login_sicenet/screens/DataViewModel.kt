@@ -60,6 +60,7 @@ import com.example.login_sicenet.model.toItemUiState
 import com.example.login_sicenet.workers.CalifFinalWorker
 import com.example.login_sicenet.workers.CalifUnidadWorker
 import com.example.login_sicenet.workers.CargaAcademicaWorker
+import com.example.login_sicenet.workers.KardexWorker
 import com.example.login_sicenet.workers.LoginWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -879,7 +880,7 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
         workManager.enqueue(califFRequest)
     }
 
-    //WORKER CALIF FINAL
+    //WORKER CARGA ACADEMICA
     // LiveData para observar el estado del login
     private val _cargaAcResult = MutableLiveData<Boolean>()
     val cargaAcResult: LiveData<Boolean>
@@ -901,12 +902,42 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
             .observeForever { workInfo ->
                 if (workInfo != null && workInfo.state == WorkInfo.State.SUCCEEDED) {
                     // El worker terminó correctamente, actualiza LiveData
-                    _califFResult.value = true
+                    _cargaAcResult.value = true
                 }
             }
 
         // Enqueue el trabajo
         workManager.enqueue(cargaAcRequest)
+    }
+
+    //WORKER KARDEX
+    // LiveData para observar el estado del login
+    private val _kardexResult = MutableLiveData<Boolean>()
+    val kardexResult: LiveData<Boolean>
+        get() = _kardexResult
+
+    // Función para establecer el resultado del login
+    fun setKardexResult(successful: Boolean) {
+        _kardexResult.value = successful
+    }
+
+    fun kardexWorkManager(matricula: String){
+        val inputData = workDataOf("matricula" to matricula)
+        val kardexRequest = OneTimeWorkRequestBuilder<KardexWorker>()
+            .setInputData(inputData)
+            .build()
+
+        // Observar el estado del trabajo
+        workManager.getWorkInfoByIdLiveData(kardexRequest.id)
+            .observeForever { workInfo ->
+                if (workInfo != null && workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    // El worker terminó correctamente, actualiza LiveData
+                    _kardexResult.value = true
+                }
+            }
+
+        // Enqueue el trabajo
+        workManager.enqueue(kardexRequest)
     }
 
     companion object {

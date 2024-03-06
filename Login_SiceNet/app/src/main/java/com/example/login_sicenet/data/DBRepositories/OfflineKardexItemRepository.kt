@@ -17,6 +17,9 @@ class OfflineKardexItemRepository(private val kardexDAO: KardexItemDAO): KardexI
 
     override suspend fun updateItem(item: KardexItemDB) = kardexDAO.update(item)
 
+    override suspend fun updateQuery(matricula: String, fecha: String) = kardexDAO.updateQuery(matricula,fecha)
+
+
     override suspend fun insertItemAndGetId(item: KardexItemDB): Long {
         return kardexDAO.insertAndGetId(item)
     }

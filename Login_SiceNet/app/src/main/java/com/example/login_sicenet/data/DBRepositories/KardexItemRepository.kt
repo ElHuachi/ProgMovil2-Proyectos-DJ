@@ -30,5 +30,7 @@ interface KardexItemRepository {
      */
     suspend fun updateItem(item: KardexItemDB)
 
+    suspend fun updateQuery(matricula: String, fecha: String)
+
     suspend fun insertItemAndGetId(item: KardexItemDB): Long
 }
