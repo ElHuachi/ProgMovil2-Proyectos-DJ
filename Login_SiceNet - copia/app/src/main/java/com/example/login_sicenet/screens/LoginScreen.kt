@@ -75,7 +75,10 @@ fun LoginScreen(navController: NavController, viewModel: DataViewModel){
     var isValidPass by remember { mutableStateOf(false) }
     var passVisible by remember { mutableStateOf(false) }
     var rememberCredentials by rememberSaveable { mutableStateOf(false) }
-
+    val cardColors = CardDefaults.cardColors(
+        containerColor = Color(0xFF4E7559),
+        contentColor = Color.Black,
+        )
     Box(modifier = Modifier
         .fillMaxSize()
         .background(Color(0xFFE0E0E0))
@@ -94,7 +97,8 @@ fun LoginScreen(navController: NavController, viewModel: DataViewModel){
         ) {
             Card(
                 Modifier.padding(12.dp),
-                shape = RoundedCornerShape(10.dp)
+                shape = RoundedCornerShape(10.dp),
+                colors = cardColors
             ) {
                 Column(Modifier.padding(16.dp)) {
                     RowImage(navController = navController)
@@ -203,7 +207,6 @@ fun RowPass(
             },
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = if (isValidPass) Color.Green else Color.Red,
-//                unfocusedIndicatorColor = if (isValidPass) Color.Green else Color.Red
             )
         )
     }

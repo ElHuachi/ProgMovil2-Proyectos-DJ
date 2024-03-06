@@ -1,13 +1,11 @@
 package com.example.login_sicenet.screens
 
 import android.annotation.SuppressLint
+import android.graphics.ColorSpace
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DensityMedium
 import androidx.compose.material.icons.filled.House
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -49,7 +46,7 @@ import com.example.login_sicenet.R
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun CalFinalScreen(navController: NavController, viewModel: DataViewModel){
+fun KardexScreen (navController: NavController, viewModel: DataViewModel){
     var expanded by remember { mutableStateOf(false) }
     Scaffold (
         topBar = {
@@ -57,7 +54,7 @@ fun CalFinalScreen(navController: NavController, viewModel: DataViewModel){
                 IconButton(onClick = { navController.navigate("data_screen") }) {
                     Icon(imageVector = Icons.Filled.House, contentDescription = "Inicio")
                 }
-                Text(text = "Calif. Finales",
+                Text(text = "Kardex",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier
                         .padding(vertical = 10.dp)
@@ -84,14 +81,13 @@ fun CalFinalScreen(navController: NavController, viewModel: DataViewModel){
             )
         }
     ) {
-        BodyContentCF(viewModel)
-       }
+        BodyContentK(viewModel)
+    }
 }
 
-
 @Composable
-fun BodyContentCF(viewModel: DataViewModel){
-    val calF = viewModel.califFinales
+fun BodyContentK(viewModel: DataViewModel) {
+    val kardex = viewModel.kardex
     val cardColors = CardDefaults.cardColors(
         containerColor = Color(0xFF76FF03),
         contentColor = Color.Black,
@@ -99,13 +95,14 @@ fun BodyContentCF(viewModel: DataViewModel){
         )
     Image(painter = painterResource(id = R.drawable.backgrounddata), contentDescription = "Fondo de pantalla",
         modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-    if (calF != null){
-        LazyColumn(modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize()
-            .padding(top = 60.dp)
-        ){
-            items(calF ?: emptyList()){Calificacion ->
+    if (kardex != null) {
+        LazyColumn(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize()
+                .padding(top = 60.dp)
+        ) {
+            items(kardex.lstKardex ?: emptyList()) { kardexItem ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -113,35 +110,50 @@ fun BodyContentCF(viewModel: DataViewModel){
                     colors = cardColors
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Materia: ")
-                            }
-                            append(Calificacion.materia)
-                            append(", ")
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Grupo: ")
-                            }
-                            append(Calificacion.grupo)
-                            append(", ")
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Acreditacion: ")
-                            }
-                            append(Calificacion.acred)
-                            append(", ")
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Calificación: ")
-                            }
-                            append(Calificacion.calif.toString())
-                            append(", ")
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Observaciones: ")
-                            }
-                            append(Calificacion.observaciones)
-                        },
+                        Text(
+                            text = buildAnnotatedString {
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append("Clave Materia: ")
+                                }
+                                append(kardexItem.clvMat)
+                                append(", ")
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append("Materia: ")
+                                }
+                                append(kardexItem.materia)
+                                append(", ")
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append("Créditos: ")
+                                }
+                                append(kardexItem.cdts.toString())
+                                append(", ")
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append("Calificación: ")
+                                }
+                                append(kardexItem.calif.toString())
+                                append(", ")
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append("Acred: ")
+                                }
+                                append(kardexItem.acred)
+                            },
                             modifier = Modifier.padding(vertical = 4.dp)
                         )
                     }
+                }
+            }
+            item(kardex.lstKardex) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+                    colors = cardColors
+                ) {
+                    Text(
+                        text = "Promedio General: ${kardex.promedio?.promedioGral}",
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
                 }
             }
         }

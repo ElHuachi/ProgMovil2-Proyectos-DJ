@@ -14,6 +14,7 @@ import com.example.login_sicenet.screens.CalParScreen
 import com.example.login_sicenet.screens.DataScreen
 import com.example.login_sicenet.screens.DataViewModel
 import com.example.login_sicenet.screens.HorarioScreen
+import com.example.login_sicenet.screens.KardexScreen
 import com.example.login_sicenet.screens.LoginScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -29,5 +30,6 @@ fun AppNavigation() {
         composable("horario_screen") { HorarioScreen(navController = navController, viewModel = dataViewModel)}
         composable("final_screen") { CalFinalScreen (navController = navController, viewModel = dataViewModel)}
         composable("calpar_screen") { CalParScreen(navController = navController, viewModel = dataViewModel)}
+        composable("kardex_screen") { KardexScreen(navController = navController, viewModel = dataViewModel)}
     }
 }
