@@ -84,11 +84,23 @@ fun CalParScreen(navController: NavController, viewModel: DataViewModel){
                                 modifier = Modifier
                                     .size(40.dp))
                             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                                DropdownMenuItem(text = { Text(text = "Información del alumno") }, onClick = { navController.navigate("data") })
+                                DropdownMenuItem(text = { Text(text = "Información del alumno") }, onClick = {
+                                    viewModel.setCalifUResult(false)
+                                    navController.navigate("data")
+                                })
                                 DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = { navController.navigate("calpar_screen") })
-                                DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = { navController.navigate("final_screen") })
-                                DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = { navController.navigate("horario_screen") })
-                                DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = { navController.navigate("kardex_screen") })
+                                DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = {
+                                    viewModel.setCalifUResult(false)
+                                    navController.navigate("final_screen")
+                                })
+                                DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = {
+                                    viewModel.setCalifUResult(false)
+                                    navController.navigate("horario_screen")
+                                })
+                                DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = {
+                                    viewModel.setCalifUResult(false)
+                                    navController.navigate("kardex_screen")
+                                })
                             }
                         }
                     }
@@ -123,7 +135,7 @@ fun BodyContentCalif(navController: NavController, viewModel: DataViewModel, Mod
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if(viewModel.internet==true){
-                //viewModel.getCalifUnidades()
+                viewModel.getCalifUnidades()
                 val calif = viewModel.califUnidades
                 // Verifica si alumnoAcademicoResult es null
                 if (calif != null) {
@@ -133,16 +145,16 @@ fun BodyContentCalif(navController: NavController, viewModel: DataViewModel, Mod
                             DisplayItem(calif[item])
                         }
                     }
-                    coroutineScope.launch {
-                    val existente = viewModel.getCaliUnidadExistente(viewModel.nControl)
-                        if(existente==true){
-                            Log.e("ya estan", "ya estan")
-                            //viewModel.updateCaliUnidad()
-                        }else{
-                            viewModel.saveCaliUnidad()
-
-                        }
-                    }
+//                    coroutineScope.launch {
+//                    val existente = viewModel.getCaliUnidadExistente(viewModel.nControl)
+//                        if(existente==true){
+//                            Log.e("ya estan", "ya estan")
+//                            //viewModel.updateCaliUnidad()
+//                        }else{
+//                            viewModel.saveCaliUnidad()
+//
+//                        }
+//                    }
                 } else {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = "No se pudieron obtener las calificaciones")

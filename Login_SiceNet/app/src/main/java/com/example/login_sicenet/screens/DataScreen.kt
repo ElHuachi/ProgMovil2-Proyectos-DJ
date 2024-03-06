@@ -26,6 +26,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -92,7 +93,10 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
 //                                )
                                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                                     DropdownMenuItem(text = { Text(text = "Información del alumno") }, onClick = { navController.navigate("data") })
-                                    DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = { navController.navigate("calpar_screen") })
+                                    DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = {
+                                        viewModel.califUWorkManager(viewModel.nControl)
+                                        //navController.navigate("calpar_screen")
+                                    })
                                     DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = { navController.navigate("final_screen") })
                                     DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = { navController.navigate("horario_screen") })
                                     DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = { navController.navigate("kardex_screen") })
@@ -104,7 +108,13 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
             }
         ) {
             BodyContent(navController, viewModel)
+            // Observar el resultado del login
+            val califUResult by viewModel.califUResult.observeAsState()
 
+            // Realizar la navegación cuando el login sea exitoso
+            if (califUResult == true) {
+                navController.navigate("calpar_screen")
+            }
         }
 }
 
@@ -545,6 +555,7 @@ fun BodyContent(navController: NavController, viewModel: DataViewModel) {
                 viewModel.accesoLoginResult?.acceso=false
                 viewModel.perfilDB = null
                 viewModel.setLoginResult(false)
+                viewModel.setCalifUResult(false)
                 navController.popBackStack()
             }) {
                 Text(text = "Cerrar sesion")

@@ -42,7 +42,7 @@ class LoginWorker(context: Context, params: WorkerParameters): CoroutineWorker(c
 
             val academicProfile = sicenetRepository.getAcademicProfile()
 
-            Log.d("Worker","exito")
+            Log.d("LoginWorker","exito")
 
             //ALMACENAR EN LA BASE DE DATOS
 

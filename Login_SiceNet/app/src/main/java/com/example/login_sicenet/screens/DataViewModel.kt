@@ -57,6 +57,7 @@ import com.example.login_sicenet.model.PromedioUiState
 import com.example.login_sicenet.model.toItem
 import com.example.login_sicenet.model.toItemDetails
 import com.example.login_sicenet.model.toItemUiState
+import com.example.login_sicenet.workers.CalifUnidadWorker
 import com.example.login_sicenet.workers.LoginWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -784,9 +785,9 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
     }
 
     //WORKERS
-
     private val workManager = WorkManager.getInstance()
 
+    //WORKER LOGIN
     // LiveData para observar el estado del login
     private val _loginResult = MutableLiveData<Boolean>()
     val loginResult: LiveData<Boolean>
@@ -814,6 +815,36 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
 
         // Enqueue el trabajo
         workManager.enqueue(profileRequest)
+    }
+
+    //WORKER CALIF UNIDAD
+    // LiveData para observar el estado del login
+    private val _califUResult = MutableLiveData<Boolean>()
+    val califUResult: LiveData<Boolean>
+        get() = _califUResult
+
+    // Función para establecer el resultado del login
+    fun setCalifUResult(successful: Boolean) {
+        _califUResult.value = successful
+    }
+
+    fun califUWorkManager(matricula: String){
+        val inputData = workDataOf("matricula" to matricula)
+        val califURequest = OneTimeWorkRequestBuilder<CalifUnidadWorker>()
+            .setInputData(inputData)
+            .build()
+
+        // Observar el estado del trabajo
+        workManager.getWorkInfoByIdLiveData(califURequest.id)
+            .observeForever { workInfo ->
+                if (workInfo != null && workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    // El worker terminó correctamente, actualiza LiveData
+                    _califUResult.value = true
+                }
+            }
+
+        // Enqueue el trabajo
+        workManager.enqueue(califURequest)
     }
 
     companion object {
