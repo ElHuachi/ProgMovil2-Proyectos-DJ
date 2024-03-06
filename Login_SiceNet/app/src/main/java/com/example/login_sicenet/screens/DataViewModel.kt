@@ -59,6 +59,7 @@ import com.example.login_sicenet.model.toItemDetails
 import com.example.login_sicenet.model.toItemUiState
 import com.example.login_sicenet.workers.CalifFinalWorker
 import com.example.login_sicenet.workers.CalifUnidadWorker
+import com.example.login_sicenet.workers.CargaAcademicaWorker
 import com.example.login_sicenet.workers.LoginWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -876,6 +877,36 @@ class DataViewModel(private val SicenetRepository: SicenetRepository,
 
         // Enqueue el trabajo
         workManager.enqueue(califFRequest)
+    }
+
+    //WORKER CALIF FINAL
+    // LiveData para observar el estado del login
+    private val _cargaAcResult = MutableLiveData<Boolean>()
+    val cargaAcResult: LiveData<Boolean>
+        get() = _cargaAcResult
+
+    // Función para establecer el resultado del login
+    fun setCargaAcResult(successful: Boolean) {
+        _cargaAcResult.value = successful
+    }
+
+    fun cargaAcWorkManager(matricula: String){
+        val inputData = workDataOf("matricula" to matricula)
+        val cargaAcRequest = OneTimeWorkRequestBuilder<CargaAcademicaWorker>()
+            .setInputData(inputData)
+            .build()
+
+        // Observar el estado del trabajo
+        workManager.getWorkInfoByIdLiveData(cargaAcRequest.id)
+            .observeForever { workInfo ->
+                if (workInfo != null && workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    // El worker terminó correctamente, actualiza LiveData
+                    _califFResult.value = true
+                }
+            }
+
+        // Enqueue el trabajo
+        workManager.enqueue(cargaAcRequest)
     }
 
     companion object {

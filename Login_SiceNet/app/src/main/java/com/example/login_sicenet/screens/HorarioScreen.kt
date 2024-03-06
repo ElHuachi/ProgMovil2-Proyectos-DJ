@@ -87,11 +87,26 @@ fun HorarioScreen (navController: NavController, viewModel: DataViewModel){
                                 modifier = Modifier
                                     .size(40.dp))
                             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                                DropdownMenuItem(text = { Text(text = "Información del alumno") }, onClick = { navController.navigate("data") })
-                                DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = { navController.navigate("calpar_screen") })
-                                DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = { navController.navigate("final_screen") })
-                                DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = { navController.navigate("horario_screen") })
-                                DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = { navController.navigate("kardex_screen") })
+                                DropdownMenuItem(text = { Text(text = "Información del alumno") }, onClick = {
+                                    viewModel.setCargaAcResult(false)
+                                    navController.navigate("data")
+                                })
+                                DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = {
+                                    viewModel.setCargaAcResult(false)
+                                    navController.navigate("calpar_screen")
+                                })
+                                DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = {
+                                    viewModel.setCargaAcResult(false)
+                                    navController.navigate("final_screen")
+                                })
+                                DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = {
+                                    viewModel.setCargaAcResult(false)
+                                    navController.navigate("horario_screen")
+                                })
+                                DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = {
+                                    viewModel.setCargaAcResult(false)
+                                    navController.navigate("kardex_screen")
+                                })
                             }
                         }
                     }
@@ -140,7 +155,7 @@ fun BodyContentH(navController: NavController, viewModel: DataViewModel, Modifie
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if(viewModel.internet==true){
-                //viewModel.getCalifUnidades()
+                viewModel.getCargaAcademica()
                 val cargaAc = viewModel.cargaAcademica
                 // Verifica si alumnoAcademicoResult es null
                 if (cargaAc != null) {
@@ -150,17 +165,17 @@ fun BodyContentH(navController: NavController, viewModel: DataViewModel, Modifie
                             DisplayItemCargaAc(cargaAc[item])
                         }
                     }
-                    coroutineScope.launch {
-                        val existente = viewModel.getCaliFinalExistente(viewModel.nControl)
-                        if(existente==true){
-
-                            //viewModel.updateCargaAc()
-                            viewModel.saveCargaAc()
-                        }else{
-
-                            Log.e("ya estan", "ya estan")
-                        }
-                    }
+//                    coroutineScope.launch {
+//                        val existente = viewModel.getCaliFinalExistente(viewModel.nControl)
+//                        if(existente==true){
+//
+//                            //viewModel.updateCargaAc()
+//                            viewModel.saveCargaAc()
+//                        }else{
+//
+//                            Log.e("ya estan", "ya estan")
+//                        }
+//                    }
                 } else {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = "No se pudo obtener la carga académica.")

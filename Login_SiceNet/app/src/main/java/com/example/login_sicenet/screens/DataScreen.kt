@@ -101,7 +101,10 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
                                         viewModel.califFWorkManager(viewModel.nControl)
                                         //navController.navigate("final_screen")
                                          })
-                                    DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = { navController.navigate("horario_screen") })
+                                    DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = {
+                                        viewModel.cargaAcWorkManager(viewModel.nControl)
+                                        //navController.navigate("horario_screen")
+                                    })
                                     DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = { navController.navigate("kardex_screen") })
                                 }
                             }
@@ -125,6 +128,14 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
             // Realizar la navegación cuando el login sea exitoso
             if (califFResult == true) {
                 navController.navigate("final_screen")
+            }
+
+            // Observar el resultado del login
+            val cargaAcResult by viewModel.cargaAcResult.observeAsState()
+
+            // Realizar la navegación cuando el login sea exitoso
+            if (cargaAcResult == true) {
+                navController.navigate("horario_screen")
             }
         }
 }
