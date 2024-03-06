@@ -90,18 +90,32 @@ fun KardexScreen (navController: NavController, viewModel: DataViewModel){
                                 })
                                 DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = {
                                     viewModel.setKardexResult(false)
+                                    if(viewModel.internet==true){
+                                        viewModel.califUWorkManager(viewModel.nControl)
+                                    }
                                     navController.navigate("calpar_screen")
+
                                 })
                                 DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = {
                                     viewModel.setKardexResult(false)
+                                    if(viewModel.internet==true){
+                                        viewModel.califFWorkManager(viewModel.nControl)
+                                    }
                                     navController.navigate("final_screen")
                                 })
                                 DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = {
                                     viewModel.setKardexResult(false)
+                                    if(viewModel.internet==true){
+                                        viewModel.cargaAcWorkManager(viewModel.nControl)
+                                    }
                                     navController.navigate("horario_screen")
+
                                 })
                                 DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = {
                                     viewModel.setKardexResult(false)
+                                    if(viewModel.internet==true){
+                                        viewModel.kardexWorkManager(viewModel.nControl)
+                                    }
                                     navController.navigate("kardex_screen")
                                 })
                             }
@@ -138,22 +152,6 @@ fun BodyKardex(viewModel: DataViewModel, Modifier: Modifier){
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if(viewModel.internet==true){
-//                DisposableEffect(Unit) {
-//                    coroutineScope.launch {
-//                        // Coloca aquí el código que deseas ejecutar solo una vez
-//
-//                        val existente = viewModel.getKardexExistente(viewModel.nControl)
-//                        if (existente == true) {
-//                            Log.e("ya estan", "ya estan")
-//                        } else {
-////                            viewModel.saveKardex()
-//                            viewModel.savePromedio()
-//                        }
-//                    }
-//                    onDispose {
-//                        // Coloca aquí el código de limpieza si es necesario
-//                    }
-//                }
                 viewModel.getKardex()
                 val kardex = viewModel.kardex?.lstKardex
                 val promedio = viewModel.kardex?.promedio
@@ -173,16 +171,6 @@ fun BodyKardex(viewModel: DataViewModel, Modifier: Modifier){
                     Text(text = "Avance de Craditos: ${promedio.avanceCdts}%", color = Color.White)
                     Text(text = "Materias Cursadas: ${promedio.matCursadas}", color = Color.White)
                     Text(text = "Materias Aprobadas: ${promedio.matAprobadas}", color = Color.White)
-//                    coroutineScope.launch {
-//                        val existente = viewModel.getKardexExistente(viewModel.nControl)
-//                        if(existente==true){
-//                            //viewModel.updateKardex()
-//                            Log.e("ya estan", "ya estan")
-//                        }else{
-//                            viewModel.saveKardex()
-////                            viewModel.savePromedio()
-//                        }
-//                    }
                 } else {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = "No se pudo obtener el kardex.")

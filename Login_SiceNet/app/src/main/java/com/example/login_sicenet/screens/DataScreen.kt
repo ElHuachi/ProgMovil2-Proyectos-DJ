@@ -94,20 +94,32 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
                                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                                     DropdownMenuItem(text = { Text(text = "Información del alumno") }, onClick = { navController.navigate("data") })
                                     DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = {
-                                        viewModel.califUWorkManager(viewModel.nControl)
-                                        //navController.navigate("calpar_screen")
+                                        if(viewModel.internet==true){
+                                            viewModel.califUWorkManager(viewModel.nControl)
+                                        }else{
+                                            navController.navigate("calpar_screen")
+                                        }
                                     })
                                     DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = {
-                                        viewModel.califFWorkManager(viewModel.nControl)
-                                        //navController.navigate("final_screen")
-                                         })
+                                        if(viewModel.internet==true){
+                                            viewModel.califFWorkManager(viewModel.nControl)
+                                        }else{
+                                            navController.navigate("final_screen")
+                                        }
+                                    })
                                     DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = {
-                                        viewModel.cargaAcWorkManager(viewModel.nControl)
-                                        //navController.navigate("horario_screen")
+                                        if(viewModel.internet==true){
+                                            viewModel.cargaAcWorkManager(viewModel.nControl)
+                                        }else{
+                                            navController.navigate("horario_screen")
+                                        }
                                     })
                                     DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = {
-                                        viewModel.kardexWorkManager(viewModel.nControl)
-                                        //navController.navigate("kardex_screen")
+                                        if(viewModel.internet==true){
+                                            viewModel.kardexWorkManager(viewModel.nControl)
+                                        }else{
+                                            navController.navigate("kardex_screen")
+                                        }
                                     })
                                 }
                             }

@@ -93,18 +93,28 @@ fun HorarioScreen (navController: NavController, viewModel: DataViewModel){
                                 })
                                 DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = {
                                     viewModel.setCargaAcResult(false)
+                                    if(viewModel.internet==true){
+                                        viewModel.califUWorkManager(viewModel.nControl)
+                                    }
                                     navController.navigate("calpar_screen")
                                 })
                                 DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = {
                                     viewModel.setCargaAcResult(false)
+                                    if(viewModel.internet==true){
+                                        viewModel.califFWorkManager(viewModel.nControl)
+                                    }
                                     navController.navigate("final_screen")
                                 })
                                 DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = {
                                     viewModel.setCargaAcResult(false)
+                                    if(viewModel.internet==true){
+                                        viewModel.cargaAcWorkManager(viewModel.nControl)
+                                    }
                                     navController.navigate("horario_screen")
                                 })
                                 DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = {
                                     viewModel.setCargaAcResult(false)
+                                    viewModel.kardexWorkManager(viewModel.nControl)
                                     navController.navigate("kardex_screen")
                                 })
                             }
