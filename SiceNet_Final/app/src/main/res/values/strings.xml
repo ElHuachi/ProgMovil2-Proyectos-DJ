@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">SiceNet</string>
+    <string name="loading_failed">Error al cargar</string>
+    <string name="retry">Reintentar</string>
+    <string name="loading">Cargando...</string>
+    <string name="placeholder_success">Placeholder text</string>
+</resources>
