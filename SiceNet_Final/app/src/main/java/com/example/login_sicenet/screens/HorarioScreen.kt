@@ -187,7 +187,7 @@ fun BodyContentH(navController: NavController, viewModel: DataViewModel){
                 }
                 val cargaDB = viewModel.cargaAcDB
                 //PANTALLA LLENADA DESDE LA BASE DE DATOS
-                if (cargaDB != null) {
+                if (cargaDB != null && cargaDB.isNotEmpty()) {
 
                     LazyColumn (
                         modifier = Modifier

@@ -174,7 +174,7 @@ fun BodyContentCalif(navController: NavController, viewModel: DataViewModel) {
                 }
                 val caliDB = viewModel.caliUnidadDB
                 //PANTALLA LLENADA DESDE LA BASE DE DATOS
-                if (caliDB != null) {
+                if (caliDB != null && caliDB.isNotEmpty()) {
                     LazyColumn (
                         modifier = Modifier
                             .padding(16.dp)
@@ -191,11 +191,10 @@ fun BodyContentCalif(navController: NavController, viewModel: DataViewModel) {
                                     .padding(5.dp)
                                     .fillMaxWidth()
                             ) {
-                                Text(text = buildAnnotatedString {
-                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append("Ultima actualización: " + {caliDB[0].fecha})
-                                    }
-                                }, color = Color.Black)
+                                Text(
+                                    text = "Última actualización: ${caliDB[0].fecha}",
+                                    color = Color.White
+                                )
                             }
                         }
                     }

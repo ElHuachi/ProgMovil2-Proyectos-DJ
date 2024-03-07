@@ -179,35 +179,30 @@ fun BodyKardex(viewModel: DataViewModel){
                             // Function to display each item
                             DisplayItemKardex(kardex[item])
                         }
-                    }
-                    Spacer(modifier = androidx.compose.ui.Modifier.height(8.dp))
-                    Card (
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        colors = cardColors
-                    ){
-                        Column (modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)) {
-                            Text(text = buildAnnotatedString {
-                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                    append("PROMEDIO")
-                                }
-                                append("\n")
-                                append("Promedio General: ${promedio.promedioGral}")
-                                append("\n")
-                                append("Creditos Acumulados: ${promedio.cdtsAcum}")
-                                append("\n")
-                                append("Creditos Totales: ${promedio.cdtsPlan}")
-                                append("\n")
-                                append("Avance de Craditos: ${promedio.avanceCdts}%")
-                                append("\n")
-                                append("Materias Cursadas: ${promedio.matCursadas}")
-                                append("\n")
-                                append("Materias Aprobadas: ${promedio.matAprobadas}")
-
-                            })
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append("PROMEDIO")
+                                    }
+                                    append("\n")
+                                    append("Promedio General: ${promedio?.promedioGral}")
+                                    append("\n")
+                                    append("Creditos Acumulados: ${promedio?.cdtsAcum}")
+                                    append("\n")
+                                    append("Creditos Totales: ${promedio?.cdtsPlan}")
+                                    append("\n")
+                                    append("Avance de Craditos: ${promedio?.avanceCdts}%")
+                                    append("\n")
+                                    append("Materias Cursadas: ${promedio?.matCursadas}")
+                                    append("\n")
+                                    append("Materias Aprobadas: ${promedio?.matAprobadas}")
+                                }, color = Color.White)
+                            }
                         }
                     }
                 } else {
@@ -225,7 +220,7 @@ fun BodyKardex(viewModel: DataViewModel){
                 val kardexDB = viewModel.kardexDB
                 val promedioDB = viewModel.promedioDB1
                 //PANTALLA LLENADA DESDE LA BASE DE DATOS
-                if (kardexDB != null) {
+                if (kardexDB != null && kardexDB.isNotEmpty()) {
                     LazyColumn(
                         modifier = Modifier
                             .padding(16.dp)
@@ -258,7 +253,9 @@ fun BodyKardex(viewModel: DataViewModel){
                                     append("Materias Cursadas: ${promedioDB?.matCursadas}")
                                     append("\n")
                                     append("Materias Aprobadas: ${promedioDB?.matAprobadas}")
-                                }, color = Color.Black)
+                                    append("\n")
+                                    append("Ultima actualización: ${promedioDB?.fecha}")
+                                }, color = Color.White)
                             }
                         }
                     }

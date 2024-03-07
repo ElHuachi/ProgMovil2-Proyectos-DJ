@@ -193,7 +193,7 @@ fun BodyContentCF(navController: NavController, viewModel: DataViewModel){
                 }
                 val caliDB = viewModel.caliFinalDB
                 //PANTALLA LLENADA DESDE LA BASE DE DATOS
-                if (caliDB != null) {
+                if (caliDB != null && caliDB.isNotEmpty()) {
 
                     LazyColumn(modifier = Modifier
                         .padding(16.dp)
