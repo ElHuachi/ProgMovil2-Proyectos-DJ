@@ -61,6 +61,7 @@ import com.example.login_sicenet.model.KardexItemDB
 import com.example.login_sicenet.model.Promedio
 import com.example.login_sicenet.model.PromedioDB
 import com.example.login_sicenet.screens.DisplayItemCargaAcOffline
+import com.example.login_sicenet.screens.sync
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -68,6 +69,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun KardexScreen (navController: NavController, viewModel: DataViewModel){
+    val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     Scaffold (
         topBar = {
@@ -99,7 +101,7 @@ fun KardexScreen (navController: NavController, viewModel: DataViewModel){
                                 })
                                 DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = {
                                     viewModel.setKardexResult(false)
-                                    if(viewModel.internet==true){
+                                    if(viewModel.checkInternetConnection(context)){
                                         viewModel.califUWorkManager(viewModel.nControl)
                                     }
                                     navController.navigate("calpar_screen")
@@ -107,14 +109,14 @@ fun KardexScreen (navController: NavController, viewModel: DataViewModel){
                                 })
                                 DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = {
                                     viewModel.setKardexResult(false)
-                                    if(viewModel.internet==true){
+                                    if(viewModel.checkInternetConnection(context)){
                                         viewModel.califFWorkManager(viewModel.nControl)
                                     }
                                     navController.navigate("final_screen")
                                 })
                                 DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = {
                                     viewModel.setKardexResult(false)
-                                    if(viewModel.internet==true){
+                                    if(viewModel.checkInternetConnection(context)){
                                         viewModel.cargaAcWorkManager(viewModel.nControl)
                                     }
                                     navController.navigate("horario_screen")
@@ -122,7 +124,7 @@ fun KardexScreen (navController: NavController, viewModel: DataViewModel){
                                 })
                                 DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = {
                                     viewModel.setKardexResult(false)
-                                    if(viewModel.internet==true){
+                                    if(viewModel.checkInternetConnection(context)){
                                         viewModel.kardexWorkManager(viewModel.nControl)
                                     }
                                     navController.navigate("kardex_screen")
@@ -163,7 +165,7 @@ fun BodyKardex(viewModel: DataViewModel){
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(viewModel.internet==true){
+            if(viewModel.checkInternetConnection(context)){
                 viewModel.getKardex()
                 val kardex = viewModel.kardex?.lstKardex
                 val promedio = viewModel.kardex?.promedio

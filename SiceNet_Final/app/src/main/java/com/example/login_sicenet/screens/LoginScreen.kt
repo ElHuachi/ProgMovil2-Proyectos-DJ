@@ -267,8 +267,8 @@ fun RowButtonLogin(
     ) {
         Button(modifier = Modifier.fillMaxWidth(),
             onClick = {
-                if(checkInternetConnection(context)){
-                    viewModel.internet=true
+                if(viewModel.checkInternetConnection(context)){
+                    //viewModel.internet=true
                     login(context)
                     viewModel.nControl=nControl
                     viewModel.pass=password
@@ -284,7 +284,7 @@ fun RowButtonLogin(
 //                    }
                 }else{
                     Log.d("INTERNET","NO HAY INTERNET")
-                    viewModel.internet=false
+                    //viewModel.internet=false
                     viewModel.nControl=nControl
                     viewModel.pass=password
                     navController.navigate("data_screen")
@@ -301,32 +301,17 @@ fun RowButtonLogin(
     // Realizar la navegación cuando el login sea exitoso
     if (loginResult == true) {
         navController.navigate("data_screen") // Cambiar al destino deseado después del login exitoso
-    }
-}
-
-fun checkInternetConnection(context: Context): Boolean {
-    val connectivityManager =
-        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        val networkCapabilities = connectivityManager.activeNetwork ?: return false
-        val activeNetwork =
-            connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
-
-        return when {
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-            else -> false
-        }
-    } else {
-        val activeNetworkInfo = connectivityManager.activeNetworkInfo
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected
+//        sync(context, "Perfil")
     }
 }
 
 //MENSAJES FLOTANTES
 fun login(context: Context){
     Toast.makeText(context, "Iniciando sesión", Toast.LENGTH_SHORT).show()
+}
+
+fun sync(context: Context,texto: String){
+    Toast.makeText(context, "Sincronización de $texto finalizada", Toast.LENGTH_SHORT).show()
 }
 
 fun showError(context: Context, message: String) {

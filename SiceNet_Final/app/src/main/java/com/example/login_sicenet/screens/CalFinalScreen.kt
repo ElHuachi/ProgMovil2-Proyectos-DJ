@@ -64,6 +64,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CalFinalScreen(navController: NavController, viewModel: DataViewModel){
+    val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     Scaffold (
         topBar = {
@@ -95,28 +96,30 @@ fun CalFinalScreen(navController: NavController, viewModel: DataViewModel){
                                 })
                                 DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = {
                                     viewModel.setCalifFResult(false)
-                                    if(viewModel.internet==true){
+                                    if(viewModel.checkInternetConnection(context)){
                                         viewModel.califUWorkManager(viewModel.nControl)
                                     }
                                     navController.navigate("calpar_screen")
                                 })
                                 DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = {
                                     viewModel.setCalifFResult(false)
-                                    if(viewModel.internet==true){
+                                    if(viewModel.checkInternetConnection(context)){
                                         viewModel.califFWorkManager(viewModel.nControl)
                                     }
                                     navController.navigate("final_screen")
                                 })
                                 DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = {
                                     viewModel.setCalifFResult(false)
-                                    if(viewModel.internet==true){
+                                    if(viewModel.checkInternetConnection(context)){
                                         viewModel.cargaAcWorkManager(viewModel.nControl)
                                     }
                                     navController.navigate("horario_screen")
                                 })
                                 DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = {
                                     viewModel.setCalifFResult(false)
-                                    viewModel.kardexWorkManager(viewModel.nControl)
+                                    if(viewModel.checkInternetConnection(context)){
+                                        viewModel.kardexWorkManager(viewModel.nControl)
+                                    }
                                     navController.navigate("kardex_screen")
                                 })
                             }
@@ -166,7 +169,7 @@ fun BodyContentCF(navController: NavController, viewModel: DataViewModel){
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(viewModel.internet==true){
+            if(viewModel.checkInternetConnection(context)){
                 viewModel.getCalifFinales()
                 val calif = viewModel.califFinales
                 // Verifica si alumnoAcademicoResult es null

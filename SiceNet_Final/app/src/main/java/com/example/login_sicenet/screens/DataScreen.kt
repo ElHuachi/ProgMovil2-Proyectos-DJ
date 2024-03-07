@@ -58,6 +58,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
 @Composable
 fun DataScreen(navController: NavController, viewModel: DataViewModel) {
+    val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
         Scaffold(
             topBar = {
@@ -88,29 +89,34 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
                                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                                     DropdownMenuItem(text = { Text(text = "Información del alumno") }, onClick = { navController.navigate("data_screen") })
                                     DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = {
-                                        if(viewModel.internet==true){
+                                        if(viewModel.checkInternetConnection(context)){
                                             viewModel.califUWorkManager(viewModel.nControl)
+                                            //sync(context,"Cal Parciales")
+
                                         }else{
                                             navController.navigate("calpar_screen")
                                         }
                                     })
                                     DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = {
-                                        if(viewModel.internet==true){
+                                        if(viewModel.checkInternetConnection(context)){
                                             viewModel.califFWorkManager(viewModel.nControl)
+//                                            sync(context,"Cal Finales")
                                         }else{
                                             navController.navigate("final_screen")
                                         }
                                     })
                                     DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = {
-                                        if(viewModel.internet==true){
+                                        if(viewModel.checkInternetConnection(context)){
                                             viewModel.cargaAcWorkManager(viewModel.nControl)
+//                                            sync(context,"Carga Academica")
                                         }else{
                                             navController.navigate("horario_screen")
                                         }
                                     })
                                     DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = {
-                                        if(viewModel.internet==true){
+                                        if(viewModel.checkInternetConnection(context)){
                                             viewModel.kardexWorkManager(viewModel.nControl)
+//                                            sync(context,"Kardex")
                                         }else{
                                             navController.navigate("kardex_screen")
                                         }
@@ -135,18 +141,21 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
             // Realizar la navegación cuando el login sea exitoso
             if (califFResult == true) {
                 navController.navigate("final_screen")
+
             }
             // Observar el resultado del login
             val cargaAcResult by viewModel.cargaAcResult.observeAsState()
             // Realizar la navegación cuando el login sea exitoso
             if (cargaAcResult == true) {
                 navController.navigate("horario_screen")
+
             }
             // Observar el resultado del login
             val kardexResult by viewModel.kardexResult.observeAsState()
             // Realizar la navegación cuando el login sea exitoso
             if (kardexResult == true) {
                 navController.navigate("kardex_screen")
+
             }
         }
 }
@@ -173,7 +182,7 @@ fun BodyContent(navController: NavController, viewModel: DataViewModel) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(viewModel.internet==true){
+            if(viewModel.checkInternetConnection(context)){
                 val alumnoAcademicoResult = viewModel.alumnoAcademicoResult
                 // Verifica si alumnoAcademicoResult es null
                 if (alumnoAcademicoResult != null) {
