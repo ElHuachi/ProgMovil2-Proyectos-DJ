@@ -91,8 +91,7 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
                                     DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = {
                                         if(viewModel.checkInternetConnection(context)){
                                             viewModel.califUWorkManager(viewModel.nControl)
-                                            //sync(context,"Cal Parciales")
-
+                                            sync(context,"Calificaciones Parciales")
                                         }else{
                                             navController.navigate("calpar_screen")
                                         }
@@ -100,7 +99,7 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
                                     DropdownMenuItem(text = { Text(text = "Calificaciones finales") }, onClick = {
                                         if(viewModel.checkInternetConnection(context)){
                                             viewModel.califFWorkManager(viewModel.nControl)
-//                                            sync(context,"Cal Finales")
+                                            sync(context,"Calificaciones Finales")
                                         }else{
                                             navController.navigate("final_screen")
                                         }
@@ -108,7 +107,7 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
                                     DropdownMenuItem(text = { Text(text = "Carga academica") }, onClick = {
                                         if(viewModel.checkInternetConnection(context)){
                                             viewModel.cargaAcWorkManager(viewModel.nControl)
-//                                            sync(context,"Carga Academica")
+                                            sync(context,"Carga Academica")
                                         }else{
                                             navController.navigate("horario_screen")
                                         }
@@ -116,7 +115,7 @@ fun DataScreen(navController: NavController, viewModel: DataViewModel) {
                                     DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = {
                                         if(viewModel.checkInternetConnection(context)){
                                             viewModel.kardexWorkManager(viewModel.nControl)
-//                                            sync(context,"Kardex")
+                                            sync(context,"Kardex")
                                         }else{
                                             navController.navigate("kardex_screen")
                                         }

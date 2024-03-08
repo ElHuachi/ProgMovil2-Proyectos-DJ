@@ -103,6 +103,7 @@ fun KardexScreen (navController: NavController, viewModel: DataViewModel){
                                     viewModel.setKardexResult(false)
                                     if(viewModel.checkInternetConnection(context)){
                                         viewModel.califUWorkManager(viewModel.nControl)
+                                        sync(context,"Calificaciones Parciales")
                                     }
                                     navController.navigate("calpar_screen")
 
@@ -111,6 +112,7 @@ fun KardexScreen (navController: NavController, viewModel: DataViewModel){
                                     viewModel.setKardexResult(false)
                                     if(viewModel.checkInternetConnection(context)){
                                         viewModel.califFWorkManager(viewModel.nControl)
+                                        sync(context,"Calificaciones Finales")
                                     }
                                     navController.navigate("final_screen")
                                 })
@@ -118,6 +120,7 @@ fun KardexScreen (navController: NavController, viewModel: DataViewModel){
                                     viewModel.setKardexResult(false)
                                     if(viewModel.checkInternetConnection(context)){
                                         viewModel.cargaAcWorkManager(viewModel.nControl)
+                                        sync(context,"Carga Academica")
                                     }
                                     navController.navigate("horario_screen")
 
@@ -126,6 +129,7 @@ fun KardexScreen (navController: NavController, viewModel: DataViewModel){
                                     viewModel.setKardexResult(false)
                                     if(viewModel.checkInternetConnection(context)){
                                         viewModel.kardexWorkManager(viewModel.nControl)
+                                        sync(context,"Kardex")
                                     }
                                     navController.navigate("kardex_screen")
                                 })

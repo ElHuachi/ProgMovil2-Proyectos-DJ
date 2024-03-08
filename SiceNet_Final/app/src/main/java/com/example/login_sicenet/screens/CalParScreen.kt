@@ -98,6 +98,7 @@ fun CalParScreen(navController: NavController, viewModel: DataViewModel){
                                 DropdownMenuItem(text = { Text(text = "Calificaciones parciales") }, onClick = {
                                     if(viewModel.checkInternetConnection(context)){
                                         viewModel.califUWorkManager(viewModel.nControl)
+                                        sync(context,"Calificaciones Parciales")
                                     }
                                     navController.navigate("calpar_screen")
                                 })
@@ -105,6 +106,7 @@ fun CalParScreen(navController: NavController, viewModel: DataViewModel){
                                     viewModel.setCalifUResult(false)
                                     if(viewModel.checkInternetConnection(context)){
                                         viewModel.califFWorkManager(viewModel.nControl)
+                                        sync(context,"Calificaciones Finales")
                                     }
                                     navController.navigate("final_screen")
                                 })
@@ -112,12 +114,14 @@ fun CalParScreen(navController: NavController, viewModel: DataViewModel){
                                     viewModel.setCalifUResult(false)
                                     if(viewModel.checkInternetConnection(context)){
                                         viewModel.cargaAcWorkManager(viewModel.nControl)
+                                        sync(context,"Carga Academica")
                                     }
                                     navController.navigate("horario_screen")                                })
                                 DropdownMenuItem(text = { Text(text = "Kardex") }, onClick = {
                                     viewModel.setCalifUResult(false)
                                     if(viewModel.checkInternetConnection(context)){
                                         viewModel.kardexWorkManager(viewModel.nControl)
+                                        sync(context,"Kardex")
                                     }
                                     navController.navigate("kardex_screen")
                                 })

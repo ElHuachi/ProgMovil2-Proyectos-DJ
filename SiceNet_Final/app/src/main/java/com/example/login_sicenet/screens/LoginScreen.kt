@@ -301,7 +301,7 @@ fun RowButtonLogin(
     // Realizar la navegación cuando el login sea exitoso
     if (loginResult == true) {
         navController.navigate("data_screen") // Cambiar al destino deseado después del login exitoso
-//        sync(context, "Perfil")
+        sync(context, "Perfil")
     }
 }
 
