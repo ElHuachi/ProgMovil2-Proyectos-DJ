@@ -178,7 +178,7 @@ fun PermissionRequestButton(
             OutlinedTextField(
                 value = responderNumber,
                 onValueChange = { responderNumber = it },
-                label = { Text("Responder Number") },
+                label = { Text("Número Destinatario") },
                 leadingIcon = { Icon(imageVector = Icons.Default.Phone, contentDescription = null) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -188,7 +188,7 @@ fun PermissionRequestButton(
             OutlinedTextField(
                 value = smsText,
                 onValueChange = { smsText = it },
-                label = { Text("SMS Text") },
+                label = { Text("Cuerpo del SMS") },
                 leadingIcon = { Icon(imageVector = Icons.Default.MailOutline, contentDescription = null) },
                 modifier = Modifier
                     .fillMaxWidth()
