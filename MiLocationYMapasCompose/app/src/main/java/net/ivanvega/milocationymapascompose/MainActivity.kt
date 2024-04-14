@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import net.ivanvega.milocationymapascompose.ui.maps.DrawingMap
 import net.ivanvega.milocationymapascompose.ui.maps.MiMapaControlCamara
+import net.ivanvega.milocationymapascompose.ui.maps.StreetView
 import net.ivanvega.milocationymapascompose.ui.theme.MiLocationYMapasComposeTheme
 
 
@@ -27,7 +28,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     //MiMapa()
                     //MiMapaControlCamara()
-                    DrawingMap()
+                    //DrawingMap()
+                    StreetView()
                 }
             }
         }

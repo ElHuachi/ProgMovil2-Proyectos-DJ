@@ -37,6 +37,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Card
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.maps.StreetViewPanoramaOptions
+import com.google.android.gms.maps.StreetViewPanoramaView
 import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.MarkerInfoWindow
 import com.google.maps.android.compose.Polygon
@@ -321,6 +325,28 @@ fun ExtraInfo(title: String, lat: String, lng: String) {
                     Text(text = lng)
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun StreetView() {
+    val context = LocalContext.current
+    val svpView = remember {
+        StreetViewPanoramaView(context, StreetViewPanoramaOptions()
+            .position(LatLng(34.04283078083833, -118.26612757652808)))
+    }
+
+    AndroidView(
+        factory = { svpView },
+        modifier = Modifier.fillMaxSize()
+    ) { view ->
+        view.onCreate(null)
+        view.onResume()
+        view.getStreetViewPanoramaAsync { panorama ->
+            //Ubicacion inicial del Street View
+            val initialPosition = LatLng(34.04283078083833, -118.26612757652808)
+            panorama.setPosition(initialPosition)
         }
     }
 }
