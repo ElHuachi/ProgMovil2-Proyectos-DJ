@@ -31,9 +31,14 @@ import androidx.compose.runtime.*
 import com.google.android.gms.maps.GoogleMap
 import android.location.Location
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Card
 import com.google.maps.android.compose.Circle
+import com.google.maps.android.compose.MarkerInfoWindow
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.ktx.*
@@ -281,7 +286,41 @@ fun DrawingMap(){
         }
     }
 
+    drawnPoints.forEach { point ->
+        ExtraInfo(
+            title = "Coordenadas",
+            lat = "Lat: ${point.latitude}",
+            lng = "Lng: ${point.longitude}"
+        )
+    }
 
 
 }
 
+@Composable
+fun ExtraInfo(title: String, lat: String, lng: String) {
+    Box(
+        modifier = Modifier
+            .width(200.dp)
+            .height(100.dp)
+            .padding(8.dp)
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Card {
+            Column(
+                modifier = Modifier.padding(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(text = title)
+                Row {
+                    Text(text = lat)
+                }
+                Row {
+                    Text(text = lng)
+                }
+            }
+        }
+    }
+}
