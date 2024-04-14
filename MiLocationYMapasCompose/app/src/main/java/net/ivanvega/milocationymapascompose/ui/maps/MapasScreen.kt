@@ -53,3 +53,74 @@ fun MiMapa(){
     }
 }
 
+@Composable
+fun MiMapaControlCamara(){
+    // Pposición inicial de la cámara
+    val singapore = LatLng(1.35, 103.87)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(singapore, 10f)
+    }
+
+    // Estado de la camara
+    var cameraPosition by remember { mutableStateOf(cameraPositionState.position) }
+
+    // Función para mover la cámara a una nueva posición
+    fun moveCameraToPosition(newPosition: LatLng) {
+        cameraPosition = CameraPosition.Builder()
+            .target(newPosition)
+            .zoom(10f)
+            .build()
+    }
+
+    // Función para mover la cámara con un desplazamiento específico
+    fun moveCameraWithOffset(offset: Float) {
+        val currentZoom = cameraPosition.zoom
+        cameraPosition = CameraPosition.Builder()
+            .target(cameraPosition.target)
+            .zoom(currentZoom + offset)
+            .build()
+    }
+
+    LaunchedEffect(cameraPosition) {
+        // Recomponer cada vez que cambie la posición de la cámara
+        cameraPositionState.position = cameraPosition
+    }
+
+    GoogleMap(
+        modifier = Modifier.fillMaxSize(),
+        cameraPositionState = cameraPositionState
+    ) {
+        Marker(
+            state = MarkerState(position = cameraPosition.target),
+            title = "Current Position",
+            snippet = "Marker at current position"
+        )
+    }
+
+    Column(
+        horizontalAlignment = Alignment.End,
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+    ) {
+        Button(
+            onClick = { moveCameraToPosition(LatLng(1.35, 103.87)) },
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text("Singapore")
+        }
+        Button(
+            onClick = { moveCameraWithOffset(1f) },
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text("Zoom In")
+        }
+        Button(
+            onClick = { moveCameraWithOffset(-1f) },
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text("Zoom Out")
+        }
+    }
+}
+
