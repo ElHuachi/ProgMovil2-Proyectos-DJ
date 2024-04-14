@@ -30,7 +30,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.*
 import com.google.android.gms.maps.GoogleMap
 import android.location.Location
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.wrapContentSize
 import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.Polyline
@@ -179,6 +181,16 @@ fun DrawingMap(){
         }
     }
 
+    //Limpiar los elementos dibujados
+    fun clearDrawnElements() {
+        drawnPoints = emptyList()
+        drawnPolyline = null
+        drawnPolygon = null
+        drawnCircleCenter = null
+        drawnCircleRadius = null
+        isDrawingCircle = false
+    }
+
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
@@ -213,43 +225,63 @@ fun DrawingMap(){
         }
     }
 
-    Column(
-        horizontalAlignment = Alignment.End,
+    Row(
         modifier = Modifier
             .padding(16.dp)
-            .fillMaxWidth()
+            .fillMaxSize(),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Button(
-            onClick = { moveCameraToPosition(LatLng(1.35, 103.87)) },
-            modifier = Modifier.padding(8.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.65f)
+                .align(Alignment.Top)
         ) {
-            Text("Singapore")
+            Button(
+                onClick = { startDrawingCircleMode() },
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Dibujar Circulo")
+            }
+            Button(
+                onClick = { isDrawingCircle = false },
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Modo Circulo Off")
+            }
+            Button(
+                onClick = { clearDrawnElements() },
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Recomponer")
+            }
         }
-        Button(
-            onClick = { moveCameraWithOffset(1f) },
-            modifier = Modifier.padding(8.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Top)
         ) {
-            Text("Zoom In")
-        }
-        Button(
-            onClick = { moveCameraWithOffset(-1f) },
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Text("Zoom Out")
-        }
-        Button(
-            onClick = { startDrawingCircleMode() },
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Text("Dibujar Circulo")
-        }
-        Button(
-            onClick = { isDrawingCircle = false },
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Text("Modo Circulo Off")
+            Button(
+                onClick = { moveCameraToPosition(LatLng(1.35, 103.87)) },
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Singapore")
+            }
+            Button(
+                onClick = { moveCameraWithOffset(1f) },
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Zoom In")
+            }
+            Button(
+                onClick = { moveCameraWithOffset(-1f) },
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Zoom Out")
+            }
         }
     }
+
+
 
 }
 
