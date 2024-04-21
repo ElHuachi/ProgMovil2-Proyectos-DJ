@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.*
 import com.google.android.gms.maps.GoogleMap
 import android.location.Location
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -39,6 +40,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Card
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.StreetViewPanoramaOptions
 import com.google.android.gms.maps.StreetViewPanoramaView
 import com.google.maps.android.compose.Circle
@@ -46,7 +48,6 @@ import com.google.maps.android.compose.MarkerInfoWindow
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.ktx.*
-
 @Composable
 fun MiMapa(){
     val singapore = LatLng(1.35, 103.87)
@@ -55,13 +56,13 @@ fun MiMapa(){
     }
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState
+        cameraPositionState = cameraPositionState,
     ) {
-        Marker(
-            state = MarkerState(position = singapore),
-            title = "Singapore",
-            snippet = "Marker in Singapore"
-        )
+//        Marker(
+//            state = MarkerState(position = singapore),
+//            title = "Singapore",
+//            snippet = "Marker in Singapore"
+//        )
     }
 }
 

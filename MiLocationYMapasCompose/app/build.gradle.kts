@@ -3,7 +3,8 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
 
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.21"
+    id("com.google.devtools.ksp") version "1.8.21-1.0.11"
 }
 
 secrets {
@@ -84,6 +85,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
     implementation(libs.appcompat)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -93,6 +95,12 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
 
-
+// Retrofit
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation ("com.squareup.retrofit2:converter-simplexml:2.9.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.2")
+    implementation ("com.squareup.retrofit2:converter-moshi:2.9.0")
 
 }
