@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import net.ivanvega.milocationymapascompose.rutas.ScreenPrincipal
 import net.ivanvega.milocationymapascompose.ui.location.CurrentLocationScreen
 import net.ivanvega.milocationymapascompose.ui.maps.DrawingMap
 import net.ivanvega.milocationymapascompose.ui.maps.MiMapa
@@ -29,9 +30,10 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     //CurrentLocationScreen()
-                    MiMapaControlCamara()
+                    //MiMapaControlCamara()
                     //DrawingMap()
                     //StreetView()
+                    ScreenPrincipal(this)
                 }
             }
         }

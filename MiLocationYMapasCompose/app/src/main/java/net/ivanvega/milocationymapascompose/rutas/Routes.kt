@@ -100,5 +100,120 @@ suspend fun getRuta(origen: String, destino: String): RouteResponse {
     }
 }
 
+@SuppressLint("MissingPermission")
+@Composable
+fun ScreenPrincipal(activity: ComponentActivity) {
+    val permissions = listOf(
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+    )
+    PermissionBox(
+        permissions = permissions,
+        requiredPermissions = listOf(permissions.first()),
+        onGranted = {
+            MiMapaRutas(activity)
+        },
+    )
+}
+
+@RequiresPermission(
+    anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION],
+)
+@Composable
+fun MiMapaRutas(activity: ComponentActivity) {
+    var origen by remember { mutableStateOf("") }
+    var destino by remember { mutableStateOf("") }
+    var ruta: RouteResponse? by remember { mutableStateOf(null) }
+    var manualDestinationMode by remember { mutableStateOf(false) }
+    var manualDestinationCoordinate by remember { mutableStateOf(LatLng(0.0, 0.0)) }
+    var markerOrigen: LatLng? by remember { mutableStateOf(null) }
+    var markerDestino: LatLng? by remember { mutableStateOf(null) }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val locationClient = remember {
+        LocationServices.getFusedLocationProviderClient(context)
+    }
+
+    val camaraInicio = LatLng(20.126275317533462, -101.18905377998448)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(camaraInicio, 10f)
+    }
+
+    Column {
+        Button(
+            onClick = {
+                MainScope().launch {
+                    showToast(activity, "Obteniendo Ubicación Actual")
+                    val priority = Priority.PRIORITY_HIGH_ACCURACY
+                    val result = locationClient.getCurrentLocation(
+                        priority,
+                        CancellationTokenSource().token,
+                    ).await()
+                    result?.let { fetchedLocation ->
+                        val currentLatLng = LatLng(result.latitude, result.longitude)
+                        origen = "${currentLatLng.longitude},${currentLatLng.latitude}"
+                        markerOrigen = currentLatLng
+
+                        // Actualizar la posición de la cámara al obtener la ubicación actual
+                        cameraPositionState.position = CameraPosition(currentLatLng, 10f,0f,0f)
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.LocationOn, contentDescription = "Ubicación Actual")
+            Text("Obtener Ubicación Actual")
+        }
+        Button(
+            onClick = {
+                scope.launch {
+                    if (origen.isNotEmpty() && destino.isNotEmpty()) {
+                        showToast(activity, "Obteniendo la mejor ruta")
+                        ruta = getRuta(origen, destino)
+                    } else {
+                        showToast(activity, "Proporcione su ubicación actual y su destino")
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.Search, contentDescription = "Trazar Ruta")
+            Text("Trazar Ruta")
+        }
+
+        //
+
+        GoogleMap(
+            cameraPositionState = cameraPositionState,
+            onMapClick = { latLng ->
+                manualDestinationCoordinate = latLng
+                destino = "${latLng.longitude},${latLng.latitude}"
+                markerDestino = latLng
+                manualDestinationMode = false
+                showToast(activity, "Destino establecido")
+                ruta=null
+            }
+        ) {
+            markerOrigen?.let {
+                Marker(state = MarkerState(position = it), title = "Ubicación actual")
+            }
+
+            markerDestino?.let {
+                Marker(state = MarkerState(position = it), title = "Destino")
+            }
+
+            ruta?.let { route ->
+                val coordenadasRuta =
+                    route.features.first().geometry.coordinates.map { LatLng(it[1], it[0]) }
+                Polyline(points = coordenadasRuta, color = Color.Red)
+            }
+        }
+    }
+}
+
+fun showToast(context: Context, message: String) {
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+}
+
 
 
