@@ -90,4 +90,15 @@ val retrofit = Retrofit.Builder()
 
 val routeService = retrofit.create(RouteService::class.java)
 
+suspend fun getRuta(origen: String, destino: String): RouteResponse {
+    return withContext(Dispatchers.IO) {
+        routeService.getRoute(
+            apiKey = "5b3ce3597851110001cf6248ca2d3de57ef24174a8577bd2ed97e330",
+            start = origen,
+            end = destino
+        )
+    }
+}
+
+
 
