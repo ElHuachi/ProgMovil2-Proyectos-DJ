@@ -181,8 +181,10 @@ fun MiMapaRutas(activity: ComponentActivity) {
             Text("Trazar Ruta")
         }
 
-        //
-
+        ruta?.let { route ->
+            InfoRuta(route.features.first().properties.summary.distance,route.features.first().properties.summary.duration)
+        }
+        
         GoogleMap(
             cameraPositionState = cameraPositionState,
             onMapClick = { latLng ->
@@ -208,6 +210,30 @@ fun MiMapaRutas(activity: ComponentActivity) {
                 Polyline(points = coordenadasRuta, color = Color.Red)
             }
         }
+    }
+}
+
+@Composable
+fun InfoRuta(distancia: Double, tiempo: Double) {
+    val distanceText = "$distancia mts"
+    val durationMinutesText = "%.1f min (automóvil)".format(tiempo / 60.0)
+
+    Row(Modifier.background(Color.Transparent)) {
+        Icon(
+            Icons.Default.Home,
+            contentDescription = "Distancia",
+            modifier = Modifier.padding(end = 8.dp)
+        )
+        Text(distanceText)
+    }
+
+    Row(Modifier.background(Color.Transparent)) {
+        Icon(
+            Icons.Default.Warning,
+            contentDescription = "Duración",
+            modifier = Modifier.padding(end = 8.dp)
+        )
+        Text(durationMinutesText)
     }
 }
 
