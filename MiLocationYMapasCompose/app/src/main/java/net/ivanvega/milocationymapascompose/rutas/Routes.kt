@@ -7,6 +7,7 @@ import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresPermission
@@ -104,6 +105,17 @@ suspend fun getRuta(origen: String, destino: String): RouteResponse {
     }
 }
 
+suspend fun obtenerRutaSafely(origen: String, destino: String): RouteResponse? {
+    return try {
+        getRuta(origen, destino)
+    } catch (e: Exception) {
+        // Manejar la excepción de manera adecuada, por ejemplo, registrando el error o notificando al usuario
+        Log.e("Obtener Ruta", "Error al obtener la ruta: ${e.message}", e)
+        null // Devolver null para indicar que no se pudo obtener la ruta
+    }
+}
+
+
 @SuppressLint("MissingPermission")
 @Composable
 fun ScreenPrincipal(activity: ComponentActivity) {
@@ -179,7 +191,13 @@ fun MiMapaRutas(activity: ComponentActivity) {
                     if (origen.isNotEmpty() && destino.isNotEmpty()) {
                         if(checkInternetConnection(context)){
                             showToast(activity, "Obteniendo la mejor ruta")
-                            ruta = getRuta(origen, destino)
+                            //ruta = getRuta(origen, destino)
+                            ruta = obtenerRutaSafely(origen, destino)
+                            if (ruta != null) {
+                                showToast(activity, "Ruta encontrada")
+                            } else {
+                                showToast(activity, "No existe una ruta posible")
+                            }
                         }else{
                             showToast(activity, "Revisa tu conexión a internet")
                         }
