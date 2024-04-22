@@ -3,6 +3,10 @@ package net.ivanvega.milocationymapascompose.rutas
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.location.LocationManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresPermission
@@ -142,22 +146,27 @@ fun MiMapaRutas(activity: ComponentActivity) {
     Column {
         Button(
             onClick = {
-                MainScope().launch {
-                    showToast(activity, "Obteniendo Ubicación Actual")
-                    val priority = Priority.PRIORITY_HIGH_ACCURACY
-                    val result = locationClient.getCurrentLocation(
-                        priority,
-                        CancellationTokenSource().token,
-                    ).await()
-                    result?.let { fetchedLocation ->
-                        val currentLatLng = LatLng(result.latitude, result.longitude)
-                        origen = "${currentLatLng.longitude},${currentLatLng.latitude}"
-                        markerOrigen = currentLatLng
+                if(isLocationEnabled(context)){
+                    MainScope().launch {
+                        showToast(activity, "Obteniendo Ubicación Actual")
+                        val priority = Priority.PRIORITY_HIGH_ACCURACY
+                        val result = locationClient.getCurrentLocation(
+                            priority,
+                            CancellationTokenSource().token,
+                        ).await()
+                        result?.let { fetchedLocation ->
+                            val currentLatLng = LatLng(result.latitude, result.longitude)
+                            origen = "${currentLatLng.longitude},${currentLatLng.latitude}"
+                            markerOrigen = currentLatLng
 
-                        // Actualizar la posición de la cámara al obtener la ubicación actual
-                        cameraPositionState.position = CameraPosition(currentLatLng, 10f,0f,0f)
+                            // Actualizar la posición de la cámara al obtener la ubicación actual
+                            cameraPositionState.position = CameraPosition(currentLatLng, 10f,0f,0f)
+                        }
                     }
+                }else{
+                    showToast(activity, "Habilita la ubicación de tu dispositivo")
                 }
+
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -168,8 +177,12 @@ fun MiMapaRutas(activity: ComponentActivity) {
             onClick = {
                 scope.launch {
                     if (origen.isNotEmpty() && destino.isNotEmpty()) {
-                        showToast(activity, "Obteniendo la mejor ruta")
-                        ruta = getRuta(origen, destino)
+                        if(checkInternetConnection(context)){
+                            showToast(activity, "Obteniendo la mejor ruta")
+                            ruta = getRuta(origen, destino)
+                        }else{
+                            showToast(activity, "Revisa tu conexión a internet")
+                        }
                     } else {
                         showToast(activity, "Proporcione su ubicación actual y su destino")
                     }
@@ -215,8 +228,14 @@ fun MiMapaRutas(activity: ComponentActivity) {
 
 @Composable
 fun InfoRuta(distancia: Double, tiempo: Double) {
-    val distanceText = "$distancia mts"
-    val durationMinutesText = "%.1f min (automóvil)".format(tiempo / 60.0)
+    val distanceText = if(distancia<1000){"$distancia mts"}
+    else{"%.1f km".format(distancia/1000)}
+    val durationMinutesText = when {
+        tiempo < 60 -> "%.1f seg (automóvil)".format(tiempo)
+        tiempo < 3600 -> "%.1f min (automóvil)".format(tiempo / 60.0)
+        tiempo < 86400 -> "%.1f hrs (automóvil)".format(tiempo / 3600.0)
+        else -> "%.1f dias (automóvil)".format(tiempo / 86400.0)
+    }
 
     Row(Modifier.background(Color.Transparent)) {
         Icon(
@@ -241,5 +260,29 @@ fun showToast(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
 
+fun checkInternetConnection(context: Context): Boolean {
+    val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val networkCapabilities = connectivityManager.activeNetwork ?: return false
+        val activeNetwork =
+            connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+
+        return when {
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            else -> false
+        }
+    } else {
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected
+    }
+}
+
+fun isLocationEnabled(context: Context): Boolean {
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+            locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+}
 
