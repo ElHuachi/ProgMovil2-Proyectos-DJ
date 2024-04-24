@@ -7,6 +7,7 @@ import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.preference.PreferenceManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -25,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -143,7 +145,6 @@ fun MiMapaRutas(activity: ComponentActivity) {
     var manualDestinationMode by remember { mutableStateOf(false) }
     var manualDestinationCoordinate by remember { mutableStateOf(LatLng(0.0, 0.0)) }
     var markerOrigen: LatLng? by remember { mutableStateOf(null) }
-    var markerDestino: LatLng? by remember { mutableStateOf(null) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val locationClient = remember {
@@ -153,6 +154,19 @@ fun MiMapaRutas(activity: ComponentActivity) {
     val camaraInicio = LatLng(20.126275317533462, -101.18905377998448)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(camaraInicio, 10f)
+    }
+
+    var markerDestinoPosition by remember { mutableStateOf<LatLng?>(null) }
+
+    //Almacenar el domicilio del usuario
+    LaunchedEffect(key1 = true) {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        destino = sharedPreferences.getString("destino", "") ?: ""
+        val lat = sharedPreferences.getFloat("destino_lat", 0f).toDouble()
+        val lng = sharedPreferences.getFloat("destino_lng", 0f).toDouble()
+        if (lat != 0.0 && lng != 0.0) {
+            markerDestinoPosition = LatLng(lat, lng)
+        }
     }
 
     Column {
@@ -172,7 +186,7 @@ fun MiMapaRutas(activity: ComponentActivity) {
                             markerOrigen = currentLatLng
 
                             // Actualizar la posición de la cámara al obtener la ubicación actual
-                            cameraPositionState.position = CameraPosition(currentLatLng, 10f,0f,0f)
+                            cameraPositionState.position = CameraPosition(currentLatLng, 15f,0f,0f)
                         }
                     }
                 }else{
@@ -191,7 +205,6 @@ fun MiMapaRutas(activity: ComponentActivity) {
                     if (origen.isNotEmpty() && destino.isNotEmpty()) {
                         if(checkInternetConnection(context)){
                             showToast(activity, "Obteniendo la mejor ruta")
-                            //ruta = getRuta(origen, destino)
                             ruta = obtenerRutaSafely(origen, destino)
                             if (ruta != null) {
                                 showToast(activity, "Ruta encontrada")
@@ -202,7 +215,7 @@ fun MiMapaRutas(activity: ComponentActivity) {
                             showToast(activity, "Revisa tu conexión a internet")
                         }
                     } else {
-                        showToast(activity, "Proporcione su ubicación actual y su destino")
+                        showToast(activity, "Proporcione su ubicación actual y su domicilio")
                     }
                 }
             },
@@ -219,20 +232,32 @@ fun MiMapaRutas(activity: ComponentActivity) {
         GoogleMap(
             cameraPositionState = cameraPositionState,
             onMapClick = { latLng ->
-                manualDestinationCoordinate = latLng
-                destino = "${latLng.longitude},${latLng.latitude}"
-                markerDestino = latLng
-                manualDestinationMode = false
-                showToast(activity, "Destino establecido")
-                ruta=null
+                if (destino.isEmpty()) {
+                    manualDestinationCoordinate = latLng
+                    destino = "${latLng.longitude},${latLng.latitude}"
+                    markerDestinoPosition = latLng
+                    manualDestinationMode = false
+                    showToast(activity, "Domicilio establecido")
+
+                    // Guardar la posición del marcador de destino en SharedPreferences
+                    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+                    sharedPreferences.edit().apply {
+                        putString("destino", destino)
+                        putFloat("destino_lat", latLng.latitude.toFloat())
+                        putFloat("destino_lng", latLng.longitude.toFloat())
+                        apply()
+                    }
+
+                    ruta = null
+                }
             }
         ) {
             markerOrigen?.let {
                 Marker(state = MarkerState(position = it), title = "Ubicación actual")
             }
 
-            markerDestino?.let {
-                Marker(state = MarkerState(position = it), title = "Destino")
+            markerDestinoPosition?.let {
+                Marker(state = MarkerState(position = it), title = "Casa")
             }
 
             ruta?.let { route ->
