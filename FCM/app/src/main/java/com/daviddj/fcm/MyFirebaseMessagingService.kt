@@ -16,6 +16,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
         // manage this apps subscriptions on the server side, send the
         // FCM registration token to your app server.
         //sendRegistrationToServer(token)
+        super.onNewToken(token)
     }
 
     private val viewModel: MessageViewModel by lazy {
