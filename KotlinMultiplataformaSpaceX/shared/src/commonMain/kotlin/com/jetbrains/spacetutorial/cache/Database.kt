@@ -50,7 +50,7 @@ internal class Database(databaseDriverFactory: DatabaseDriverFactory) {
                     launchDateUTC = launch.launchDateUTC,
                     patchUrlSmall = launch.links.patch?.small,
                     patchUrlLarge = launch.links.patch?.large,
-                    articleUrl = launch.links.article 
+                    articleUrl = launch.links.article
                 )
             }
         }
