@@ -105,17 +105,106 @@ fun CanchaFP() {
         var score by remember { mutableStateOf(0) }
 
         val obstaculos = listOf(
-            Obstaculo(300.dp, 500.dp, 10.dp, 200.dp),
-            Obstaculo(500.dp, 200.dp, 200.dp, 10.dp),
-            Obstaculo(150.dp, 400.dp, 100.dp, 10.dp),
-            Obstaculo(800.dp, 300.dp, 10.dp, 150.dp),
-            Obstaculo(600.dp, 800.dp, 150.dp, 10.dp),
-            Obstaculo(200.dp, 1000.dp, 10.dp, 200.dp),
-            Obstaculo(700.dp, 1200.dp, 200.dp, 10.dp),
-            Obstaculo(400.dp, 1400.dp, 10.dp, 200.dp),
-            Obstaculo(500.dp, 1600.dp, 150.dp, 10.dp),
-            Obstaculo(300.dp, 1800.dp, 10.dp, 150.dp)
+            //HORIZONTALES PORTERIA SUPERIR
+            Obstaculo(30.dp, 50.dp, 40.dp, 10.dp),
+            Obstaculo(90.dp, 50.dp, 40.dp, 10.dp),
+            Obstaculo(180.dp, 50.dp, 40.dp, 10.dp),
+            Obstaculo(260.dp, 50.dp, 40.dp, 10.dp),
+            Obstaculo(320.dp, 50.dp, 20.dp, 10.dp),
+
+            //VERTICALES PORTERIA SUPERIOR
+            Obstaculo(40.dp, 70.dp, 10.dp, 20.dp),
+            Obstaculo(60.dp, 70.dp, 10.dp, 20.dp),
+            Obstaculo(100.dp, 70.dp, 10.dp, 20.dp),
+            Obstaculo(140.dp, 70.dp, 10.dp, 20.dp),
+            Obstaculo(180.dp, 70.dp, 10.dp, 20.dp),
+            Obstaculo(220.dp, 70.dp, 10.dp, 20.dp),
+            Obstaculo(280.dp, 70.dp, 10.dp, 20.dp),
+            Obstaculo(300.dp, 70.dp, 10.dp, 20.dp),
+            Obstaculo(350.dp, 70.dp, 10.dp, 20.dp),
+
+            //HORIZONTALES INFERIORES
+            Obstaculo(50.dp, 250.dp, 40.dp, 10.dp),
+            Obstaculo(110.dp, 250.dp, 40.dp, 10.dp),
+            Obstaculo(170.dp, 250.dp, 40.dp, 10.dp),
+            Obstaculo(240.dp, 250.dp, 40.dp, 10.dp),
+            Obstaculo(310.dp, 250.dp, 20.dp, 10.dp),
+
+            //VERTICALES SUPERIRORES
+            Obstaculo(50.dp, 100.dp, 10.dp, 80.dp),
+            Obstaculo(100.dp, 100.dp, 10.dp, 80.dp),
+            Obstaculo(150.dp, 100.dp, 10.dp, 80.dp),
+            Obstaculo(200.dp, 100.dp, 10.dp, 80.dp),
+            Obstaculo(250.dp, 100.dp, 10.dp, 80.dp),
+            Obstaculo(300.dp, 100.dp, 10.dp, 80.dp),
+            Obstaculo(330.dp, 100.dp, 10.dp, 80.dp),
+
+            //VERTICALES SUPERIRORES
+            Obstaculo(40.dp, 200.dp, 10.dp, 20.dp),
+            Obstaculo(60.dp, 200.dp, 10.dp, 20.dp),
+            Obstaculo(100.dp, 200.dp, 10.dp, 20.dp),
+            Obstaculo(140.dp, 200.dp, 10.dp, 20.dp),
+            Obstaculo(180.dp, 200.dp, 10.dp, 20.dp),
+            Obstaculo(220.dp, 200.dp, 10.dp, 20.dp),
+            Obstaculo(280.dp, 200.dp, 10.dp, 20.dp),
+            Obstaculo(300.dp, 200.dp, 10.dp, 20.dp),
+            Obstaculo(350.dp, 200.dp, 10.dp, 20.dp),
+
+            //HORIZONTALES CENTRO
+            Obstaculo(30.dp, 300.dp, 40.dp, 10.dp),
+            Obstaculo(90.dp, 300.dp, 40.dp, 10.dp),
+            Obstaculo(180.dp, 300.dp, 40.dp, 10.dp),
+            Obstaculo(260.dp, 300.dp, 40.dp, 10.dp),
+            Obstaculo(320.dp, 300.dp, 20.dp, 10.dp),
+
+            Obstaculo(30.dp, 350.dp, 40.dp, 10.dp),
+            Obstaculo(90.dp, 350.dp, 40.dp, 10.dp),
+            Obstaculo(180.dp, 350.dp, 40.dp, 10.dp),
+            Obstaculo(260.dp, 350.dp, 40.dp, 10.dp),
+            Obstaculo(320.dp, 350.dp, 20.dp, 10.dp),
+
+            //VERTICALES INFERIORES
+            Obstaculo(50.dp, 400.dp, 10.dp, 80.dp),
+            Obstaculo(100.dp, 400.dp, 10.dp, 80.dp),
+            Obstaculo(150.dp, 400.dp, 10.dp, 80.dp),
+            Obstaculo(200.dp, 400.dp, 10.dp, 80.dp),
+            Obstaculo(250.dp, 400.dp, 10.dp, 80.dp),
+            Obstaculo(300.dp, 400.dp, 10.dp, 80.dp),
+            Obstaculo(330.dp, 400.dp, 10.dp, 80.dp),
+
+            //HORIZONTALES INFERIORES
+            Obstaculo(30.dp, 500.dp, 40.dp, 10.dp),
+            Obstaculo(90.dp, 500.dp, 40.dp, 10.dp),
+            Obstaculo(180.dp, 500.dp, 40.dp, 10.dp),
+            Obstaculo(260.dp, 500.dp, 40.dp, 10.dp),
+            Obstaculo(320.dp, 500.dp, 20.dp, 10.dp),
+
+            //HORIZONTALES INFERIORES
+            Obstaculo(50.dp, 550.dp, 40.dp, 10.dp),
+            Obstaculo(110.dp, 550.dp, 40.dp, 10.dp),
+            Obstaculo(170.dp, 550.dp, 40.dp, 10.dp),
+            Obstaculo(240.dp, 550.dp, 40.dp, 10.dp),
+            Obstaculo(310.dp, 550.dp, 20.dp, 10.dp),
+
+            //VERTICALES PORTERIA INFERIOR
+            Obstaculo(40.dp, 600.dp, 10.dp, 20.dp),
+            Obstaculo(60.dp, 600.dp, 10.dp, 20.dp),
+            Obstaculo(100.dp, 600.dp, 10.dp, 20.dp),
+            Obstaculo(140.dp, 600.dp, 10.dp, 20.dp),
+            Obstaculo(180.dp, 600.dp, 10.dp, 20.dp),
+            Obstaculo(220.dp, 600.dp, 10.dp, 20.dp),
+            Obstaculo(280.dp, 600.dp, 10.dp, 20.dp),
+            Obstaculo(300.dp, 600.dp, 10.dp, 20.dp),
+            Obstaculo(350.dp, 600.dp, 10.dp, 20.dp),
+
+            //HORIZONTALES PORTERIA INFERIOR
+            Obstaculo(30.dp, 630.dp, 40.dp, 10.dp),
+            Obstaculo(90.dp, 630.dp, 40.dp, 10.dp),
+            Obstaculo(180.dp, 630.dp, 40.dp, 10.dp),
+            Obstaculo(260.dp, 630.dp, 40.dp, 10.dp),
+            Obstaculo(320.dp, 630.dp, 20.dp, 10.dp),
         )
+
 
         Demo(
             demo = Demo.ACCELEROMETER,

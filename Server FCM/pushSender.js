@@ -25,7 +25,7 @@ async function enviarMensajePush(token, mensaje) {
 }
 
 // Uso de la función para enviar un mensaje push
-const tokenDispositivo = 'fDITm-SjR2C_Eg01SOfHZK:APA91bGU1DiDoKHHEXm-2IdIA053FZ7BTwDTdQLL_GOuUe_qmpNLf_55oMykDI77gEs1-S-zn3WM10RrilKEBD7USt6NtkIxW3YmTcxAjoUI15WsrNkXYb1Z_U1w-c2JpJV6ipqF_V4d';
+const tokenDispositivo = 'dUVNVRPaR7u1Z89-coILMK:APA91bFKHY1dYKoaEXZM4CNktb2So_7jbwJzmxmDhlODPCqvAfae15rM3MkgVAWovhvpl34B3j_UZRzLylRtOsOCUZRSvCBZTpy9psheE3deW0M0Jo_peIoXKURCzPxK0fwVBXhJpi9A';
 const mensaje = '¡Hola desde el servidor!';
 
 enviarMensajePush(tokenDispositivo, mensaje);
