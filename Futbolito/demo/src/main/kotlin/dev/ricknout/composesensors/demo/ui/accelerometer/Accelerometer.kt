@@ -136,13 +136,13 @@ fun CanchaFP() {
 
             center = if (orientation == Configuration.ORIENTATION_PORTRAIT) {
                 Offset(
-                    x = (center.x - x).coerceIn(leftLimit.value + radius, rightLimit.value - radius),
-                    y = (center.y + y).coerceIn(topLimit.value + radius, bottomLimit.value - radius),
+                    x = (center.x - x*2).coerceIn(leftLimit.value + radius, rightLimit.value - radius),
+                    y = (center.y + y*2).coerceIn(topLimit.value + radius, bottomLimit.value - radius),
                 )
             } else {
                 Offset(
-                    x = (center.x + y).coerceIn(leftLimit.value + radius, rightLimit.value - radius),
-                    y = (center.y + x).coerceIn(topLimit.value + radius, bottomLimit.value - radius),
+                    x = (center.x + y*2).coerceIn(leftLimit.value + radius, rightLimit.value - radius),
+                    y = (center.y + x*2).coerceIn(topLimit.value + radius, bottomLimit.value - radius),
                 )
             }
 
