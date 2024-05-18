@@ -104,6 +104,19 @@ fun CanchaFP() {
 
         var score by remember { mutableStateOf(0) }
 
+        val obstaculos = listOf(
+            Obstaculo(300.dp, 500.dp, 10.dp, 200.dp),
+            Obstaculo(500.dp, 200.dp, 200.dp, 10.dp),
+            Obstaculo(150.dp, 400.dp, 100.dp, 10.dp),
+            Obstaculo(800.dp, 300.dp, 10.dp, 150.dp),
+            Obstaculo(600.dp, 800.dp, 150.dp, 10.dp),
+            Obstaculo(200.dp, 1000.dp, 10.dp, 200.dp),
+            Obstaculo(700.dp, 1200.dp, 200.dp, 10.dp),
+            Obstaculo(400.dp, 1400.dp, 10.dp, 200.dp),
+            Obstaculo(500.dp, 1600.dp, 150.dp, 10.dp),
+            Obstaculo(300.dp, 1800.dp, 10.dp, 150.dp)
+        )
+
         Demo(
             demo = Demo.ACCELEROMETER,
             value = "X: $x m/s^2\nY: $y m/s^2\nZ: $z m/s^2",
@@ -131,6 +144,11 @@ fun CanchaFP() {
                     x = (center.x + y).coerceIn(leftLimit.value + radius, rightLimit.value - radius),
                     y = (center.y + x).coerceIn(topLimit.value + radius, bottomLimit.value - radius),
                 )
+            }
+
+            // Check for collisions with obstacles
+            obstaculos.forEach { obstacle ->
+                center = checkCollision(center, obstacle, radius)
             }
 
             // Conteo de goles
@@ -209,6 +227,16 @@ fun CanchaFP() {
                         CentroCancha()
                     }
 
+                    // Dibujar obstáculos
+                    obstaculos.forEach { obstaculo ->
+                        Box(
+                            modifier = Modifier
+                                .offset(obstaculo.left, obstaculo.top)
+                                .size(obstaculo.width, obstaculo.height)
+                                .background(Color.DarkGray)
+                        )
+                    }
+
                     // Dibujar la pelota
                     Canvas(modifier = Modifier.fillMaxSize()) {
                         drawCircle(
@@ -250,5 +278,43 @@ fun CentroCancha() {
             )
         }
     }
+}
+
+data class Obstaculo(val left: Dp, val top: Dp, val width: Dp, val height: Dp)
+
+@Composable
+fun checkCollision(centro: Offset, obstaculo: Obstaculo, radio: Float): Offset {
+    val obstacleRect = with(LocalDensity.current) {
+        androidx.compose.ui.geometry.Rect(
+            left = obstaculo.left.toPx(),
+            top = obstaculo.top.toPx(),
+            right = obstaculo.left.toPx() + obstaculo.width.toPx(),
+            bottom = obstaculo.top.toPx() + obstaculo.height.toPx()
+        )
+    }
+
+    // Verificar colision
+    val cercanoX = centro.x.coerceIn(obstacleRect.left, obstacleRect.right)
+    val cercanoY = centro.y.coerceIn(obstacleRect.top, obstacleRect.bottom)
+    val distanciaX = centro.x - cercanoX
+    val distanciaY = centro.y - cercanoY
+
+    if ((distanciaX * distanciaX + distanciaY * distanciaY) < (radio * radio)) {
+        //Colisión detectada, calcular nueva posición después del rebote
+        val penetrationDepthX = radio - kotlin.math.abs(distanciaX)
+        val penetrationDepthY = radio - kotlin.math.abs(distanciaY)
+
+        return when {
+            kotlin.math.abs(distanciaX) > kotlin.math.abs(distanciaY) -> {
+                // Rebote horizontal
+                Offset(centro.x + kotlin.math.sign(distanciaX) * penetrationDepthX, centro.y)
+            }
+            else -> {
+                //Rebote vertical
+                Offset(centro.x, centro.y + kotlin.math.sign(distanciaY) * penetrationDepthY)
+            }
+        }
+    }
+    return centro
 }
 
