@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import dev.ricknout.composesensors.demo.R
 import dev.ricknout.composesensors.demo.model.Demo
 import dev.ricknout.composesensors.demo.ui.accelerometer.AccelerometerDemo
+import dev.ricknout.composesensors.demo.ui.accelerometer.CanchaFP
 import dev.ricknout.composesensors.demo.ui.ambienttemperature.AmbientTemperatureDemo
 import dev.ricknout.composesensors.demo.ui.gravity.GravityDemo
 import dev.ricknout.composesensors.demo.ui.gyroscope.GyroscopeDemo
@@ -71,7 +72,7 @@ fun DemoNavigation(
     Crossfade(targetState = demo) {
         when (it) {
             Demo.NONE -> DemoApp(onItemClick = onItemClick)
-            Demo.ACCELEROMETER -> AccelerometerDemo()
+            Demo.ACCELEROMETER -> CanchaFP()
             Demo.AMBIENT_TEMPERATURE -> AmbientTemperatureDemo()
             Demo.GRAVITY -> GravityDemo()
             Demo.GYROSCOPE -> GyroscopeDemo()

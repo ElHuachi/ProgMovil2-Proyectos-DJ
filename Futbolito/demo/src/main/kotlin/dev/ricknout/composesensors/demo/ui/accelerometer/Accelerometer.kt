@@ -2,18 +2,37 @@ package dev.ricknout.composesensors.demo.ui.accelerometer
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Divider
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dev.ricknout.composesensors.accelerometer.isAccelerometerSensorAvailable
 import dev.ricknout.composesensors.accelerometer.rememberAccelerometerSensorValueAsState
 import dev.ricknout.composesensors.demo.model.Demo
@@ -58,3 +77,178 @@ fun AccelerometerDemo() {
         NotAvailableDemo(demo = Demo.ACCELEROMETER)
     }
 }
+
+@Composable
+fun CanchaFP() {
+    if (isAccelerometerSensorAvailable()) {
+        val sensorValue by rememberAccelerometerSensorValueAsState()
+        val (x, y, z) = sensorValue.value
+
+        // Bordes de la cancha
+        val leftLimit = 60.dp
+        val rightLimit = 1020.dp
+        val topLimit = 60.dp
+        val bottomLimit = 1850.dp
+
+        val porteriaHeight = 50.dp
+        val porteriaWidth = 150.dp
+
+        // Zona de anotación
+        val topGoalTopLimit = topLimit
+        val topGoalBottomLimit = topLimit + porteriaHeight
+        val bottomGoalTopLimit = bottomLimit - porteriaHeight
+        val bottomGoalBottomLimit = bottomLimit
+
+        val porteriaLeftLimit = (rightLimit.value - porteriaWidth.value) / 2
+        val porteriaRightLimit = porteriaLeftLimit + porteriaWidth.value
+
+        var score by remember { mutableStateOf(0) }
+
+        Demo(
+            demo = Demo.ACCELEROMETER,
+            value = "X: $x m/s^2\nY: $y m/s^2\nZ: $z m/s^2",
+        ) {
+            val orientation = LocalConfiguration.current.orientation
+            val contentColor = LocalContentColor.current
+            val radius = with(LocalDensity.current) { 10.dp.toPx() }
+
+            var center by remember {
+                mutableStateOf(
+                    Offset(
+                        x = (leftLimit.value + rightLimit.value) / 2,
+                        y = (topLimit.value + bottomLimit.value) / 2 // Start at the center of the field
+                    )
+                )
+            }
+
+            center = if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                Offset(
+                    x = (center.x - x).coerceIn(leftLimit.value + radius, rightLimit.value - radius),
+                    y = (center.y + y).coerceIn(topLimit.value + radius, bottomLimit.value - radius),
+                )
+            } else {
+                Offset(
+                    x = (center.x + y).coerceIn(leftLimit.value + radius, rightLimit.value - radius),
+                    y = (center.y + x).coerceIn(topLimit.value + radius, bottomLimit.value - radius),
+                )
+            }
+
+            // Conteo de goles
+            if ((center.y - radius <= topGoalBottomLimit.value &&
+                        center.y + radius >= topGoalTopLimit.value &&
+                        center.x - radius >= porteriaLeftLimit &&
+                        center.x + radius <= porteriaRightLimit) ||
+                (center.y + radius >= bottomGoalTopLimit.value &&
+                        center.y - radius <= bottomGoalBottomLimit.value &&
+                        center.x - radius >= porteriaLeftLimit &&
+                        center.x + radius <= porteriaRightLimit)
+            ) {
+                score++
+                center = Offset(
+                    x = (leftLimit.value + rightLimit.value) / 2,
+                    y = (topLimit.value + bottomLimit.value) / 2
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Green),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Mostrar y actualizar puntaje
+                Text(
+                    text = "Puntaje: $score",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    modifier = Modifier.padding(16.dp)
+                )
+
+                // Dibujar cancha
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    // Dibujar Porterías
+                    Box(
+                        modifier = Modifier
+                            .width(porteriaWidth)
+                            .height(porteriaHeight)
+                            .align(Alignment.TopCenter)
+                            .background(Color.Transparent)
+                            .border(4.dp, Color.White)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .width(porteriaWidth)
+                            .height(porteriaHeight)
+                            .align(Alignment.BottomCenter)
+                            .background(Color.Transparent)
+                            .border(4.dp, Color.White)
+                    )
+
+                    // Campo de juego
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(20.dp)
+                            .background(Color.Transparent)
+                            .border(4.dp, Color.White)
+                    ) {
+                        // Línea central
+                        Divider(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.Center)
+                                .height(4.dp),
+                            color = Color.White
+                        )
+
+                        // Circulo y punto central
+                        CentroCancha()
+                    }
+
+                    // Dibujar la pelota
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        drawCircle(
+                            color = Color.White,
+                            radius = radius,
+                            center = center,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CentroCancha() {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val canchaWidth = maxWidth
+        val canchaHeight = maxHeight
+        val radioCentro = 100.dp
+        val radioPunto = 5.dp
+
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val centerField = Offset(canchaWidth.toPx() / 2, canchaHeight.toPx() / 2)
+
+            // Círculo central
+            drawCircle(
+                color = Color.White,
+                radius = radioCentro.toPx(),
+                center = centerField,
+                style = Stroke(width = 4.dp.toPx())
+            )
+
+            // Punto central
+            drawCircle(
+                color = Color.White,
+                radius = radioPunto.toPx(),
+                center = centerField
+            )
+        }
+    }
+}
+
