@@ -106,7 +106,7 @@ fun CanchaFP() {
 
         val obstaculos = listOf(
             //HORIZONTALES PORTERIA SUPERIR
-            Obstaculo(30.dp, 50.dp, 40.dp, 10.dp),
+            //Obstaculo(30.dp, 50.dp, 40.dp, 10.dp),
             Obstaculo(90.dp, 50.dp, 40.dp, 10.dp),
             Obstaculo(180.dp, 50.dp, 40.dp, 10.dp),
             Obstaculo(260.dp, 50.dp, 40.dp, 10.dp),
@@ -121,7 +121,7 @@ fun CanchaFP() {
             Obstaculo(220.dp, 70.dp, 10.dp, 20.dp),
             Obstaculo(280.dp, 70.dp, 10.dp, 20.dp),
             Obstaculo(300.dp, 70.dp, 10.dp, 20.dp),
-            Obstaculo(350.dp, 70.dp, 10.dp, 20.dp),
+            //Obstaculo(350.dp, 70.dp, 10.dp, 20.dp),
 
             //HORIZONTALES INFERIORES
             Obstaculo(50.dp, 250.dp, 40.dp, 10.dp),
@@ -195,16 +195,22 @@ fun CanchaFP() {
             Obstaculo(220.dp, 600.dp, 10.dp, 20.dp),
             Obstaculo(280.dp, 600.dp, 10.dp, 20.dp),
             Obstaculo(300.dp, 600.dp, 10.dp, 20.dp),
-            Obstaculo(350.dp, 600.dp, 10.dp, 20.dp),
+            //Obstaculo(350.dp, 600.dp, 10.dp, 20.dp),
 
             //HORIZONTALES PORTERIA INFERIOR
-            Obstaculo(30.dp, 630.dp, 40.dp, 10.dp),
+            //Obstaculo(30.dp, 630.dp, 40.dp, 10.dp),
             Obstaculo(90.dp, 630.dp, 40.dp, 10.dp),
             Obstaculo(180.dp, 630.dp, 40.dp, 10.dp),
             Obstaculo(260.dp, 630.dp, 40.dp, 10.dp),
             Obstaculo(320.dp, 630.dp, 20.dp, 10.dp),
         )
 
+        val trampolines = listOf(
+            Trampolin(20.dp, 20.dp),
+            Trampolin(352.dp, 20.dp),
+            Trampolin(20.dp, 665.dp),
+            Trampolin(352.dp, 665.dp)
+        )
 
         Demo(
             demo = Demo.ACCELEROMETER,
@@ -238,6 +244,10 @@ fun CanchaFP() {
             // Check for collisions with obstacles
             obstaculos.forEach { obstacle ->
                 center = checkCollision(center, obstacle, radius)
+            }
+
+            trampolines.forEach { trampoline ->
+                center = checkTrampolinCollision(center, trampoline, radius)
             }
 
             // Conteo de goles
@@ -326,6 +336,17 @@ fun CanchaFP() {
                         )
                     }
 
+                    // Dibujar trampolines
+                    trampolines.forEach { trampolin ->
+                        Box(
+                            modifier = Modifier
+                                .offset(trampolin.left, trampolin.top)
+                                .size(20.dp, 10.dp)
+                                .background(Color.Red)
+                        )
+                    }
+
+
                     // Dibujar la pelota
                     Canvas(modifier = Modifier.fillMaxSize()) {
                         drawCircle(
@@ -407,3 +428,36 @@ fun checkCollision(centro: Offset, obstaculo: Obstaculo, radio: Float): Offset {
     return centro
 }
 
+
+data class Trampolin(val left: Dp, val top: Dp)
+
+@Composable
+fun checkTrampolinCollision(centro: Offset, trampolin: Trampolin, radio: Float): Offset {
+    val density = LocalDensity.current
+
+    val trampolineRect = with(density) {
+        androidx.compose.ui.geometry.Rect(
+            left = trampolin.left.toPx(),
+            top = trampolin.top.toPx(),
+            right = trampolin.left.toPx() + 20.dp.toPx(), // Usar tamaño fijo para el trampolín
+            bottom = trampolin.top.toPx() + 20.dp.toPx() // Usar tamaño fijo para el trampolín
+        )
+    }
+
+    // Verificar colisión
+    val cercanoX = centro.x.coerceIn(trampolineRect.left, trampolineRect.right)
+    val cercanoY = centro.y.coerceIn(trampolineRect.top, trampolineRect.bottom)
+    val distanciaX = centro.x - cercanoX
+    val distanciaY = centro.y - cercanoY
+
+    if ((distanciaX * distanciaX + distanciaY * distanciaY) < (radio * radio)) {
+        // Colisión detectada, aplicar rebote
+        val rebote = with(density) { 30.dp.toPx() } // Ajusta la fuerza del rebote según sea necesario
+
+        return Offset(
+            x = centro.x + kotlin.math.sign(distanciaX) * rebote,
+            y = centro.y + kotlin.math.sign(distanciaY) * rebote
+        )
+    }
+    return centro
+}
